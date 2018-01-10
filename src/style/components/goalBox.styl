@@ -1,0 +1,44 @@
+.goal-box {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: flex;
+    align-items: center;
+    position: relative;
+
+    &.dark-bg * {
+      text-shadow: 1px 1px rgba(0, 0, 0, 0.7);
+    }
+
+    &.light-bg * {
+      text-shadow: 1px 1px rgba(204, 204, 204, 0.7);
+    }
+
+    .ball {
+      margin: 0 0.5rem;
+    }
+  }
+
+  @media screen and (max-width: 650px) {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    max-height: 15vh;
+    width: 100%;
+
+    li {
+      font-size: 12px;
+      max-width: calc(50% - 0.5rem);
+
+      .ball {
+        margin: 0 5px;
+      }
+    }
+  }
+}

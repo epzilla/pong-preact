@@ -1,0 +1,35 @@
+.user-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0;
+
+  .user-profile-stats {
+    h1, h2, h3, h4 {
+      margin: 0;
+    }
+  }
+}
+
+@media (max-width: 500px) {
+  .user-header-row {
+    justify-content: flex-start;
+    padding: 0.75rem 0;
+
+    .user-profile-stats {
+      margin-left: 1rem;
+
+      * {
+        text-align: left;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      h4 {
+        font-size: 1rem;
+      }
+    }
+  }
+}
