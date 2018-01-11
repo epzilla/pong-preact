@@ -4,7 +4,6 @@ import { Router } from 'preact-router';
 import Config from '../config';
 import Header from './header';
 import Home from '../routes/home';
-import Footer from './footer';
 import DebugConsole from './debugConsole';
 import NotSoSecretCode from './notSoSecretCode';
 import GlobalKeyboardShortcuts from './globalKeyboardShortcuts';
@@ -19,8 +18,6 @@ export default class App extends Component {
     this.config = Config;
     this.state = {
       menu: false,
-      team: { code: this.config.code, title: this.config.team },
-      teams: [],
       kb: false,
       debugConsole: true
     };
@@ -78,11 +75,6 @@ export default class App extends Component {
         document.body.style.setProperty(`--${key}`, this.config.themeProperties[key]);
       });
     }
-
-    Rest.get('teams').then(teams => this.setState({ teams }));
-    Rest.get(`team/${this.config.team}`).then(team => {
-    	this.setState({ team });
-    });
   }
 
 	render() {
@@ -94,9 +86,8 @@ export default class App extends Component {
 					showKeyboardShortcuts={() => this.showKeyboardShortcuts()}
 				/>
 				<Router onChange={this.handleRoute}>
-					<Home path="/" team={this.state.team} teams={this.state.teams} config={this.config} />
+					<Home path="/" config={this.config} />
 				</Router>
-				<Footer slogan={this.config.teamSlogan} img={`assets/badges/${this.state.team.code}.svg`} />
         {
           (this.config.devMode && !this.state.debugConsole) ?
           <div class="debug-mode-btn-container" onClick={() => this.showDebugConsole()}>
@@ -111,7 +102,6 @@ export default class App extends Component {
           escape={this.escapeKeyCallback}
         />
         <KeyboardShortcutHelp config={this.config} show={this.state.kb} dismiss={() => this.hideKeyboardShortcuts()} />
-        <audio preload id="highlight-sound" src={this.config.highlightSound} />
         <audio preload id="secret-sound" src="/assets/sounds/secret.wav" />
 			</div>
 		);
