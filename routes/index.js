@@ -9,8 +9,8 @@ module.exports = function (models, app, sequelize) {
   });
 
   app.get('/api/matches-by-players/:player1Id/:player2Id', (req, res) => {
-    const player1Id = req.params.player1Id;
-    const player2Id = req.params.player2Id;
+    const player1Id = parseInt(req.params.player1Id);
+    const player2Id = parseInt(req.params.player2Id);
     return Promise.all([
       Matches.findAll({
         order: sequelize.literal('date_time DESC'),
@@ -38,8 +38,24 @@ module.exports = function (models, app, sequelize) {
         order by m.date_time desc`, { type: sequelize.QueryTypes.SELECT}
       )
     ]).then(result => {
+      let matchResults = {};
+      let statPack = {
+        player1Id: player1Id,
+        player2Id: player2Id,
+        meetings: result[0].length,
+        p1MatchesWon: 0,
+        p2MatchesWon: 0,
+        matchesDrawn: 0,
+        p1GamesWon: 0,
+        p2GamesWon: 0,
+        p1TotalPoints: 0,
+        p2TotalPonts: 0
+      };
       let augmentedMatches = result[0].map(m => {
-        m['games'] = [];
+        matchResults[m.id] = {
+          p1wins: 0,
+          p2wins: 0
+        };
         return {
           games: [],
           id: m.id,
@@ -49,14 +65,50 @@ module.exports = function (models, app, sequelize) {
           dateTime: m.dateTime
         };
       });
-      let games = result[1];
-      games.forEach(g => {
+
+      result[1].forEach(g => {
         let match = augmentedMatches.find(m => m.id === g.matchId);
         if (match) {
           match.games.push(g);
+          if (g.player1Id === player1Id) {
+            statPack.p1TotalPoints += g.score1;
+            statPack.p2TotalPonts += g.score2;
+            if (g.score1 > g.score2) {
+              statPack.p1GamesWon++;
+              matchResults[match.id].p1wins++;
+            } else if (g.score2 > g.score1) {
+              statPack.p2GamesWon++;
+              matchResults[match.id].p2wins++;
+            }
+          } else {
+            statPack.p1TotalPoints += g.score2;
+            statPack.p2TotalPonts += g.score1;
+            if (g.score1 > g.score2) {
+              statPack.p2GamesWon++;
+              matchResults[match.id].p2wins++;
+            } else if (g.score2 > g.score1) {
+              statPack.p1GamesWon++;
+              matchResults[match.id].p1wins++;
+            }
+          }
         }
       });
-      return res.json(augmentedMatches);
+      Object.keys(matchResults).forEach(matchId => {
+        let id = parseInt(matchId);
+        if (matchResults[id].p1wins > matchResults[id].p2wins) {
+          statPack.p1MatchesWon++;
+        }
+        else if (matchResults[id].p2wins > matchResults[id].p1wins) {
+          statPack.p2MatchesWon++;
+        }
+        else {
+          statPack.matchesDrawn++;
+        }
+      });
+      return res.json({
+        matches: augmentedMatches,
+        stats: statPack
+      });
     });
   });
 
