@@ -35,7 +35,7 @@ export default class Home extends Component {
     let matchStatus = this.state.matchInProgress ? 'Match in Progress' : 'Latest Match';
     return (
       <div class="main home">
-        { !this.state.matchInProgress ? <Link href="/new-match" class="btn">Start New Match</Link> : null }
+        { !this.state.matchInProgress ? <Link href="/new-match" class="btn primary">Start New Match</Link> : null }
         { this.state.currentMatch ? <h2 class="align-center primary-text">{ matchStatus }</h2> : null }
         { this.state.currentMatch ?
           <div class="scoreboard">

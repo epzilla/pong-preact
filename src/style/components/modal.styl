@@ -1,3 +1,5 @@
+@import 'animations';
+
 .modal {
   position: fixed;
   display: flex;
@@ -80,40 +82,30 @@
   }
 }
 
-.modal-pop-in-enter .scale-in {
-  transform: scale(0);
+.modal-flip-in-enter .modal {
+  animation: flip-in 200ms linear;
 }
 
-.modal-pop-in-enter.modal-pop-in-enter-active .scale-in {
-  transform: scale(1);
-  transition: transform 150ms ease-out;
+.modal-flip-in-leave .modal {
+  animation: flip-out 200ms linear;
 }
 
-.modal-pop-in-leave .scale-in {
-  transform: scale(1);
-}
-
-.modal-pop-in-leave.modal-pop-in-leave-active .scale-in {
-  transform: scale(0);
-  transition: transform 150ms ease-in;
-}
-
-.modal-pop-in-enter .modal-backdrop {
+.modal-flip-in-enter .modal-backdrop {
   opacity: 0;
 }
 
-.modal-pop-in-enter.modal-pop-in-enter-active .modal-backdrop {
-  opacity: 1;
-  transition: opacity 150ms ease-out;
-}
-
-.modal-pop-in-leave .modal-backdrop {
-  opacity: 1;
-}
-
-.modal-pop-in-leave.modal-pop-in-leave-active .modal-backdrop {
+.modal-flip-in-leave .modal-backdrop {
   opacity: 0;
-  transition: opacity 150ms ease-in;
+}
+
+.modal-flip-in-enter.modal-flip-in-enter-active .modal-backdrop {
+  opacity: 1;
+  transition: opacity 200ms ease-out;
+}
+
+.modal-flip-in-leave.modal-flip-in-leave-active .modal-backdrop {
+  opacity: 0;
+  transition: opacity 200ms ease-out;
 }
 
 .modal.confirm-modal {

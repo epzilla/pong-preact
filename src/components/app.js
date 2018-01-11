@@ -4,6 +4,7 @@ import { Router } from 'preact-router';
 import Config from '../config';
 import Header from './header';
 import Home from '../routes/home';
+import StartMatch from '../routes/startMatch';
 import DebugConsole from './debugConsole';
 import NotSoSecretCode from './notSoSecretCode';
 import GlobalKeyboardShortcuts from './globalKeyboardShortcuts';
@@ -87,6 +88,7 @@ export default class App extends Component {
 				/>
 				<Router onChange={this.handleRoute}>
 					<Home path="/" config={this.config} />
+          <StartMatch path="/new-match" config={this.config} />
 				</Router>
         {
           (this.config.devMode && !this.state.debugConsole) ?

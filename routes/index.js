@@ -4,6 +4,13 @@ module.exports = function (models, app, sequelize) {
   const Players = models['Players'];
   const Matches = models['Matches'];
 
+  const generateGuid = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+  };
+
   app.get('/api/players', (req, res) => {
     return Players.findAll().then(p => res.json(p));
   });
@@ -163,6 +170,61 @@ module.exports = function (models, app, sequelize) {
       return res.json(augmentedMatches);
     });
   });
+
+  app.post('/api/new-match', (req, res) => {
+    const playersInfo = req.body;
+    let token, match, game;
+    return Matches.findOne({
+      where: {
+        finished: 0
+      }
+    }).then(matchInProgress => {
+      if (matchInProgress) {
+        return res.send(400);
+      }
+
+      token = generateGuid();
+      return sequelize.query(`insert into match_key (key) values ('${token}')`, { type: sequelize.QueryTypes.INSERT });
+    }).then(() => {
+      return Matches.create({ player1Id: playersInfo.player1.id, player2Id: playersInfo.player2.id });
+    }).then(m => {
+      match = {
+        games: [{
+          id: null,
+
+        }],
+        id: m.id,
+        player1Id: m.player1Id,
+        player2Id: m.player2Id,
+        finished: m.finished,
+        dateTime: m.dateTime
+      };
+      return sequelize.query(`insert into games (match_id) values ('${m.id}')`, { type: sequelize.QueryTypes.INSERT });
+    }).then(g => {
+      if (g && g.id) {
+        match.games[0].id = g.id;
+        game = {
+          id: g.id,
+          score1: 0,
+          score2: 0,
+          matchFinished: 0,
+          gameFinished: 0,
+          player1Id: match.player1Id,
+          player2Id: match.player2Id,
+          player1Fname: playersInfo.player1.fname,
+          player2Fname: playersInfo.player1.lname,
+          player1Lname: playersInfo.player2.fname,
+          player2Lname: playersInfo.player2.lname,
+          dateTime: m.dateTime,
+        };
+      }
+      return res.json({
+        match: match,
+        game: game,
+        token: token
+      });
+    });
+  })
 
   app.get('/*', (req, res) => res.render('index'));
 };

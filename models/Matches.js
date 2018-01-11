@@ -5,33 +5,32 @@ module.exports = function(sequelize, DataTypes) {
     id: {
       field: 'id',
       type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: undefined,
+      allowNull: true,
+      autoIncrement: true,
       primaryKey: true
     },
     player1Id: {
       field: 'player1_id',
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       defaultValue: undefined
     },
     player2Id: {
       field: 'player2_id',
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       defaultValue: undefined
     },
     finished: {
       field: 'finished',
       type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: '0'
+      allowNull: true,
+      defaultValue: 0
     },
     dateTime: {
       field: 'date_time',
       type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: undefined
+      allowNull: true
     }
   }, {
     tableName: 'matches',

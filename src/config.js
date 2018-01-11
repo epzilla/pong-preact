@@ -1,24 +1,14 @@
 // Everton
 export default {
-  siteName: 'ToffeeDB',
+  siteName: 'Pong Tracker',
   devMode: false,
-  team: 'Everton',
-  code: 'EVE',
-  city: 'Liverpool',
-  teamSlogan: 'COYB',
-  loginPlaceholderEmail: 'arthur.gustav.malzahn.iii@auburn.edu',
-  loginPlaceholderPW: 'W@ff!3 H0u$e',
-  signupPlaceholderName: 'Chris Davis',
-  signupPlaceholderEmail: 'got1sec@109yds.org',
-  signupPlaceholderPW: 'K!ck $ix',
-  firstSeason: 2010,
   themeProperties: {
-    primary: '#00369c',
+    primary: '#405784',
     secondary: 'white',
-    tertiary: '#00369c', // Used in cases where secondary is a light color
-    primaryBtnBg: '#F46507',
-    primaryBtnText: '#00369c',
-    footerTextColor: '#00369c',
+    tertiary: '#44b2b5', // Used in cases where secondary is a light color
+    primaryBtnBg: '#44b2b5',
+    primaryBtnText: 'white',
+    footerTextColor: '#405784',
     activeLinkColor: 'white',
     disabledColor: '#ccc',
     blockFont: "'Sanchez', 'Lato', -apple-system, BlinkMacSystemFont, sytem-ui, 'Helvetica Neue', arial, sans-serif"
@@ -35,7 +25,5 @@ export default {
       '/assets/images/tdpics/5.jpg'
     ]
   },
-  highlightSound: '/assets/sounds/tdau.wav',
-  championships: {
-  }
+  highlightSound: '/assets/sounds/tdau.wav'
 };
