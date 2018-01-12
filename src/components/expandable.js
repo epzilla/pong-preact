@@ -3,13 +3,12 @@ import { Component } from 'preact';
 export default class Expandable extends Component {
   constructor(props) {
     super(props);
-    this.state = { initialized: false, collapsed: true };
+    this.state = { collapsed: true };
+    this.initialized = false;
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps && !this.state.initialized) {
-      this.setState({ collapsed: !!nextProps.defaultCollapsed, initialized: true });
-    }
+  componentDidMount() {
+    this.setState({ collapsed: !!this.props.defaultCollapsed });
   }
 
   toggle() {
@@ -17,7 +16,8 @@ export default class Expandable extends Component {
   }
 
   render() {
-    let collapsed = this.state.initialized ? this.state.collapsed : this.props.defaultCollapsed;
+    let collapsed = this.initialized ? this.state.collapsed : this.props.defaultCollapsed;
+    this.initialized = true;
     let classes = collapsed ? 'expandable collapsed' : 'expandable';
 
     if (this.props.small) {

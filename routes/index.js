@@ -171,6 +171,46 @@ module.exports = function (models, app, sequelize) {
     });
   });
 
+  app.get('/api/current-match', (req, res) => {
+    return Promise.all([
+      Matches.findOne({
+        where: {
+          finished: 0
+        }
+      }),
+      sequelize.query(`
+        select p1.fname as player1Fname,
+          p1.lname as player1Lname,
+          p1.id as player1Id,
+          p2.fname as player2Fname,
+          p2.lname as player2Lname,
+          p2.id as player2Id,
+          g.score1,
+          g.score2,
+          m.id as matchId,
+          g.id as gameId,
+          m.finished as matchFinished,
+          g.finished as gameFinished,
+          m.date_time as dateTime
+        from
+          (select * from matches m where finished = 0 order by date_time limit 1) as m
+          join games g on g.match_id = m.id
+          join players p1 on m.player1_id = p1.id
+          join players p2 on m.player2_id = p2.id
+        order by m.date_time desc`, { type: sequelize.QueryTypes.SELECT}
+      )
+    ]).then(result => {
+      return res.json({
+        games: result[1],
+        id: result[0].id,
+        player1Id: result[0].player1Id,
+        player2Id: result[0].player2Id,
+        finished: result[0].finished,
+        dateTime: result[0].dateTime
+      });
+    });
+  });
+
   app.post('/api/new-match', (req, res) => {
     const playersInfo = req.body;
     let token, match, game;
@@ -190,8 +230,7 @@ module.exports = function (models, app, sequelize) {
     }).then(m => {
       match = {
         games: [{
-          id: null,
-
+          id: null
         }],
         id: m.id,
         player1Id: m.player1Id,
@@ -200,27 +239,24 @@ module.exports = function (models, app, sequelize) {
         dateTime: m.dateTime
       };
       return sequelize.query(`insert into games (match_id) values ('${m.id}')`, { type: sequelize.QueryTypes.INSERT });
-    }).then(g => {
-      if (g && g.id) {
-        match.games[0].id = g.id;
-        game = {
-          id: g.id,
-          score1: 0,
-          score2: 0,
-          matchFinished: 0,
-          gameFinished: 0,
-          player1Id: match.player1Id,
-          player2Id: match.player2Id,
-          player1Fname: playersInfo.player1.fname,
-          player2Fname: playersInfo.player1.lname,
-          player1Lname: playersInfo.player2.fname,
-          player2Lname: playersInfo.player2.lname,
-          dateTime: m.dateTime,
-        };
-      }
+    }).then(result => {
+      game = {
+        id: result[0],
+        score1: 0,
+        score2: 0,
+        matchFinished: 0,
+        gameFinished: 0,
+        player1Id: match.player1Id,
+        player2Id: match.player2Id,
+        player1Fname: playersInfo.player1.fname,
+        player2Fname: playersInfo.player1.lname,
+        player1Lname: playersInfo.player2.fname,
+        player2Lname: playersInfo.player2.lname,
+        dateTime: match.dateTime,
+      };
+      match.games[0] = game;
       return res.json({
         match: match,
-        game: game,
         token: token
       });
     });

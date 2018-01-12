@@ -43,6 +43,7 @@ export default class Home extends Component {
           </div>
           : null
         }
+        { this.state.matchInProgress ? <Link href="/update-score" class="btn success">Update Score</Link> : null }
         { this.state.recentMatches ?
           this.state.recentMatches.map(rm => {
             return (

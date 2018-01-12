@@ -1,5 +1,5 @@
 export default {
-  'prefix': 'audb',
+  'prefix': 'pong-db',
 
   get: function (key) {
     let prefixedKey, self;
