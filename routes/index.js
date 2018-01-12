@@ -3,6 +3,7 @@ const crypto = require('crypto');
 module.exports = function (models, app, sequelize) {
   var teams = [];
   const Games = models['Games'];
+  const SimpleGames = models['SimpleGames'];
   const Players = models['Players'];
   const Matches = models['Matches'];
 
@@ -13,16 +14,26 @@ module.exports = function (models, app, sequelize) {
     });
   };
 
+  const validateMatchToken = (req, res) => {
+    const token = req.body.token || req.params.token;
+    const hash = crypto.createHash('sha256');
+    hash.update(token + req.headers['user-agent']);
+    const hashedToken = hash.digest('hex');
+    return sequelize.query(`select match_id from match_key where key = '${hashedToken}'`).then(result => {
+      return result.length > 0 && result[0].length > 0;
+    });
+  };
+
   app.get('/api/players', (req, res) => {
     return Players.findAll().then(p => res.json(p));
   });
 
-  app.get('/api/matches-by-players/:player1Id/:player2Id', (req, res) => {
+  app.get('/api/matches/by-players/:player1Id/:player2Id', (req, res) => {
     const player1Id = parseInt(req.params.player1Id);
     const player2Id = parseInt(req.params.player2Id);
     return Promise.all([
       Matches.findAll({
-        order: sequelize.literal('date_time DESC'),
+        order: sequelize.literal('start_time DESC'),
         limit: req.params.count
       }),
       sequelize.query(`
@@ -38,13 +49,14 @@ module.exports = function (models, app, sequelize) {
           g.id as gameId,
           m.finished as matchFinished,
           g.finished as gameFinished,
-          m.date_time as dateTime
+          m.start_time as startTime,
+          m.finish_time as finishTime
         from matches m
           left outer join games g on g.match_id = m.id
           left outer join players p1 on p1.id = m.player1_id
           left outer join players p2 on p2.id = m.player2_id
         where (p1.id = ${player1Id} and p2.id = ${player2Id}) or (p2.id = ${player1Id} and p1.id = ${player2Id})
-        order by m.date_time desc`, { type: sequelize.QueryTypes.SELECT}
+        order by m.start_time desc`, { type: sequelize.QueryTypes.SELECT}
       )
     ]).then(result => {
       let matchResults = {};
@@ -71,7 +83,8 @@ module.exports = function (models, app, sequelize) {
           player1Id: m.player1Id,
           player2Id: m.player2Id,
           finished: m.finished,
-          dateTime: m.dateTime
+          startTime: m.startTime,
+          finishTime: m.finishTime
         };
       });
 
@@ -121,12 +134,12 @@ module.exports = function (models, app, sequelize) {
     });
   });
 
-  app.get('/api/most-recent/:count', (req, res) => {
+  app.get('/api/matches/most-recent/:count', (req, res) => {
     const player1Id = req.params.player1Id;
     const player2Id = req.params.player2Id;
     return Promise.all([
       Matches.findAll({
-        order: sequelize.literal('date_time DESC'),
+        order: sequelize.literal('start_time DESC'),
         limit: req.params.count
       }),
       sequelize.query(`
@@ -142,13 +155,14 @@ module.exports = function (models, app, sequelize) {
           g.id as gameId,
           m.finished as matchFinished,
           g.finished as gameFinished,
-          m.date_time as dateTime
+          m.start_time as startTime,
+          m.finish_time as finishTime
         from
-          (select * from matches m order by date_time limit ${req.params.count}) as m
+          (select * from matches m order by start_time limit ${req.params.count}) as m
           join games g on g.match_id = m.id
           join players p1 on m.player1_id = p1.id
           join players p2 on m.player2_id = p2.id
-        order by m.date_time desc`, { type: sequelize.QueryTypes.SELECT}
+        order by m.start_time desc`, { type: sequelize.QueryTypes.SELECT}
       )
     ]).then(result => {
       let augmentedMatches = result[0].map(m => {
@@ -159,7 +173,8 @@ module.exports = function (models, app, sequelize) {
           player1Id: m.player1Id,
           player2Id: m.player2Id,
           finished: m.finished,
-          dateTime: m.dateTime
+          startTime: m.startTime,
+          finishTime: m.finishTime
         };
       });
       let games = result[1];
@@ -173,7 +188,7 @@ module.exports = function (models, app, sequelize) {
     });
   });
 
-  app.get('/api/current-match', (req, res) => {
+  app.get('/api/matches/current', (req, res) => {
     return Promise.all([
       Matches.findOne({
         where: {
@@ -193,13 +208,14 @@ module.exports = function (models, app, sequelize) {
           g.id as gameId,
           m.finished as matchFinished,
           g.finished as gameFinished,
-          m.date_time as dateTime
+          m.start_time as startTime,
+          m.finish_time as finishTime
         from
-          (select * from matches m where finished = 0 order by date_time limit 1) as m
+          (select * from matches m where finished = 0 order by start_time limit 1) as m
           join games g on g.match_id = m.id
           join players p1 on m.player1_id = p1.id
           join players p2 on m.player2_id = p2.id
-        order by m.date_time desc`, { type: sequelize.QueryTypes.SELECT}
+        order by m.start_time desc`, { type: sequelize.QueryTypes.SELECT}
       )
     ]).then(result => {
       return res.json({
@@ -208,12 +224,19 @@ module.exports = function (models, app, sequelize) {
         player1Id: result[0].player1Id,
         player2Id: result[0].player2Id,
         finished: result[0].finished,
-        dateTime: result[0].dateTime
+        startTime: result[0].startTime,
+        finishTime: result[0].finishTime
       });
     });
   });
 
-  app.post('/api/new-match', (req, res) => {
+  app.get('/api/matches/can-update-score/:token', (req, res) => {
+    return validateMatchToken(req, res).then(result => {
+      res.send(result);
+    });
+  });
+
+  app.post('/api/matches/create', (req, res) => {
     const playersInfo = req.body;
     let token, hashedToken, match, game;
     return Matches.findOne({
@@ -229,13 +252,14 @@ module.exports = function (models, app, sequelize) {
     }).then(m => {
       match = {
         games: [{
-          id: null
+          gameId: null
         }],
         id: m.id,
         player1Id: m.player1Id,
         player2Id: m.player2Id,
         finished: m.finished,
-        dateTime: m.dateTime
+        startTime: m.startTime,
+        finishTime: m.finishTime
       };
       token = generateGuid();
       const hash = crypto.createHash('sha256');
@@ -248,7 +272,7 @@ module.exports = function (models, app, sequelize) {
     }).then(result => {
 
       game = {
-        id: result[1][0],
+        gameId: result[1][0],
         score1: 0,
         score2: 0,
         matchFinished: 0,
@@ -258,8 +282,7 @@ module.exports = function (models, app, sequelize) {
         player1Fname: playersInfo.player1.fname,
         player2Fname: playersInfo.player1.lname,
         player1Lname: playersInfo.player2.fname,
-        player2Lname: playersInfo.player2.lname,
-        dateTime: match.dateTime,
+        player2Lname: playersInfo.player2.lname
       };
       match.games[0] = game;
       return res.json({
@@ -269,20 +292,103 @@ module.exports = function (models, app, sequelize) {
     });
   });
 
-  app.get('/api/can-update-score/:token', (req, res) => {
-    const token = req.params.token;
-    const hash = crypto.createHash('sha256');
-    hash.update(token + req.headers['user-agent']);
-    const hashedToken = hash.digest('hex');
-    return sequelize.query(`select match_id from match_key where key = '${hashedToken}'`).then(matchId => {
-      res.send(!!matchId);
+  app.post('/api/matches/update', (req, res) => {
+    const match = req.body.match;
+    return validateMatchToken(req, res).then(result => {
+      if (!result) {
+        return res.sendStatus(400);
+      }
+
+      return Matches.findOne({ where: { id: match.id }});
+    }).then(m => {
+      m.player1Id = match.player1Id;
+      m.player2Id = match.player2Id;
+      m.finished = match.finished;
+      return m.save();
+    }).then(() => {
+      return res.json(match);
+    }).catch(e => {
+      return res.send(500, e);
     });
   });
 
+  app.post('/api/matches/finish', (req, res) => {
+    const match = req.body.match;
+    let finishedMatch;
+    return validateMatchToken(req, res).then(result => {
+      if (!result) {
+        return res.sendStatus(400);
+      }
+
+      return Matches.findOne({ where: { id: match.id }});
+    })
+    .then(m => {
+      m.player1Id = match.player1Id;
+      m.player2Id = match.player2Id;
+      m.finished = 1;
+      m.finishTime = new Date();
+      return m.save();
+    })
+    .then(() => Matches.findOne({ where: { id: match.id }}))
+    .then(updatedMatch => {
+      finishedMatch = updatedMatch;
+      return sequelize.query(`delete from match_key where match_id='${match.id}'`, { type: sequelize.QueryTypes.DELETE }),
+    })
+    .then(() => res.json(finishedMatch))
+    .catch(e => {
+      return res.send(500, e);
+    });
+  });
+
+  app.post('/api/games/add', (req, res) => {
+    try {
+      const match = req.body.match;
+      const oldGame = match.games[match.games.length - 1];
+      return validateMatchToken(req, res).then(result => {
+        if (!result) {
+          return res.sendStatus(400);
+        }
+
+        return sequelize.query(`insert into games (match_id) values ('${match.id}')`, { type: sequelize.QueryTypes.INSERT })
+      }).then(result => {
+        const game = {
+          gameId: result[0],
+          score1: 21,
+          score2: 21,
+          matchFinished: 0,
+          gameFinished: 0,
+          player1Id: match.player1Id,
+          player2Id: match.player2Id,
+          player1Fname: oldGame.player1Fname,
+          player2Fname: oldGame.player2Fname,
+          player1Lname: oldGame.player1Lname,
+          player2Lname: oldGame.player2Lname
+        };
+        res.json(game);
+      });
+    } catch (e) {
+      res.sendStatus(500);
+    }
+  });
+
   app.post('/api/games/update', (req, res) => {
-    const game = req.body;
-    console.log(game);
-    res.send(200);
+    const game = req.body.game;
+    return validateMatchToken(req, res).then(result => {
+      if (!result) {
+        return res.sendStatus(400);
+      }
+
+      return SimpleGames.findOne({ where: { gameId: game.gameId }});
+    }).then(g => {
+      g.score1 = game.score1;
+      g.score2 = game.score2;
+      g.gameFinished = game.gameFinished;
+      return g.save();
+    }).then(() => {
+      return res.json(game);
+    }).catch(e => {
+      return res.send(500, e);
+    });
   });
 
   app.get('/*', (req, res) => res.render('index'));

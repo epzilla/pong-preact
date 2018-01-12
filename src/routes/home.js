@@ -21,7 +21,7 @@ export default class Home extends Component {
 
   componentDidMount() {
     Rest.get('players').then(players => this.setState({ players }));
-    Rest.get('most-recent/5').then(matches => {
+    Rest.get('matches/most-recent/5').then(matches => {
       if (matches.length > 0) {
         let currentMatch = matches.shift();
         this.setState({
@@ -32,7 +32,7 @@ export default class Home extends Component {
           if (this.state.matchInProgress) {
             let { token } = LocalStorageService.get('match-token');
             if (token) {
-              Rest.get(`can-update-score/${token}`).then(canUpdateScore => {
+              Rest.get(`matches/can-update-score/${token}`).then(canUpdateScore => {
                 this.setState({ canUpdateScore });
               })
             }
@@ -63,7 +63,7 @@ export default class Home extends Component {
                 <span>{ rm.games[0].player1Fname }</span>
                 <span>vs.</span>
                 <span>{ rm.games[0].player2Fname }</span>
-                <span>{ format(rm.dateTime, 'M/D/YY') }</span>
+                <span>{ format(rm.startTime, 'M/D/YY') }</span>
               </p>
             )
           })

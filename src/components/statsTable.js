@@ -65,7 +65,7 @@ export default class StatsTable extends Component {
         rowClass = 'future';
       }
 
-      if (this.state.expandedGameId && this.state.expandedGameId === game.id) {
+      if (this.state.expandedGameId && this.state.expandedGameId === game.gameId) {
         rowClass += ' expanded';
       }
 
@@ -73,7 +73,7 @@ export default class StatsTable extends Component {
 
       return (
         <div tabindex={i + 11} class="stats-table-row-wrapper">
-          <div class={`stats-table-row ${rowClass}`} onClick={() => this.toggleExpandedGame(game.id)}>
+          <div class={`stats-table-row ${rowClass}`} onClick={() => this.toggleExpandedGame(game.gameId)}>
             <span class="date-span">
               <i class="fa fa-clock"></i>
               { getFormattedGameDate(game) }
@@ -113,7 +113,7 @@ export default class StatsTable extends Component {
             transitionEnter={true}
             transitionEnterTimeout={0}
             transitionLeaveTimeout={0}>
-            { this.state.expandedGameId && this.state.expandedGameId === game.id ?
+            { this.state.expandedGameId && this.state.expandedGameId === game.gameId ?
               <BigBoxScore game={game} played={played} hide={() => this.toggleExpandedGame(this.state.expandedGameId)}/>
               : null
             }

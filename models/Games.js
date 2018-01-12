@@ -69,11 +69,6 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER,
       allowNull: true,
       defaultValue: undefined
-    },
-    dateTime: {
-      field: 'date_time',
-      type: DataTypes.DATE,
-      allowNull: true
     }
   }, {
     tableName: 'games',

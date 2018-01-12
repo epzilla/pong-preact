@@ -1,8 +1,8 @@
 import { Component } from 'preact';
+import { route } from 'preact-router';
 import Rest from '../lib/rest-service';
 import LocalStorageService from '../lib/local-storage-service';
 import SelectPlayerModal from '../components/selectPlayerModal';
-import { route } from 'preact-router';
 
 export default class StartMatch extends Component {
   constructor(props) {
@@ -43,7 +43,7 @@ export default class StartMatch extends Component {
   };
 
   beginMatch = () => {
-    Rest.post('new-match', this.state).then(({ token }) => {
+    Rest.post('matches/create', this.state).then(({ token }) => {
       LocalStorageService.set('match-token', { token });
       route('/update-score');
     })

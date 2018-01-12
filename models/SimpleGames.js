@@ -1,44 +1,35 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('Matches', {
-    id: {
+  return sequelize.define('Games', {
+    gameId: {
       field: 'id',
       type: DataTypes.INTEGER,
+      allowNull: true,
       allowNull: true,
       autoIncrement: true,
       primaryKey: true
     },
-    player1Id: {
-      field: 'player1_id',
+    score1: {
+      field: 'score1',
       type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue: undefined
+      defaultValue: '0'
     },
-    player2Id: {
-      field: 'player2_id',
+    score2: {
+      field: 'score2',
       type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue: undefined
+      defaultValue: '0'
     },
-    finished: {
+    gameFinished: {
       field: 'finished',
       type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue: 0
+      defaultValue: '0'
     },
-    startTime: {
-      field: 'start_time',
-      type: DataTypes.DATE,
-      allowNull: true
-    },
-    finishTime: {
-      field: 'finish_time',
-      type: DataTypes.DATE,
-      allowNull: true
-    }
   }, {
-    tableName: 'matches',
+    tableName: 'games',
     timestamps: false,
     freezeTableName: true
   });
