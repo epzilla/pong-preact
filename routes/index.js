@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 module.exports = function (models, app, sequelize) {
   var teams = [];
   const Games = models['Games'];
@@ -213,7 +215,7 @@ module.exports = function (models, app, sequelize) {
 
   app.post('/api/new-match', (req, res) => {
     const playersInfo = req.body;
-    let token, match, game;
+    let token, hashedToken, match, game;
     return Matches.findOne({
       where: {
         finished: 0
@@ -223,9 +225,6 @@ module.exports = function (models, app, sequelize) {
         return res.send(400);
       }
 
-      token = generateGuid();
-      return sequelize.query(`insert into match_key (key) values ('${token}')`, { type: sequelize.QueryTypes.INSERT });
-    }).then(() => {
       return Matches.create({ player1Id: playersInfo.player1.id, player2Id: playersInfo.player2.id });
     }).then(m => {
       match = {
@@ -238,10 +237,18 @@ module.exports = function (models, app, sequelize) {
         finished: m.finished,
         dateTime: m.dateTime
       };
-      return sequelize.query(`insert into games (match_id) values ('${m.id}')`, { type: sequelize.QueryTypes.INSERT });
+      token = generateGuid();
+      const hash = crypto.createHash('sha256');
+      hash.update(token + req.headers['user-agent']);
+      hashedToken = hash.digest('hex');
+      return Promise.all([
+        sequelize.query(`insert into match_key (key, match_id) values ('${hashedToken}', '${m.id}')`, { type: sequelize.QueryTypes.INSERT }),
+        sequelize.query(`insert into games (match_id) values ('${m.id}')`, { type: sequelize.QueryTypes.INSERT })
+      ]);
     }).then(result => {
+
       game = {
-        id: result[0],
+        id: result[1][0],
         score1: 0,
         score2: 0,
         matchFinished: 0,
@@ -260,7 +267,17 @@ module.exports = function (models, app, sequelize) {
         token: token
       });
     });
-  })
+  });
+
+  app.get('/api/can-update-score/:token', (req, res) => {
+    const token = req.params.token;
+    const hash = crypto.createHash('sha256');
+    hash.update(token + req.headers['user-agent']);
+    const hashedToken = hash.digest('hex');
+    return sequelize.query(`select match_id from match_key where key = '${hashedToken}'`).then(matchId => {
+      res.send(!!matchId);
+    });
+  });
 
   app.get('/*', (req, res) => res.render('index'));
 };

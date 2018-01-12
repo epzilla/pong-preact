@@ -4,6 +4,7 @@ import { Link } from 'preact-router/match';
 import StatsTable from '../components/statsTable';
 import Expandable from '../components/expandable';
 import Avatar from '../components/avatar';
+import LocalStorageService from '../lib/local-storage-service';
 import format from 'date-fns/format';
 
 export default class Home extends Component {
@@ -13,6 +14,7 @@ export default class Home extends Component {
       players: [],
       recentMatches: [],
       currentMatch: null,
+      canUpdateScore: false,
       matchInProgress: false
     };
   }
@@ -26,26 +28,36 @@ export default class Home extends Component {
           currentMatch: currentMatch,
           recentMatches: matches,
           matchInProgress: !currentMatch.finished
+        }, () => {
+          if (this.state.matchInProgress) {
+            let { token } = LocalStorageService.get('match-token');
+            if (token) {
+              Rest.get(`can-update-score/${token}`).then(canUpdateScore => {
+                this.setState({ canUpdateScore });
+              })
+            }
+          }
         });
       }
     });
   }
 
   render() {
-    let matchStatus = this.state.matchInProgress ? 'Match in Progress' : 'Latest Match';
+    let { matchInProgress, currentMatch, recentMatches, canUpdateScore } = this.state;
+    let matchStatus = matchInProgress ? 'Match in Progress' : 'Latest Match';
     return (
       <div class="main home">
-        { !this.state.matchInProgress ? <Link href="/new-match" class="btn primary">Start New Match</Link> : null }
-        { this.state.currentMatch ? <h2 class="align-center primary-text">{ matchStatus }</h2> : null }
-        { this.state.currentMatch ?
+        { !matchInProgress ? <Link href="/new-match" class="btn primary">Start New Match</Link> : null }
+        { currentMatch ? <h2 class="align-center primary-text">{ matchStatus }</h2> : null }
+        { currentMatch ?
           <div class="scoreboard">
-            { JSON.stringify(this.state.currentMatch) }
+            { JSON.stringify(currentMatch) }
           </div>
           : null
         }
-        { this.state.matchInProgress ? <Link href="/update-score" class="btn success">Update Score</Link> : null }
-        { this.state.recentMatches ?
-          this.state.recentMatches.map(rm => {
+        { matchInProgress && canUpdateScore ? <Link href="/update-score" class="btn success">Update Score</Link> : null }
+        { recentMatches ?
+          recentMatches.map(rm => {
             return (
               <p>
                 <span>{ rm.games[0].player1Fname }</span>

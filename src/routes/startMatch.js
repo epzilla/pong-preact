@@ -43,8 +43,8 @@ export default class StartMatch extends Component {
   };
 
   beginMatch = () => {
-    Rest.post('new-match', this.state).then(token => {
-      LocalStorageService.set('match-token', token);
+    Rest.post('new-match', this.state).then(({ token }) => {
+      LocalStorageService.set('match-token', { token });
       route('/update-score');
     })
   };
