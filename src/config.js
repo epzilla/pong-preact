@@ -8,6 +8,8 @@ export default {
     tertiary: '#44b2b5', // Used in cases where secondary is a light color
     primaryBtnBg: '#44b2b5',
     primaryBtnText: 'white',
+    secondaryBtnBg: '#405784',
+    secondaryBtnText: 'white',
     footerTextColor: '#405784',
     activeLinkColor: 'white',
     disabledColor: '#ccc',

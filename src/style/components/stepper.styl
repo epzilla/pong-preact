@@ -1,36 +1,41 @@
 .stepper {
   position: relative;
-  height: 10em;
-  width: 5em;
-  display: inline-block;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   font-weight: bold;
-  margin-right: 1em;
+
   .btn {
-    position: absolute;
+    background-color: var(--primaryBtnBg);
+    color: var(--primaryBtnText);
     font-weight: bold;
-    width: 100%;
-    height: 3em;
+    width: 6rem;
+    height: 3rem;
     i {
       margin-right: 0;
     }
   }
+
   .top-btn {
-    top: 0;
+    order: 1;
   }
+
+  .stepper-val {
+    order: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 4rem;
+    width: 6rem;
+
+    > span {
+      text-align: center;
+      font-size: 2em;
+    }
+  }
+
   .bottom-btn {
-    position: absolute;
-    bottom: 0;
-  }
-  span {
-    position: absolute;
-    width: 100%;
-    text-align: center;
-    font-size: 2em;
-    width: 100%;
-    height: 2em;
-    top: 1.88em;
-    left: 0;
-    padding-top: 0;
+    order: 3;
   }
 }
 

@@ -166,7 +166,9 @@ export default class Stepper extends Component {
     return (
       <div class={classes}>
         <StepperBtn btnPos='top' onClick={this.stepUp}/>
-        <span>{this.state.val}</span>
+        <div class="stepper-val">
+          <span>{this.state.val}</span>
+        </div>
         <StepperBtn btnPos='bottom' onClick={this.stepDown}/>
       </div>
     );

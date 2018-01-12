@@ -279,5 +279,11 @@ module.exports = function (models, app, sequelize) {
     });
   });
 
+  app.post('/api/games/update', (req, res) => {
+    const game = req.body;
+    console.log(game);
+    res.send(200);
+  });
+
   app.get('/*', (req, res) => res.render('index'));
 };
