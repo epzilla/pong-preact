@@ -332,7 +332,7 @@ module.exports = function (models, app, sequelize) {
     .then(() => Matches.findOne({ where: { id: match.id }}))
     .then(updatedMatch => {
       finishedMatch = updatedMatch;
-      return sequelize.query(`delete from match_key where match_id='${match.id}'`, { type: sequelize.QueryTypes.DELETE }),
+      return sequelize.query(`delete from match_key where match_id='${match.id}'`, { type: sequelize.QueryTypes.DELETE });
     })
     .then(() => res.json(finishedMatch))
     .catch(e => {
