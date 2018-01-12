@@ -3,7 +3,7 @@ import Rest from '../lib/rest-service';
 import { Link } from 'preact-router/match';
 import StatsTable from '../components/statsTable';
 import Expandable from '../components/expandable';
-import Avatar from '../components/avatar';
+import Scoreboard from '../components/scoreboard';
 import LocalStorageService from '../lib/local-storage-service';
 import format from 'date-fns/format';
 
@@ -47,16 +47,12 @@ export default class Home extends Component {
     let matchStatus = matchInProgress ? 'Match in Progress' : 'Latest Match';
     return (
       <div class="main home">
-        { !matchInProgress ? <Link href="/new-match" class="btn primary">Start New Match</Link> : null }
         { currentMatch ? <h2 class="align-center primary-text">{ matchStatus }</h2> : null }
-        { currentMatch ?
-          <div class="scoreboard">
-            { JSON.stringify(currentMatch) }
-          </div>
-          : null
-        }
+        { currentMatch ? <Scoreboard match={ currentMatch } /> : null }
+        { !matchInProgress ? <Link href="/new-match" class="btn primary center margin-top-1rem">Start New Match</Link> : null }
         { matchInProgress && canUpdateScore ? <Link href="/update-score" class="btn success">Update Score</Link> : null }
-        { recentMatches ?
+        { recentMatches && recentMatches.length > 0 ? <hr /> : null }
+        { recentMatches && recentMatches.length > 0 ?
           recentMatches.map(rm => {
             return (
               <p>

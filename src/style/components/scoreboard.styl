@@ -1,0 +1,36 @@
+.scoreboard {
+  h3 {
+    margin: 0;
+  }
+}
+
+.player-name,
+.score-number-box {
+  padding: 0.25rem;
+}
+
+.player-name {
+  flex: 1;
+}
+
+.score-number-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 0.25rem;
+  padding: 0.25rem 0;
+  width: 2rem;
+
+  &.win {
+    font-weight: 900;
+  }
+}
+
+.header-row {
+  font-weight: 600;
+
+  .score-number-box {
+    border-bottom: 1px solid var(--primaryBtnBg);
+  }
+}
+
