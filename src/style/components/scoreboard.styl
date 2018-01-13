@@ -1,4 +1,6 @@
 .scoreboard {
+  margin: 0 auto;
+
   h3 {
     margin: 0;
   }
@@ -7,6 +9,21 @@
 .player-name,
 .score-number-box {
   padding: 0.25rem;
+
+  @media screen and (min-width: 550px) {
+    font-size: 1.5rem;
+    padding: 0.5rem;
+  }
+
+  @media screen and (min-width: 700px) {
+    font-size: 1.75rem;
+    padding: 1rem;
+  }
+
+  @media screen and (min-width: 1000px) {
+    font-size: 3rem;
+    padding: 1rem;
+  }
 }
 
 .player-name {
@@ -24,6 +41,19 @@
   &.win {
     font-weight: 900;
   }
+
+  @media screen and (min-width: 550px) {
+    margin: 0 1rem;
+    width: 2.75rem;
+  }
+
+  @media screen and (min-width: 700px) {
+    width: 4rem;
+  }
+
+  // @media screen and (min-width: 1000px) {
+  //   width: 5rem;
+  // }
 }
 
 .header-row {
@@ -31,6 +61,12 @@
 
   .score-number-box {
     border-bottom: 1px solid var(--primaryBtnBg);
+
+    &.current {
+      background-image: linear-gradient(#fff, #eee)
+      font-weight: 900;
+      border-bottom-width: 3px;
+    }
   }
 }
 
