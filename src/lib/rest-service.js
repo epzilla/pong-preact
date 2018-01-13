@@ -1,17 +1,14 @@
 import * as qwest from 'qwest';
-// const base = 'http://localhost:3000/api/';
-// const base = 'http://10.0.1.14:3000/api/';
-// const base = 'http://129.135.42.44:3000/api/';
-const base = 'http://129.135.25.167:3000/api/';
+const base = `${window.location.protocol}//${window.location.hostname}:3000/api/`;
 
 export default {
-  get: url => qwest.get(`${base}${url}`, null, { responseType: 'json'}).then(res => res.response),
+  get: url => qwest.get(`${base}${url}`, null, { responseType: 'json', cache: true }).then(res => res.response),
 
-  post: (url, data) => qwest.post(`${base}${url}`, data, { dataType: 'json', responseType: 'json'}).then(res => res.response),
+  post: (url, data) => qwest.post(`${base}${url}`, data, { dataType: 'json', responseType: 'json', cache: true }).then(res => res.response),
 
-  put: (url, data) => qwest.put(`${base}${url}`, data, { dataType: 'json', responseType: 'json'}).then(res => res.response),
+  put: (url, data) => qwest.put(`${base}${url}`, data, { dataType: 'json', responseType: 'json', cache: true }).then(res => res.response),
 
-  upload: (url, data) => qwest.post(`${base}${url}`, data, { dataType: 'formdata'}).then(res => res.response),
+  upload: (url, data) => qwest.post(`${base}${url}`, data, { dataType: 'formdata', cache: true }).then(res => res.response),
 
-  del: (url, data) => qwest.delete(`${base}${url}`, data, { dataType: 'formdata'}).then(res => res.response)
+  del: (url, data) => qwest.delete(`${base}${url}`, data, { dataType: 'formdata', cache: true }).then(res => res.response)
 };
