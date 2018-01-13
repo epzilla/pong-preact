@@ -1,6 +1,4 @@
-import isBefore from 'date-fns/is_before';
 import parse from 'date-fns/parse';
-import isThisWeek from 'date-fns/is_this_week';
 import isThisYear from 'date-fns/is_this_year';
 import differenceInDays from 'date-fns/difference_in_days'
 import format from 'date-fns/format';

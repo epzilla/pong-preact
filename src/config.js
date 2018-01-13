@@ -1,4 +1,3 @@
-// Everton
 export default {
   siteName: 'Pong Tracker',
   devMode: false,

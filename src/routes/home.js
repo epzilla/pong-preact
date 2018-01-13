@@ -1,8 +1,6 @@
 import { Component } from 'preact';
 import Rest from '../lib/rest-service';
 import { Link } from 'preact-router/match';
-import StatsTable from '../components/statsTable';
-import Expandable from '../components/expandable';
 import Scoreboard from '../components/scoreboard';
 import BoxScore from '../components/boxScore';
 import LocalStorageService from '../lib/local-storage-service';
