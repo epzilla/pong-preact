@@ -83,7 +83,7 @@ const BoxScore = ({ match }) => {
       <div class="score-row stats-row flex-center">
         <div class="flex-col flex-center">
           <p class="center">{ stats.resultString }</p>
-          <p class="center">{ stats.pointsWonString }</p>
+          <p class="font-small center">{ stats.pointsWonString }</p>
         </div>
       </div>
     </div>
