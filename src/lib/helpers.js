@@ -10,7 +10,7 @@ export const getFormattedMatchDate = (game) => {
   let now = new Date();
 
   if (differenceInDays(now, date) < 7) {
-    return format(date, 'dddd, h:mma');
+    return `${format(date, 'dddd')} at ${format(date, 'h:mm')}`;
   }
 
   if (isThisYear(date)) {
