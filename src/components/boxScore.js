@@ -1,6 +1,11 @@
-const Scoreboard = ({ match }) => {
+import format from 'date-fns/format';
+import { getFormattedMatchDate } from '../lib/helpers';
+
+const BoxScore = ({ match }) => {
+
   return (
-    <div class="scoreboard">
+    <div class="scoreboard box-score">
+      <h4>{ getFormattedMatchDate(match) }</h4>
       <div class="header-row flex">
         <span class="player-name"></span>
         {
@@ -35,4 +40,4 @@ const Scoreboard = ({ match }) => {
   );
 };
 
-export default Scoreboard;
+export default BoxScore;

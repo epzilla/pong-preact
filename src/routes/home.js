@@ -4,8 +4,8 @@ import { Link } from 'preact-router/match';
 import StatsTable from '../components/statsTable';
 import Expandable from '../components/expandable';
 import Scoreboard from '../components/scoreboard';
+import BoxScore from '../components/boxScore';
 import LocalStorageService from '../lib/local-storage-service';
-import format from 'date-fns/format';
 
 export default class Home extends Component {
   constructor(props) {
@@ -52,19 +52,8 @@ export default class Home extends Component {
         { !matchInProgress ? <Link href="/new-match" class="btn primary center margin-top-1rem">Start New Match</Link> : null }
         { matchInProgress && canUpdateScore ? <Link href="/update-score" class="btn success">Update Score</Link> : null }
         { recentMatches && recentMatches.length > 0 ? <hr /> : null }
-        { recentMatches && recentMatches.length > 0 ?
-          recentMatches.map(rm => {
-            return (
-              <p>
-                <span>{ rm.games[0].player1Fname }</span>
-                <span>vs.</span>
-                <span>{ rm.games[0].player2Fname }</span>
-                <span>{ format(rm.startTime, 'M/D/YY') }</span>
-              </p>
-            )
-          })
-          : null
-        }
+        { recentMatches && recentMatches.length > 0 ? <h3 class="align-center primary-text">Recent Matches</h3> : null }
+        { recentMatches && recentMatches.length > 0 ? recentMatches.map(rm => <BoxScore match={rm} />) : null }
       </div>
     );
   }

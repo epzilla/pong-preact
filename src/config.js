@@ -3,6 +3,7 @@ export default {
   siteName: 'Pong Tracker',
   devMode: false,
   themeProperties: {
+    pageBg: '#f4fcff',
     primary: '#405784',
     secondary: 'white',
     tertiary: '#44b2b5', // Used in cases where secondary is a light color

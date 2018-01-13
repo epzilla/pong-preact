@@ -2,25 +2,15 @@ import isBefore from 'date-fns/is_before';
 import parse from 'date-fns/parse';
 import isThisWeek from 'date-fns/is_this_week';
 import isThisYear from 'date-fns/is_this_year';
+import differenceInDays from 'date-fns/difference_in_days'
 import format from 'date-fns/format';
 
-let logs = [];
+export const getFormattedMatchDate = (game) => {
+  let date = parse(game.finishTime);
+  let now = new Date();
 
-export const getSeason = (year) => {
-  return `${year - 1}-${year.toString().slice(-2)}`;
-}
-
-export const gamePlayed = (game) => {
-  const now = new Date();
-  const gameDate = parse(game.playAt);
-  return isBefore(gameDate, now);
-};
-
-export const getFormattedGameDate = (game) => {
-  let date = parse(game.playAt);
-
-  if (isThisWeek(date)) {
-    return format(date, 'ddd, H:mm');
+  if (differenceInDays(now, date) < 7) {
+    return format(date, 'dddd, h:mma');
   }
 
   if (isThisYear(date)) {
