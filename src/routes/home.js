@@ -1,7 +1,6 @@
 import { Component } from 'preact';
 import Rest from '../lib/rest-service';
 import { Link } from 'preact-router/match';
-import Scoreboard from '../components/scoreboard';
 import BoxScore from '../components/boxScore';
 import LocalStorageService from '../lib/local-storage-service';
 
@@ -46,7 +45,7 @@ export default class Home extends Component {
     return (
       <div class="main home">
         { currentMatch ? <h2 class="align-center primary-text">{ matchStatus }</h2> : null }
-        { currentMatch ? <Scoreboard match={ currentMatch } /> : null }
+        { currentMatch ? <BoxScore jumbotron={true} match={ currentMatch } /> : null }
         { !matchInProgress ? <Link href="/new-match" class="btn primary center margin-top-1rem">Start New Match</Link> : null }
         { matchInProgress && canUpdateScore ? <Link href="/update-score" class="btn big success update-score">Update Score</Link> : null }
         { recentMatches && recentMatches.length > 0 ? <hr /> : null }

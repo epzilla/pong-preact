@@ -33,11 +33,6 @@ export default class UpdateScore extends Component {
     let i = games.findIndex(g => g.gameId === game.gameId);
     if (i !== undefined) {
       games[i][`score${ playerNum }`] = amount;
-      console.log(game);
-      console.log(i);
-      console.log(playerNum);
-      console.log(amount);
-      console.log(games[i]);
       Rest.post('games/update', { game: games[i], token: token }).then(game => {
         match.games = games;
         this.setState({ match });

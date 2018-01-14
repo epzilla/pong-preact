@@ -1,6 +1,34 @@
-const Scoreboard = ({ match }) => {
+import { getFormattedMatchDate, getStatsForMatch, getMatchTimeAgo } from '../lib/helpers';
+
+const Scoreboard = ({ match, jumbotron }) => {
+  const stats = jumbotron ? null : getStatsForMatch(match);
+  let footer;
+
+  if (jumbotron && match.finished) {
+    footer = (
+      <p class="final flex-center">
+        Final
+      </p>
+    );
+  } else if (jumbotron) {
+    footer = (
+      <p class="time-block flex-center">
+        <i class="fa fa-clock-o"></i>
+        <span class="time-ago">Started { getMatchTimeAgo(match) }</span>
+      </p>
+    );
+  } else {
+    footer = (
+      <div class="flex-col flex-center">
+        <p class="center">{ stats.resultString }</p>
+        <p class="font-small center">{ stats.pointsWonString }</p>
+      </div>
+    );
+  }
+
   return (
-    <div class="scoreboard">
+    <div class={`scoreboard ${jumbotron ? '' : 'box-score'}`}>
+      { match.finished ? <h4 class="date-time-header">{ getFormattedMatchDate(match) }</h4> : null }
       <div class="header-row flex">
         <span class="player-name"></span>
         {
@@ -30,6 +58,9 @@ const Scoreboard = ({ match }) => {
             )
           })
         }
+      </div>
+      <div class="score-row stats-row flex-center">
+        { footer }
       </div>
     </div>
   );

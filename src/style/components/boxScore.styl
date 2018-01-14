@@ -1,15 +1,104 @@
+.scoreboard {
+  margin: 0 auto;
+  padding: 1rem;
+  background-color: white;
+  border: 3px solid #AAA;
+  border-radius: 5px;
+
+  h3 {
+    margin: 0;
+  }
+}
+
+.player-name,
+.score-number-box {
+  padding: 0.25rem;
+
+  @media screen and (min-width: 550px) {
+    font-size: 1.5rem;
+    padding: 0.5rem;
+  }
+
+  @media screen and (min-width: 700px) {
+    font-size: 1.75rem;
+    padding: 1rem;
+  }
+
+  @media screen and (min-width: 1000px) {
+    font-size: 3rem;
+    padding: 1rem;
+  }
+}
+
+.player-name {
+  flex: 1;
+}
+
+.score-number-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 0.25rem;
+  padding: 0.25rem 0;
+  width: 2rem;
+
+  &.win {
+    font-weight: 900;
+  }
+
+  @media screen and (min-width: 550px) {
+    margin: 0 1rem;
+    width: 2.75rem;
+  }
+
+  @media screen and (min-width: 700px) {
+    width: 4rem;
+  }
+}
+
+.header-row {
+  font-weight: 600;
+
+  .score-number-box {
+    border-bottom: 1px solid var(--primaryBtnBg);
+
+    &.current {
+      background-image: linear-gradient(#fff, #eee)
+      font-weight: 900;
+      border-bottom-width: 3px;
+    }
+  }
+}
+
+.stats-row {
+  margin-top: 0.5rem;
+
+  .final,
+  .time-block {
+    margin: 0;
+  }
+
+  .final {
+    font-weight: 700;
+  }
+
+  .time-block {
+    color: #AAA;
+  }
+
+  .time-ago {
+    font-size: 0.75rem;
+  }
+}
+
+.date-time-header {
+  margin: 0 0 0.5rem 0;
+  font-style: italic;
+  color: #AAA;
+  text-decoration: underline;
+  text-align: center;
+}
+
 .scoreboard.box-score {
   margin-bottom: 2rem;
-
-  .date-time-header {
-    margin: 0 0 0.5rem 0;
-    font-style: italic;
-    color: #AAA;
-    text-decoration: underline;
-    text-align: center;
-  }
-
-  .stats-row {
-    margin-top: 0.5rem;
-  }
 }

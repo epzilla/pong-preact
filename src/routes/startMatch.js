@@ -30,7 +30,6 @@ export default class StartMatch extends Component {
   }
 
   selectPlayer = (p) => {
-    console.log(p);
     if (this.state.isSelectingPlayer === 1) {
       this.setState({ player1: p, isSelectingPlayer: null });
     } else if (this.state.isSelectingPlayer === 2) {
