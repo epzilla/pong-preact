@@ -1,6 +1,6 @@
 import { Component } from 'preact';
 import { route } from 'preact-router';
-import { debounce, getFullPlayerName } from '../lib/helpers';
+import { getFullPlayerName } from '../lib/helpers';
 import * as Constants from '../lib/constants';
 import Rest from '../lib/rest-service';
 
@@ -11,7 +11,8 @@ export default class AddNewPlayer extends Component {
     this.state = {
       playerNames: [],
       name: null,
-      disableSubmit: false
+      disableSubmit: false,
+      submittedPlayer: null
     };
   }
 
@@ -20,10 +21,6 @@ export default class AddNewPlayer extends Component {
       this.setState({ playerNames: players.map(getFullPlayerName) });
     });
   }
-
-  dismissModal = () => {
-    this.setState({ isSelectingPlayer: null });
-  };
 
   setValue = (e) => {
     let obj = {};
@@ -59,7 +56,16 @@ export default class AddNewPlayer extends Component {
           .then(p => {
             let { playerNames } = this.state;
             playerNames.push(playerName);
-            this.setState({ playerNames, disableSubmit: false }, () => this.isSubmitting = false);
+            this.setState({ playerNames, disableSubmit: false }, () => {
+              this.isSubmitting = false;
+              let { playerNum, returnRoute } = this.props;
+              if (returnRoute && playerNum) {
+                route(`/${returnRoute}/${playerNum}/${p.id}`);
+              } else {
+                this.setState({ submittedPlayer: playerName });
+                setTimeout(() => this.setState({ submittedPlayer: null }), 5000);
+              }
+            });
           })
           .catch(e => {
             console.trace();
@@ -78,9 +84,13 @@ export default class AddNewPlayer extends Component {
             <label for="name">Name</label>
             <input type="text" id="fname" name="name" onChange={this.setValue} />
           </div>
-          <input class="btn big success" type="submit" disabled={this.state.disableSubmit} value="Done" />
+          <input class="btn big success" type="submit" disabled={this.state.disableSubmit} value="Add" />
           { this.state.error ?
-            <p class="alert alert-error error-msg">{ this.state.error }</p>
+            <p class="alert alert-error">{ this.state.error }</p>
+            : null
+          }
+          { !!this.state.submittedPlayer && !this.state.error ?
+            <p class="alert alert-success">Added { this.state.submittedPlayer } as a player.</p>
             : null
           }
         </form>

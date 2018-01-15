@@ -82,6 +82,7 @@
   }
 }
 
+// Flip in
 .modal-flip-in-enter .modal {
   animation: flip-in 200ms linear;
 }
@@ -106,6 +107,33 @@
 .modal-flip-in-leave.modal-flip-in-leave-active .modal-backdrop {
   opacity: 0;
   transition: opacity 200ms ease-out;
+}
+
+// Pop in
+.modal-pop-in-enter .modal {
+  animation: pop-in 200ms ease-in-out;
+}
+
+.modal-pop-in-leave .modal {
+  animation: pop-out 200ms ease-in-out;
+}
+
+.modal-pop-in-enter .modal-backdrop {
+  opacity: 0;
+}
+
+.modal-pop-in-leave .modal-backdrop {
+  opacity: 0;
+}
+
+.modal-pop-in-enter.modal-pop-in-enter-active .modal-backdrop {
+  opacity: 1;
+  transition: opacity 200ms ease-in-out;
+}
+
+.modal-pop-in-leave.modal-pop-in-leave-active .modal-backdrop {
+  opacity: 0;
+  transition: opacity 200ms ease-in-out;
 }
 
 .modal.confirm-modal {

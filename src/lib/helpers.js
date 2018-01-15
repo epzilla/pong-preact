@@ -4,19 +4,36 @@ import differenceInDays from 'date-fns/difference_in_days'
 import distanceInWords from 'date-fns/distance_in_words'
 import format from 'date-fns/format';
 
-export const debounce = (func, wait, immediate) => {
-  var timeout;
-  return function() {
-    var context = this, args = arguments;
-    var later = function() {
-      timeout = null;
-      if (!immediate) func.apply(context, args);
-    };
-    var callNow = immediate && !timeout;
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-    if (callNow) func.apply(context, args);
-  };
+export const lightenOrDarken = (col, amt) => {
+    let usePound = false;
+    if (col[0] == "#") {
+        col = col.slice(1);
+        usePound = true;
+    }
+
+    let num = parseInt(col, 16);
+    let red = (num >> 16) + amt;
+    if (red > 255) {
+      red = 255;
+    } else if (red < 0) {
+      red = 0;
+    }
+
+    let blue = ((num >> 8) & 0x00FF) + amt;
+    if (blue > 255) {
+      blue = 255;
+    } else if (blue < 0) {
+      blue = 0;
+    }
+
+    let green = (num & 0x0000FF) + amt;
+    if (green > 255) {
+      green = 255;
+    } else if (green < 0) {
+      green = 0;
+    }
+
+    return (usePound?"#":"") + String("000000" + (green | (blue << 8) | (red << 16)).toString(16)).slice(-6);
 };
 
 export const getFormattedMatchDate = (game) => {

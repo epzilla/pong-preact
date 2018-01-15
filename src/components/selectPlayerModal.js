@@ -1,18 +1,21 @@
 import SelectList from './selectList';
 import CSSTransitionGroup from 'preact-css-transition-group';
 import { Link } from 'preact-router/match';
+import Avatar from './avatar';
 
 const renderPlayerListItem = (player, highlighted) => {
   return (
-    <span>
-      <i class={`fa fa-${highlighted ? 'check-circle-o' : 'circle-o'}`}></i>
+    <div class="flex-center">
+      <Avatar fname={player.fname} lname={player.lname} />
       <span>{ player.fname } { player.lname }</span>
-    </span>
+    </div>
   );
 };
 
 const SelectPlayerModal = ({ player1, player2, isSelectingPlayer, players, select, dismiss }) => {
   let modal;
+  const selectablePlayers = players.filter(p => p && (!player1 || p.id !== player1.id) && (!player2 || p.id !== player2.id));
+
   if (!!isSelectingPlayer) {
     let selectedPlayers = isSelectingPlayer === 1 ? [player1] : [player2];
 
@@ -27,10 +30,10 @@ const SelectPlayerModal = ({ player1, player2, isSelectingPlayer, players, selec
           <div class="modal-body flex-1">
             <div class="flex-1 flex-col">
               <div class="player-select-list-wrap flex-1 flex-col">
-                <SelectList className="player-select-list" selectedItems={selectedPlayers} items={players} callback={(p) => select(p)} renderItem={renderPlayerListItem} />
+                <SelectList className="player-select-list" selectedItems={selectedPlayers} items={selectablePlayers} callback={(p) => select(p)} renderItem={renderPlayerListItem} />
               </div>
               <div class="btn-wrap margin-1rem flex-shrink-0 flex-col">
-                <Link href="/add-player" class="btn primary add-player">
+                <Link href={`/add-new-player/new-match/${isSelectingPlayer}`} class="btn primary big add-player">
                   <i class="fa fa-plus-circle"></i>
                   <span>Add New Player</span>
                 </Link>
@@ -44,7 +47,7 @@ const SelectPlayerModal = ({ player1, player2, isSelectingPlayer, players, selec
 
   return (
     <CSSTransitionGroup
-      transitionName="modal-flip-in"
+      transitionName="modal-pop-in"
       transitionAppear={false}
       transitionLeave={true}
       transitionEnter={true}

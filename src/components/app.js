@@ -13,6 +13,7 @@ import GlobalKeyboardShortcuts from './globalKeyboardShortcuts';
 import KeyboardShortcutHelp from './keyboardShortcutHelp';
 import Rest from '../lib/rest-service';
 import LocalStorageService from '../lib/local-storage-service';
+import { lightenOrDarken } from '../lib/helpers';
 
 export default class App extends Component {
 	constructor(props) {
@@ -77,6 +78,10 @@ export default class App extends Component {
       Object.keys(this.config.themeProperties).forEach(key => {
         document.body.style.setProperty(`--${key}`, this.config.themeProperties[key]);
       });
+      let pbg = this.config.themeProperties.primaryBtnBg;
+      let sbg = this.config.themeProperties.secondaryBtnBg;
+      document.body.style.setProperty('--primaryBtnBorder', pbg ? lightenOrDarken(pbg, -40) : '#888');
+      document.body.style.setProperty('--secondaryBtnBorder', sbg ? lightenOrDarken(sbg, -40) : '#888');
     }
   }
 
@@ -90,9 +95,9 @@ export default class App extends Component {
 				/>
 				<Router onChange={this.handleRoute}>
 					<Home path="/" config={this.config} />
-          <StartMatch path="/new-match" config={this.config} />
+          <StartMatch path="/new-match/:num?/:addedPlayer?" config={this.config} />
           <UpdateScore path="/update-score" config={this.config} />
-          <AddNewPlayer path="/add-new-player" config={this.config} />
+          <AddNewPlayer path="/add-new-player/:returnRoute?/:playerNum?" config={this.config} />
 				</Router>
         {
           (this.config.devMode && !this.state.debugConsole) ?

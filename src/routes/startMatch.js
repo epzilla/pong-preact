@@ -17,23 +17,46 @@ export default class StartMatch extends Component {
 
   componentDidMount() {
     Rest.get('players').then(players => {
-      if (players.length > 2) {
-        this.setState({ players });
-      } else if (players.length === 2) {
-        this.setState({
-          players: players,
-          player1: players[0],
-          player2: players[1]
-        });
-      }
+      this.setState({ players }, () => {
+        let cachedState = LocalStorageService.get('start-match-state');
+        let { num, addedPlayer } = this.props;
+        let player;
+        if (num && addedPlayer) {
+          player = this.state.players.find(p => p.id === parseInt(addedPlayer));
+        }
+
+        if (player) {
+          let stateCopy = Object.assign({}, this.state);
+          if (cachedState.player1) {
+            stateCopy.player1 = cachedState.player1;
+          }
+          if (cachedState.player2) {
+            stateCopy.player2 = cachedState.player2;
+          }
+          stateCopy[`player${num}`] = player;
+          this.setState(stateCopy);
+        } else {
+          this.setState({
+            player1: cachedState.player1 || players[0],
+            player2: cachedState.player2 || players[1]
+          });
+        }
+      });
     });
   }
 
+  setAndCacheState = (obj) => {
+    this.setState(obj, () => {
+      let { player1, player2 } = this.state;
+      LocalStorageService.set('start-match-state', { player1, player2 });
+    });
+  };
+
   selectPlayer = (p) => {
     if (this.state.isSelectingPlayer === 1) {
-      this.setState({ player1: p, isSelectingPlayer: null });
+      this.setAndCacheState({ player1: p, isSelectingPlayer: null });
     } else if (this.state.isSelectingPlayer === 2) {
-      this.setState({ player2: p, isSelectingPlayer: null });
+      this.setAndCacheState({ player2: p, isSelectingPlayer: null });
     }
   };
 
@@ -43,13 +66,17 @@ export default class StartMatch extends Component {
 
   beginMatch = () => {
     Rest.post('matches/create', this.state).then(({ token }) => {
+      LocalStorageService.delete('start-match-state');
       LocalStorageService.set('match-token', { token });
       route('/update-score');
     })
   };
 
-  addNewPlayer = () => {
-    route('/add-new-player');
+  addNewPlayer = (num) => {
+    if (this.state.player1 || this.state.player2) {
+      LocalStorageService.set('start-match-state', this.state);
+    }
+    route(`/add-new-player/new-match/${num}`);
   };
 
   render() {
@@ -65,7 +92,7 @@ export default class StartMatch extends Component {
               {
                 this.state.players.length > 2 ?
                 <button class="btn primary" onClick={() => this.setState({ isSelectingPlayer: 1 })}>Change</button> :
-                <button class="btn primary" onClick={() => this.addNewPlayer()}>Add New Player</button>
+                <button class="btn primary" onClick={() => this.addNewPlayer(1)}>Add New Player</button>
               }
             </div>
             :
@@ -81,12 +108,12 @@ export default class StartMatch extends Component {
               {
                 this.state.players.length > 2 ?
                 <button class="btn primary" onClick={() => this.setState({ isSelectingPlayer: 2 })}>Change</button> :
-                <button class="btn primary" onClick={() => this.addNewPlayer()}>Add New Player</button>
+                <button class="btn primary" onClick={() => this.addNewPlayer(2)}>Add New Player</button>
               }
             </div>
             :
             <div class="player-selected-block flex-col flex-center">
-              <button class="btn primary big" onClick={() => this.setState({ isSelectingPlayer: 2 })}>Select</button>
+              <button class="btn secondary big" onClick={() => this.setState({ isSelectingPlayer: 2 })}>Select</button>
             </div>
           }
         </div>

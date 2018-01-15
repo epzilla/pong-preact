@@ -83,6 +83,15 @@ export default class Avatar extends Component {
         </div>
       );
     }
+    else if (this.props.fname || this.props.lname) {
+      let fi = this.props.fname ? this.props.fname[0] : '';
+      let li = this.props.lname ? this.props.lname[0] : '';
+      return (
+        <div class={ classes }>
+          <span class="avatar-initials">{fi}{li}</span>
+        </div>
+      );
+    }
 
     return (
       <div class={ classes }
