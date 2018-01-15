@@ -1,8 +1,8 @@
 const players = require('./players');
 const matches = require('./matches');
 
-module.exports = function (models, app, sequelize) {
-  matches.init(models, sequelize);
+module.exports = function (models, app, sequelize, ws) {
+  matches.init(models, sequelize, ws);
   players.init(models);
 
   // Players

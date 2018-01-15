@@ -1,14 +1,16 @@
 import { getFormattedMatchDate, getStatsForMatch, getMatchTimeAgo } from '../lib/helpers';
 
 const Scoreboard = ({ match, jumbotron }) => {
-  const stats = jumbotron ? null : getStatsForMatch(match);
+  const stats = getStatsForMatch(match);
   let footer;
 
   if (jumbotron && match.finished) {
     footer = (
-      <p class="final flex-center">
-        Final
-      </p>
+      <div class="flex-col flex-center">
+        <p class="final flex-center">Final</p>
+        <p class="center">{ stats.resultString }</p>
+        <p class="font-small center">{ stats.pointsWonString }</p>
+      </div>
     );
   } else if (jumbotron) {
     footer = (

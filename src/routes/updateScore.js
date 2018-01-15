@@ -19,11 +19,26 @@ export default class UpdateScore extends Component {
 
   componentDidMount() {
     Rest.get('matches/current').then(match => {
-      let token = LocalStorageService.get('match-token');
-      this.setState({
-        match: match,
-        token: token && token.token ? token.token : null
-      });
+      try {
+        let { token } = LocalStorageService.get('match-token');
+        if (token) {
+          Rest.get(`matches/can-update-score/${token}`).then(canUpdateScore => {
+            if (canUpdateScore) {
+              this.setState({
+                match: match,
+                token: token
+              });
+            } else {
+              route('/');
+            }
+          })
+        } else {
+          route('/');
+        }
+      } catch (e) {
+        console.info('Match token not found. Cannot update scores.');
+        route('/');
+      }
     });
   }
 

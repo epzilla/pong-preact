@@ -4,6 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
+const WebSocket = require('ws');
 
 // Define your models
 const database = new Sequelize(null, null, null, {
@@ -31,7 +32,28 @@ fs.readdirSync(__dirname + '/models').forEach(m => {
   models[name] = database.import(__dirname + `/models/${m}`);
 });
 
-require('./routes')(models, app, database);
+const wss = new WebSocket.Server({ server });
+wss.on('connection', function connection(ws, req) {
+  ws.on('message', function incoming(message) {
+    console.log('received: %s', message);
+  });
+
+  ws.send('something');
+});
+
+const sendSocketMsg = (type, data) => {
+  console.log(`Sending socket message of typepe: ${type}`);
+  console.log(data);
+  let obj = { type };
+  obj.data = typeof data === 'string' ? data : JSON.stringify(data);
+  wss.clients.forEach(function each(client) {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify(obj));
+    }
+  });
+};
+
+require('./routes')(models, app, database, sendSocketMsg);
 
 // Create database and listen
 server.listen(3000, () => {

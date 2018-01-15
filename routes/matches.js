@@ -5,6 +5,7 @@ var SimpleGames;
 var Players;
 var Matches;
 var sequelize;
+var sendSocketMsg;
 
 const generateGuid = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
@@ -23,12 +24,13 @@ const validateMatchToken = (req, res) => {
   });
 };
 
-exports.init = (models, db) => {
+exports.init = (models, db, ws) => {
   Games = models['Games'];
   SimpleGames = models['SimpleGames'];
   Players = models['Players'];
   Matches = models['Matches'];
   sequelize = db;
+  sendSocketMsg = ws;
 };
 
 exports.create = (req, res) => {
@@ -190,6 +192,7 @@ exports.updateGame = (req, res) => {
     g.gameFinished = game.gameFinished;
     return g.save();
   }).then(() => {
+    sendSocketMsg('score-update', game);
     return res.json(game);
   }).catch(e => {
     return res.send(500, e);

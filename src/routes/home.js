@@ -27,16 +27,26 @@ export default class Home extends Component {
           matchInProgress: !currentMatch.finished
         }, () => {
           if (this.state.matchInProgress) {
-            let { token } = LocalStorageService.get('match-token');
-            if (token) {
-              Rest.get(`matches/can-update-score/${token}`).then(canUpdateScore => {
-                this.setState({ canUpdateScore });
-              })
+            try {
+              let { token } = LocalStorageService.get('match-token');
+              if (token) {
+                Rest.get(`matches/can-update-score/${token}`).then(canUpdateScore => {
+                  this.setState({ canUpdateScore });
+                })
+              }
+            } catch (e) {
+              console.info('Match token not found. Cannot update scores.');
             }
           }
         });
       }
     });
+
+    const ws = new WebSocket(`ws://${window.location.hostname}:3000`);
+    ws.onerror = () => console.log('WebSocket error');
+    ws.onopen = () => console.log('WebSocket connection established');
+    ws.onclose = () => console.log('WebSocket connection closed');
+    ws.onmessage = (m) => alert(m);
   }
 
   render() {
