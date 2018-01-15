@@ -46,7 +46,7 @@ export default class Home extends Component {
       <div class="main home">
         { currentMatch ? <h2 class="align-center primary-text">{ matchStatus }</h2> : null }
         { currentMatch ? <BoxScore jumbotron={true} match={ currentMatch } /> : null }
-        { !matchInProgress ? <Link href="/new-match" class="btn primary center margin-top-1rem">Start New Match</Link> : null }
+        { !matchInProgress ? <Link href="/new-match" class="btn big primary center margin-top-1rem">Start New Match</Link> : null }
         { matchInProgress && canUpdateScore ? <Link href="/update-score" class="btn big success update-score">Update Score</Link> : null }
         { recentMatches && recentMatches.length > 0 ? <hr /> : null }
         { recentMatches && recentMatches.length > 0 ? <h3 class="align-center primary-text">Recent Matches</h3> : null }
