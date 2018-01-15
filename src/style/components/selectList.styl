@@ -13,6 +13,7 @@
     width: 300px;
     display: flex;
     align-items: center;
+    background-image: linear-gradient(to bottom, #ffffff, #ffffff 75%, #f3f3f3);
     border-top: 1px solid #9caac5;
     border-left: 1px solid #9caac5;
     border-right: 1px solid #9caac5;
@@ -25,6 +26,14 @@
 
     &:last-of-type {
       border-bottom: none;
+    }
+
+    &.highlighted {
+      background-image: linear-gradient(to top, #d6e6f4, #d6e6f4 75%, #bcd3e8);
+    }
+
+    .fa {
+      margin-right: 1rem;
     }
   }
 }

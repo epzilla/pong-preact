@@ -1,0 +1,2 @@
+export const NO_NAME_ENTERED = 'Please enter a name.';
+export const NAME_ALREADY_EXISTS = 'There is already a player by that name. Please consider either adding an initial or some other unique way to identify yourself.';

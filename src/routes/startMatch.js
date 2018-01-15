@@ -48,6 +48,10 @@ export default class StartMatch extends Component {
     })
   };
 
+  addNewPlayer = () => {
+    route('/add-new-player');
+  };
+
   render() {
     let { player1, player2 } = this.state;
     return (
@@ -58,7 +62,11 @@ export default class StartMatch extends Component {
             player1 ?
             <div class="player-selected-block flex-col flex-center">
               <h3>{ player1.fname } { player1.lname }</h3>
-              <button class="btn primary" onClick={() => this.setState({ isSelectingPlayer: 1 })}>Change</button>
+              {
+                this.state.players.length > 2 ?
+                <button class="btn primary" onClick={() => this.setState({ isSelectingPlayer: 1 })}>Change</button> :
+                <button class="btn primary" onClick={() => this.addNewPlayer()}>Add New Player</button>
+              }
             </div>
             :
             <div class="player-selected-block flex-col flex-center">
@@ -70,7 +78,11 @@ export default class StartMatch extends Component {
             player2 ?
             <div class="player-selected-block flex-col flex-center">
               <h3>{ player2.fname } { player2.lname }</h3>
-              <button class="btn primary" onClick={() => this.setState({ isSelectingPlayer: 2 })}>Change</button>
+              {
+                this.state.players.length > 2 ?
+                <button class="btn primary" onClick={() => this.setState({ isSelectingPlayer: 2 })}>Change</button> :
+                <button class="btn primary" onClick={() => this.addNewPlayer()}>Add New Player</button>
+              }
             </div>
             :
             <div class="player-selected-block flex-col flex-center">

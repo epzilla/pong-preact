@@ -2,15 +2,20 @@ import SelectList from './selectList';
 import CSSTransitionGroup from 'preact-css-transition-group';
 import { Link } from 'preact-router/match';
 
-const renderPlayerListItem = (player) => {
+const renderPlayerListItem = (player, highlighted) => {
   return (
-    <span>{ player.fname } { player.lname }</span>
+    <span>
+      <i class={`fa fa-${highlighted ? 'check-circle-o' : 'circle-o'}`}></i>
+      <span>{ player.fname } { player.lname }</span>
+    </span>
   );
 };
 
 const SelectPlayerModal = ({ player1, player2, isSelectingPlayer, players, select, dismiss }) => {
   let modal;
   if (!!isSelectingPlayer) {
+    let selectedPlayers = isSelectingPlayer === 1 ? [player1] : [player2];
+
     modal = (
       <div class="modal-wrapper select-player-modal-wrapper" key={1}>
         <div class="modal-backdrop select-player-modal-backdrop"></div>
@@ -22,7 +27,7 @@ const SelectPlayerModal = ({ player1, player2, isSelectingPlayer, players, selec
           <div class="modal-body flex-1">
             <div class="flex-1 flex-col">
               <div class="player-select-list-wrap flex-1 flex-col">
-                <SelectList className="player-select-list" items={players} callback={(p) => select(p)} renderItem={renderPlayerListItem} />
+                <SelectList className="player-select-list" selectedItems={selectedPlayers} items={players} callback={(p) => select(p)} renderItem={renderPlayerListItem} />
               </div>
               <div class="btn-wrap margin-1rem flex-shrink-0 flex-col">
                 <Link href="/add-player" class="btn primary add-player">

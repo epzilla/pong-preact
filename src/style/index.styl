@@ -24,6 +24,10 @@ html, body {
 	-moz-osx-font-smoothing: grayscale;
 }
 
+input, textarea, select, button {
+	font-family: var(--mainFont);
+}
+
 .main {
 	padding: 56px 1em 1em 1em;
 	min-height: calc(100% - 110px - 3rem);
@@ -135,6 +139,19 @@ h1 {
 
 .form-group	input::-ms-input-placeholder {
 	color: var(--disabledColor);
+}
+
+.form-group.big {
+
+	label {
+		font-size: 1.25rem;
+	}
+
+	input {
+		font-size: 2rem;
+		height: 4rem;
+		padding: 0.5rem;
+	}
 }
 
 .footer {

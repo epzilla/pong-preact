@@ -69,6 +69,18 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER,
       allowNull: true,
       defaultValue: undefined
+    },
+    player1MiddleInitial: {
+      field: 'player1_mi',
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: undefined
+    },
+    player2MiddleInitial: {
+      field: 'player2_mi',
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: undefined
     }
   }, {
     tableName: 'games',

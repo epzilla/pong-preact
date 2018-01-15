@@ -5,8 +5,8 @@ module.exports = function(sequelize, DataTypes) {
     id: {
       field: 'id',
       type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: undefined,
+      allowNull: true,
+      autoIncrement: true,
       primaryKey: true
     },
     fname: {
@@ -18,7 +18,13 @@ module.exports = function(sequelize, DataTypes) {
     lname: {
       field: 'lname',
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
+      defaultValue: undefined
+    },
+    middleInitial: {
+      field: 'mi',
+      type: DataTypes.STRING,
+      allowNull: true,
       defaultValue: undefined
     }
   }, {
