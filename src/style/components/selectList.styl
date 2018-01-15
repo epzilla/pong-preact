@@ -1,0 +1,28 @@
+.select-list {
+  margin: 0;
+  padding: 0;
+
+  li {
+    list-style-type: none;
+    height: 60px;
+    width: 300px;
+    display: flex;
+    align-items: center;
+    border-top: 1px solid #9caac5;
+    border-left: 1px solid #9caac5;
+    border-right: 1px solid #9caac5;
+    cursor: pointer;
+    padding: 1rem;
+
+    &:first-of-type {
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
+    }
+
+    &:last-of-type {
+      border-bottom: 1px solid #9caac5;
+      border-bottom-left-radius: 5px;
+      border-bottom-right-radius: 5px;
+    }
+  }
+}
