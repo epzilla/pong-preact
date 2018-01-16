@@ -1,5 +1,29 @@
 .main.set-device {
-  h2, h5 {
+  max-width: 800px;
+
+  h2, p {
     padding: 0 1rem;
+  }
+
+  h2 {
+    margin: 1rem 0;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  @media screen and (max-height: 600px) {
+    .form-group.big {
+
+      label {
+        font-size: 1rem;
+      }
+
+      input {
+        font-size: 1.25rem;
+        height: 3rem;
+      }
+    }
   }
 }

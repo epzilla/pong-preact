@@ -12,7 +12,7 @@ export default class SetDevice extends Component {
     this.state = {
       devices: [],
       name: null,
-      type: Constants.DEVICE_TYPES.MOBILE,
+      type: Constants.DEVICE_TYPES.MOBILE_DEVICE,
       disableSubmit: false,
       addedDevice: null
     };
@@ -24,7 +24,26 @@ export default class SetDevice extends Component {
         this.textInput.focus();
       });
     });
+
+    this.setState({ type: this.getBestGuessDevice() });
   }
+
+  getBestGuessDevice = () => {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const greaterDimension = height >= width ? height : width;
+    const lesserDimension = greaterDimension === height ? width: height;
+
+    if (greaterDimension < 1000) {
+      return Constants.DEVICE_TYPES.MOBILE_DEVICE;
+    } else if (greaterDimension < 1400 && lesserDimension < 800) {
+      return Constants.DEVICE_TYPES.TABLET_DEVICE;
+    } else if (greaterDimension < 1800 && lesserDimension >= 800) {
+      return Constants.DEVICE_TYPES.LAPTOP_DEVICE
+    }
+
+    return Constants.DEVICE_TYPES.OTHER_DEVICE;
+  };
 
   setValue = (e) => {
     let obj = {};
@@ -33,7 +52,9 @@ export default class SetDevice extends Component {
   };
 
   setDeviceType = (type) => {
-    this.setState({ type });
+    this.setState({ type }, () => {
+      window.smoothScroll(this.submitInput, 500);
+    });
   };
 
   validate = () => {
@@ -83,15 +104,18 @@ export default class SetDevice extends Component {
   render() {
     return (
       <div class="main set-device">
-        <h2>Welcome to {this.props.config.siteName}!</h2>
-        <h5>{Constants.SET_DEVICE_NAME_PROMPT}</h5>
-         <form class="flex-1 flex-col full-width-small-screen pad-1rem" onSubmit={(e) => this.submit(e)}>
+        <h2>Welcome!</h2>
+        <p>{Constants.SET_DEVICE_NAME_PROMPT}</p>
+         <form class="flex-1 flex-col pad-1rem" onSubmit={(e) => this.submit(e)}>
           <div class="form-group big">
             <label for="name">Device Name</label>
             <input type="text" id="name" name="name" onChange={this.setValue} ref={(input) => { this.textInput = input; }} />
           </div>
-          <DeviceTypePicker callback={this.setDeviceType}/>
-          <input class="btn big success" type="submit" disabled={this.state.disableSubmit} value="Add" />
+          <div class="form-group big">
+            <label for="name">Device Type</label>
+            <DeviceTypePicker selectedType={this.state.type} callback={this.setDeviceType}/>
+          </div>
+          <input class="btn big success" type="submit" disabled={this.state.disableSubmit} value="Add" ref={(input) => { this.submitInput = input; }} />
           { this.state.error ?
             <p class="alert alert-error">{ this.state.error }</p>
             : null
