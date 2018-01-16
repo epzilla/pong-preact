@@ -1,16 +1,10 @@
 const crypto = require('crypto');
 const constants = require('../constants');
+const guid = require('../helpers').generateGuid;
 let SimpleGames;
 let Matches;
 let sequelize;
 let sendSocketMsg;
-
-const generateGuid = () => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-      let r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-  });
-};
 
 const validateMatchToken = (req, res) => {
   const token = req.body.token || req.params.token;
@@ -54,7 +48,7 @@ exports.create = (req, res) => {
       startTime: m.startTime,
       finishTime: m.finishTime
     };
-    token = generateGuid();
+    token = guid();
     const hash = crypto.createHash('sha256');
     hash.update(token + req.headers['user-agent']);
     hashedToken = hash.digest('hex');

@@ -1,5 +1,5 @@
 import { h, Component } from 'preact';
-import { Router } from 'preact-router';
+import { route, Router } from 'preact-router';
 
 import Config from '../config';
 import Header from './header';
@@ -7,10 +7,12 @@ import Home from '../routes/home';
 import StartMatch from '../routes/startMatch';
 import AddNewPlayer from '../routes/addNewPlayer';
 import UpdateScore from '../routes/updateScore';
+import SetDevice from '../routes/setDevice';
 import DebugConsole from './debugConsole';
 import NotSoSecretCode from './notSoSecretCode';
 import GlobalKeyboardShortcuts from './globalKeyboardShortcuts';
 import KeyboardShortcutHelp from './keyboardShortcutHelp';
+import FixedAlerts from './fixedAlerts';
 import Rest from '../lib/rest-service';
 import LocalStorageService from '../lib/local-storage-service';
 import { lightenOrDarken } from '../lib/helpers';
@@ -23,7 +25,9 @@ export default class App extends Component {
     this.state = {
       menu: false,
       kb: false,
-      debugConsole: true
+      debugConsole: true,
+      device: null,
+      alerts: []
     };
     let conf = this.ls.get('config');
     this.config = Config || conf;
@@ -40,6 +44,15 @@ export default class App extends Component {
 	handleRoute = e => {
     this.currentUrl = e.url;
     this.setState({ menu: false});
+  };
+
+  onDeviceSet = device => {
+    let { alerts } = this.state;
+    alerts.push({ type: 'success', msg: `Registered ${device.name}!`});
+    this.setState({ device, alerts }, () => {
+      route('/');
+      setTimeout(() => this.setState({ alerts: [] }), 5000);
+    })
   };
 
 	menuToggledCallback = (menu) => {
@@ -90,6 +103,13 @@ export default class App extends Component {
     ws.onopen = () => console.log('WebSocket connection established');
     ws.onclose = () => console.log('WebSocket connection closed');
     ws.onmessage = (m) => console.info(m);
+
+    let device = this.ls.get('device');
+    if (device) {
+      this.setState({ device });
+    } else {
+      route('/set-device');
+    }
   }
 
 	render() {
@@ -101,10 +121,11 @@ export default class App extends Component {
 					showKeyboardShortcuts={() => this.showKeyboardShortcuts()}
 				/>
 				<Router onChange={this.handleRoute}>
-					<Home path="/" config={this.config} />
+					<Home path="/" config={this.config} device={this.state.device} />
           <StartMatch path="/new-match/:num?/:addedPlayer?" config={this.config} />
           <UpdateScore path="/update-score" config={this.config} />
           <AddNewPlayer path="/add-new-player/:returnRoute?/:playerNum?" config={this.config} />
+          <SetDevice path="/set-device" config={this.config} callback={this.onDeviceSet} />
 				</Router>
         {
           (this.config.devMode && !this.state.debugConsole) ?
@@ -121,6 +142,7 @@ export default class App extends Component {
         />
         <KeyboardShortcutHelp config={this.config} show={this.state.kb} dismiss={() => this.hideKeyboardShortcuts()} />
         <audio preload id="secret-sound" src="/assets/sounds/secret.wav" />
+        <FixedAlerts alerts={this.state.alerts} />
 			</div>
 		);
 	}

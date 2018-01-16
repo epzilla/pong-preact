@@ -48,37 +48,37 @@ module.exports = function(sequelize, DataTypes) {
     },
     player1Fname: {
       field: 'player1_fname',
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: true,
       defaultValue: undefined
     },
     player2Fname: {
       field: 'player2_fname',
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: true,
       defaultValue: undefined
     },
     player1Lname: {
       field: 'player1_lname',
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: true,
       defaultValue: undefined
     },
     player2Lname: {
       field: 'player2_lname',
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: true,
       defaultValue: undefined
     },
     player1MiddleInitial: {
       field: 'player1_mi',
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: true,
       defaultValue: undefined
     },
     player2MiddleInitial: {
       field: 'player2_mi',
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: true,
       defaultValue: undefined
     }

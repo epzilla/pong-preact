@@ -37,8 +37,8 @@ export default class StartMatch extends Component {
           this.setState(stateCopy);
         } else {
           this.setState({
-            player1: cachedState.player1 || players[0],
-            player2: cachedState.player2 || players[1]
+            player1: cachedState && cachedState.player1 ? cachedState.player1 : players[0],
+            player2: cachedState && cachedState.player2 ? cachedState.player2 : players[1]
           });
         }
       });

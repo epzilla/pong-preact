@@ -135,6 +135,14 @@ export default class UpdateScore extends Component {
           <i class="fa fa-check"></i>
           <span>End Match</span>
         </button>
+        <button class="btn big primary change-device-btn" onClick={this.showChooseOtherDevice}>
+          <div class="exchange-btns">
+            <i class="fa fa-mobile"></i>
+            <i class="fa fa-exchange"></i>
+            <i class="fa fa-mobile"></i>
+          </div>
+          <span>Allow Another Device to Update</span>
+        </button>
         <GenericModal
           header="Confirm End Match"
           show={showConfirmEndMatch}
