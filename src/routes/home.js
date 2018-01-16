@@ -30,7 +30,7 @@ export default class Home extends Component {
             try {
               let { token } = LocalStorageService.get('match-token');
               if (token) {
-                Rest.get(`matches/can-update-score/${token}`).then(canUpdateScore => {
+                Rest.get(`matches/can-update-score/${token}/${this.props.device.id}`).then(canUpdateScore => {
                   this.setState({ canUpdateScore });
                 })
               }
@@ -50,7 +50,7 @@ export default class Home extends Component {
       <div class="main home">
         { currentMatch ? <h2 class="align-center primary-text">{ matchStatus }</h2> : null }
         { currentMatch ? <BoxScore jumbotron={true} match={ currentMatch } /> : null }
-        { !matchInProgress ? <Link href="/new-match" class="btn big primary center margin-top-1rem">Start New Match</Link> : null }
+        { !matchInProgress && this.props.device ? <Link href="/new-match" class="btn big primary center margin-top-1rem">Start New Match</Link> : null }
         { matchInProgress && canUpdateScore ? <Link href="/update-score" class="btn big success update-score">Update Score</Link> : null }
         { recentMatches && recentMatches.length > 0 ? <hr /> : null }
         { recentMatches && recentMatches.length > 0 ? <h3 class="align-center primary-text">Recent Matches</h3> : null }

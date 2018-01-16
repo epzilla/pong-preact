@@ -2,9 +2,7 @@ import { Component } from 'preact';
 import * as Constants from '../lib/constants';
 import Rest from '../lib/rest-service';
 import LocalStorageService from '../lib/local-storage-service';
-import Expandable from '../components/expandable';
-import SegmentedControl from '../components/segmentedControl';
-import Toggle from '../components/toggle';
+import DeviceTypePicker from '../components/deviceTypePicker';
 import CSSTransitionGroup from 'preact-css-transition-group';
 
 export default class SetDevice extends Component {
@@ -14,6 +12,7 @@ export default class SetDevice extends Component {
     this.state = {
       devices: [],
       name: null,
+      type: Constants.DEVICE_TYPES.MOBILE,
       disableSubmit: false,
       addedDevice: null
     };
@@ -31,6 +30,10 @@ export default class SetDevice extends Component {
     let obj = {};
     obj[e.target.name] = e.target.value;
     this.setState(obj);
+  };
+
+  setDeviceType = (type) => {
+    this.setState({ type });
   };
 
   validate = () => {
@@ -52,11 +55,11 @@ export default class SetDevice extends Component {
     e.preventDefault();
     if (!this.isSubmitting) {
       this.isSubmitting = true;
-      let deviceName = this.state.name;
+      let { name, type } = this.state;
       this.setState({ error: null, disableSubmit: true }, () => {
         this.validate()
           .then(() => {
-            return Rest.post('devices', { name: deviceName });
+            return Rest.post('devices', { name, type });
           })
           .then(dev => {
             let { devices } = this.state;
@@ -80,17 +83,14 @@ export default class SetDevice extends Component {
   render() {
     return (
       <div class="main set-device">
-        <h2>Welcome to PongDB!</h2>
-        <h5>
-          It doesn't look like you've used PongDB on this device before.
-          Please take a moment to give this device a name, so that you can
-          use it to update scores.
-        </h5>
+        <h2>Welcome to {this.props.config.siteName}!</h2>
+        <h5>{Constants.SET_DEVICE_NAME_PROMPT}</h5>
          <form class="flex-1 flex-col full-width-small-screen pad-1rem" onSubmit={(e) => this.submit(e)}>
           <div class="form-group big">
             <label for="name">Device Name</label>
             <input type="text" id="name" name="name" onChange={this.setValue} ref={(input) => { this.textInput = input; }} />
           </div>
+          <DeviceTypePicker callback={this.setDeviceType}/>
           <input class="btn big success" type="submit" disabled={this.state.disableSubmit} value="Add" />
           { this.state.error ?
             <p class="alert alert-error">{ this.state.error }</p>

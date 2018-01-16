@@ -122,8 +122,8 @@ export default class App extends Component {
 				/>
 				<Router onChange={this.handleRoute}>
 					<Home path="/" config={this.config} device={this.state.device} />
-          <StartMatch path="/new-match/:num?/:addedPlayer?" config={this.config} />
-          <UpdateScore path="/update-score" config={this.config} />
+          <StartMatch path="/new-match/:num?/:addedPlayer?" config={this.config} device={this.state.device} />
+          <UpdateScore path="/update-score" config={this.config} device={this.state.device} />
           <AddNewPlayer path="/add-new-player/:returnRoute?/:playerNum?" config={this.config} />
           <SetDevice path="/set-device" config={this.config} callback={this.onDeviceSet} />
 				</Router>

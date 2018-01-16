@@ -15,7 +15,7 @@ module.exports = function (models, app, sequelize, ws) {
   app.get('/api/matches/by-players/:player1Id/:player2Id', matches.matchesByPlayers);
   app.get('/api/matches/most-recent/:count', matches.mostRecent);
   app.get('/api/matches/current', matches.current);
-  app.get('/api/matches/can-update-score/:token', matches.canUpdate);
+  app.get('/api/matches/can-update-score/:token/:deviceId', matches.canUpdate);
   app.post('/api/matches/create', matches.create);
   app.post('/api/matches/update', matches.update);
   app.post('/api/matches/finish', matches.finish);

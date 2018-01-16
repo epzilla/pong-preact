@@ -8,8 +8,12 @@ let sendSocketMsg;
 
 const validateMatchToken = (req, res) => {
   const token = req.body.token || req.params.token;
+  const deviceId = req.body.deviceId || req.params.deviceId;
+  if (!token || !deviceId) {
+    return Promise.reject(constants.DEVICE_CANNOT_UPDATE_MATCH);
+  }
   const hash = crypto.createHash('sha256');
-  hash.update(token + req.headers['user-agent']);
+  hash.update(token + deviceId);
   const hashedToken = hash.digest('hex');
   return sequelize.query(`select match_id from match_key where key = '${hashedToken}'`).then(result => {
     return result.length > 0 && result[0].length > 0;
@@ -25,6 +29,11 @@ exports.init = (models, db, ws) => {
 
 exports.create = (req, res) => {
   const playersInfo = req.body;
+  const deviceId = playersInfo.deviceId || req.params.deviceId;
+  if (!deviceId) {
+    return res.status(400).send(constants.NO_DEVICE_ID);
+  }
+
   let token, hashedToken, match, game;
   return Matches.findOne({
     where: {
@@ -32,7 +41,7 @@ exports.create = (req, res) => {
     }
   }).then(matchInProgress => {
     if (matchInProgress) {
-      return res.send(400);
+      return res.status(400).send(constants.MATCH_IN_PROGRESS);
     }
 
     return Matches.create({ player1Id: playersInfo.player1.id, player2Id: playersInfo.player2.id });
@@ -50,7 +59,7 @@ exports.create = (req, res) => {
     };
     token = guid();
     const hash = crypto.createHash('sha256');
-    hash.update(token + req.headers['user-agent']);
+    hash.update(token + deviceId);
     hashedToken = hash.digest('hex');
     return Promise.all([
       sequelize.query(`insert into match_key (key, match_id) values ('${hashedToken}', '${m.id}')`, { type: sequelize.QueryTypes.INSERT }),

@@ -65,7 +65,8 @@ export default class StartMatch extends Component {
   };
 
   beginMatch = () => {
-    Rest.post('matches/create', this.state).then(({ token }) => {
+    let packet = Object.assign({ deviceId: this.props.device.id }, this.state);
+    Rest.post('matches/create', packet).then(({ token }) => {
       LocalStorageService.delete('start-match-state');
       LocalStorageService.set('match-token', { token });
       route('/update-score');

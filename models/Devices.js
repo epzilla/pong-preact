@@ -12,6 +12,11 @@ module.exports = function(sequelize, DataTypes) {
       field: 'name',
       type: DataTypes.STRING,
       allowNull: true
+    },
+    type: {
+      field: 'type',
+      type: DataTypes.STRING,
+      allowNull: true
     }
   }, {
     tableName: 'devices',

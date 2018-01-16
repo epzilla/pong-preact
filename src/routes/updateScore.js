@@ -6,6 +6,7 @@ import Stepper from '../components/stepper';
 import Expandable from '../components/expandable';
 import Toggle from '../components/toggle';
 import GenericModal from '../components/genericModal';
+import SelectDeviceModal from '../components/selectDeviceModal';
 
 export default class UpdateScore extends Component {
   constructor(props) {
@@ -13,7 +14,9 @@ export default class UpdateScore extends Component {
     this.state = {
       match: null,
       token: null,
-      showConfirmEndMatch: false
+      devices: null,
+      showConfirmEndMatch: false,
+      showChooseOtherDevice: false
     };
   }
 
@@ -22,7 +25,7 @@ export default class UpdateScore extends Component {
       try {
         let { token } = LocalStorageService.get('match-token');
         if (token) {
-          Rest.get(`matches/can-update-score/${token}`).then(canUpdateScore => {
+          Rest.get(`matches/can-update-score/${token}/${this.props.device.id}`).then(canUpdateScore => {
             if (canUpdateScore) {
               this.setState({
                 match: match,
@@ -40,15 +43,21 @@ export default class UpdateScore extends Component {
         route('/');
       }
     });
+
+    Rest.get('devices').then(ds => {
+      let devices = ds.filter(d => d && (!this.props.device || this.props.device.id !== d.id));
+      this.setState({ devices });
+    });
   }
 
   scoreChange = (game, playerNum, { amount }) => {
     let { match, token } = this.state;
     let { games } = match;
+    let deviceId = this.props.device.id;
     let i = games.findIndex(g => g.gameId === game.gameId);
     if (i !== -1) {
       games[i][`score${ playerNum }`] = amount;
-      Rest.post('games/update', { game: games[i], scorer: playerNum, token: token }).then(() => {
+      Rest.post('games/update', { game: games[i], scorer: playerNum, token, deviceId }).then(() => {
         match.games = games;
         this.setState({ match });
       });
@@ -60,14 +69,15 @@ export default class UpdateScore extends Component {
     let i = match.games.findIndex(g => g.gameId === id);
     if (i !== -1) {
       match.games[i].gameFinished = !match.games[i].gameFinished;
-      Rest.post('games/update', { game: match.games[i], token: token }).then(() => {
+      let deviceId = this.props.device.id;
+      Rest.post('games/update', { game: match.games[i], token, deviceId}).then(() => {
         this.setState({ match });
       });
     }
   };
 
   addGame = () => {
-    Rest.post('games/add', this.state).then(g => {
+    Rest.post('games/add', Object.assign({ deviceId: this.props.device.id }, this.state)).then(g => {
       let { match } = this.state;
       match.games.push(g);
       this.setState({ match });
@@ -80,8 +90,9 @@ export default class UpdateScore extends Component {
 
   endMatch = () => {
     let { match, token } = this.state;
+    let deviceId = this.props.device.id;
     match.finished = 1;
-    Rest.post('matches/finish', { match, token }).then(() => {
+    Rest.post('matches/finish', { match, token, deviceId }).then(() => {
       LocalStorageService.delete('match-token');
       route(`/match-summary/${match.id}`);
     });
@@ -91,8 +102,12 @@ export default class UpdateScore extends Component {
     this.setState({ showConfirmEndMatch: false });
   };
 
+  chooseOtherDevice = () => {
+    this.setState({ showChooseOtherDevice: true });
+  };
+
   render() {
-    const { match, showConfirmEndMatch, } = this.state;
+    const { match, devices, showConfirmEndMatch, showChooseOtherDevice } = this.state;
     let games;
     if (match) {
         games = match.games.map((g, i) => {
@@ -135,14 +150,17 @@ export default class UpdateScore extends Component {
           <i class="fa fa-check"></i>
           <span>End Match</span>
         </button>
-        <button class="btn big primary change-device-btn" onClick={this.showChooseOtherDevice}>
-          <div class="exchange-btns">
-            <i class="fa fa-mobile"></i>
-            <i class="fa fa-exchange"></i>
-            <i class="fa fa-mobile"></i>
-          </div>
-          <span>Allow Another Device to Update</span>
-        </button>
+        { devices && devices.length > 0 ?
+          <button class="btn big primary change-device-btn" onClick={this.chooseOtherDevice}>
+            <div class="exchange-btns">
+              <i class="fa fa-mobile"></i>
+              <i class="fa fa-exchange"></i>
+              <i class="fa fa-mobile"></i>
+            </div>
+            <span>Allow Another Device to Update</span>
+          </button>
+          : null
+        }
         <GenericModal
           header="Confirm End Match"
           show={showConfirmEndMatch}
@@ -152,6 +170,7 @@ export default class UpdateScore extends Component {
           confirm={this.endMatch}
           dismiss={this.dismissEndMatchModal}
         />
+        <SelectDeviceModal {...this.state} device={this.props.device} select={this.selectDevice} dismiss={this.dismissDeviceModal} />
       </div>
     );
   }
