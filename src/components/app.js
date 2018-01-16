@@ -15,7 +15,9 @@ import KeyboardShortcutHelp from './keyboardShortcutHelp';
 import FixedAlerts from './fixedAlerts';
 import Rest from '../lib/rest-service';
 import LocalStorageService from '../lib/local-storage-service';
+import WebSocketService from '../lib.websocket-service';
 import { lightenOrDarken } from '../lib/helpers';
+import * as Constants from '../lib/constants';
 
 export default class App extends Component {
 	constructor(props) {
@@ -27,6 +29,7 @@ export default class App extends Component {
       kb: false,
       debugConsole: true,
       device: null,
+      matchToken: null,
       alerts: []
     };
     let conf = this.ls.get('config');
@@ -85,6 +88,29 @@ export default class App extends Component {
     this.setState({ debugConsole: true });
   };
 
+  // Passed as a prop to children to let them post alerts
+  postAlert = (alert) => {
+    let { alerts } = this.state;
+    alerts.push(alert);
+    this.setState({ alerts }, () => {
+      setTimeout(() => {
+        alerts = this.state.alerts;
+        alerts.splice(alerts.indexOf(alert), 1);
+        this.setState({ alerts });
+      }, 5000);
+    });
+  };
+
+  handleAddedDevicesToMatch = ({ tokens }) => {
+    if (this.state.device) {
+      let myToken = tokens.find(t => t.device.id === this.state.device.id);
+      if (myToken) {
+        LocalStorageService.set('match-token', { token: myToken.token });
+        this.setState({ matchToken: myToken.token });
+      }
+    }
+  };
+
 	componentDidMount() {
     // Set CSS Custom Properties
     if (this.config && this.config.themeProperties) {
@@ -97,12 +123,9 @@ export default class App extends Component {
       document.body.style.setProperty('--secondaryBtnBorder', sbg ? lightenOrDarken(sbg, -40) : '#888');
     }
 
-    // Subscribe to WebSockets for score/new game updates
-    const ws = new WebSocket(`ws://${window.location.hostname}:3000`);
-    ws.onerror = (e) => console.error(e);
-    ws.onopen = () => console.log('WebSocket connection established');
-    ws.onclose = () => console.log('WebSocket connection closed');
-    ws.onmessage = (m) => console.info(m);
+    WebSocketService.init().then(() => {
+      WebSocketService.register(Constants.ADDED_DEVICES_TO_MATCH, this.handleAddedDevicesToMatch);
+    });
 
     let device = this.ls.get('device');
     if (device) {
@@ -121,9 +144,9 @@ export default class App extends Component {
 					showKeyboardShortcuts={() => this.showKeyboardShortcuts()}
 				/>
 				<Router onChange={this.handleRoute}>
-					<Home path="/" config={this.config} device={this.state.device} />
+					<Home path="/" config={this.config} device={this.state.device} matchToken={this.state.matchToken} />
           <StartMatch path="/new-match/:num?/:addedPlayer?" config={this.config} device={this.state.device} />
-          <UpdateScore path="/update-score" config={this.config} device={this.state.device} />
+          <UpdateScore path="/update-score" config={this.config} device={this.state.device} postAlert={this.postAlert} matchToken={this.state.matchToken} />
           <AddNewPlayer path="/add-new-player/:returnRoute?/:playerNum?" config={this.config} />
           <SetDevice path="/set-device" config={this.config} callback={this.onDeviceSet} />
 				</Router>

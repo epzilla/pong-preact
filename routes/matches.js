@@ -117,6 +117,37 @@ exports.update = (req, res) => {
   });
 };
 
+exports.addDevices = (req, res) => {
+  const match = req.body.match;
+  const devices = req.body.devices;
+  return validateMatchToken(req, res).then(result => {
+    if (!result) {
+      return res.sendStatus(400);
+    }
+
+    let tokens = [];
+
+    let promises = devices.map(d => {
+      let newToken = guid();
+      tokens.push({ token: newToken, device: d });
+      const hash = crypto.createHash('sha256');
+      hash.update(newToken + d.id);
+      hashedToken = hash.digest('hex');
+      return sequelize.query(
+        `insert into match_key (key, match_id) values ('${hashedToken}', '${match.id}')`,
+        { type: sequelize.QueryTypes.INSERT }
+      );
+    });
+
+    return Promise.all(promises).then(result => {
+      sendSocketMsg(constants.ADDED_DEVICES_TO_MATCH, { match, tokens });
+      return res.sendStatus(200);
+    });
+  }).catch(e => {
+    return res.status(500).send(e);
+  });
+};
+
 exports.finish = (req, res) => {
   const match = req.body.match;
   let finishedMatch;

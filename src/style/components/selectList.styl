@@ -21,10 +21,14 @@
 
     &:first-of-type {
       border-top: none;
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
     }
 
     &:last-of-type {
       border-bottom: none;
+      border-bottom-left-radius: 5px;
+      border-bottom-right-radius: 5px;
     }
 
     &.highlighted {
@@ -34,5 +38,9 @@
     .fa {
       margin-right: 1rem;
     }
+  }
+
+  &.device-select-list li {
+    padding-left: 1rem;
   }
 }

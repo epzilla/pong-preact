@@ -15,3 +15,5 @@ export const DEVICE_TYPES = {
   TV_DEVICE: 'TV',
   OTHER_DEVICE: 'Other'
 };
+
+export const ADDED_DEVICES_TO_MATCH = 'added-devices-to-match';

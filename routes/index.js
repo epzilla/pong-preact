@@ -19,6 +19,7 @@ module.exports = function (models, app, sequelize, ws) {
   app.post('/api/matches/create', matches.create);
   app.post('/api/matches/update', matches.update);
   app.post('/api/matches/finish', matches.finish);
+  app.post('/api/matches/add-devices', matches.addDevices);
   app.post('/api/games/add', matches.addGame);
   app.post('/api/games/update', matches.updateGame);
 

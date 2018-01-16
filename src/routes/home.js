@@ -25,23 +25,31 @@ export default class Home extends Component {
           currentMatch: currentMatch,
           recentMatches: matches,
           matchInProgress: !currentMatch.finished
-        }, () => {
-          if (this.state.matchInProgress) {
-            try {
-              let { token } = LocalStorageService.get('match-token');
-              if (token) {
-                Rest.get(`matches/can-update-score/${token}/${this.props.device.id}`).then(canUpdateScore => {
-                  this.setState({ canUpdateScore });
-                })
-              }
-            } catch (e) {
-              console.info('Match token not found. Cannot update scores.');
-            }
-          }
-        });
+        }, this.checkCanUpdate);
       }
     });
   }
+
+  componentWillReceiveProps({ matchToken }) {
+    if (matchTokens && matchTokens.length > 0) {
+      this.checkCanUpdate(matchToken)
+    }
+  }
+
+  checkCanUpdate = () => {
+    if (this.state.matchInProgress) {
+      try {
+        let { token } = LocalStorageService.get('match-token');
+        if (token) {
+          Rest.get(`matches/can-update-score/${token}/${this.props.device.id}`).then(canUpdateScore => {
+            this.setState({ canUpdateScore });
+          })
+        }
+      } catch (e) {
+        console.info('Match token not found. Cannot update scores.');
+      }
+    }
+  };
 
   render() {
     let { matchInProgress, currentMatch, recentMatches, canUpdateScore } = this.state;
