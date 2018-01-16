@@ -33,12 +33,13 @@ export default class SetDevice extends Component {
     const height = window.innerHeight;
     const greaterDimension = height >= width ? height : width;
     const lesserDimension = greaterDimension === height ? width: height;
+    const hiDpi = window.matchMedia('(min-resolution: 120dpi)').matches || window.matchMedia('(-webkit-min-device-pixel-ratio: 1.3)').matches;
 
     if (greaterDimension < 1000) {
       return Constants.DEVICE_TYPES.MOBILE_DEVICE;
     } else if (greaterDimension < 1400 && lesserDimension < 800) {
       return Constants.DEVICE_TYPES.TABLET_DEVICE;
-    } else if (greaterDimension < 1800 && lesserDimension >= 800) {
+    } else if (greaterDimension < 1800 && lesserDimension >= 800 || greaterDimension < 2400 && hiDpi) {
       return Constants.DEVICE_TYPES.LAPTOP_DEVICE
     }
 
@@ -109,13 +110,23 @@ export default class SetDevice extends Component {
          <form class="flex-1 flex-col pad-1rem" onSubmit={(e) => this.submit(e)}>
           <div class="form-group big">
             <label for="name">Device Name</label>
-            <input type="text" id="name" name="name" onChange={this.setValue} ref={(input) => { this.textInput = input; }} />
+            <input
+              type="text"
+              id="name"
+              name="name"
+              onChange={this.setValue}
+              ref={(input) => { this.textInput = input; }}
+              autocapitalize="off"
+              autocorrect="off"
+              autocomplete="off"
+              tabindex="2"
+            />
           </div>
           <div class="form-group big">
             <label for="name">Device Type</label>
             <DeviceTypePicker selectedType={this.state.type} callback={this.setDeviceType}/>
           </div>
-          <input class="btn big success" type="submit" disabled={this.state.disableSubmit} value="Add" ref={(input) => { this.submitInput = input; }} />
+          <input tabindex="10" class="btn big success" type="submit" disabled={this.state.disableSubmit} value="Add" ref={(input) => { this.submitInput = input; }} />
           { this.state.error ?
             <p class="alert alert-error">{ this.state.error }</p>
             : null
