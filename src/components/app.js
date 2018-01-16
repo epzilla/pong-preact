@@ -83,6 +83,13 @@ export default class App extends Component {
       document.body.style.setProperty('--primaryBtnBorder', pbg ? lightenOrDarken(pbg, -40) : '#888');
       document.body.style.setProperty('--secondaryBtnBorder', sbg ? lightenOrDarken(sbg, -40) : '#888');
     }
+
+    // Subscribe to WebSockets for score/new game updates
+    const ws = new WebSocket(`ws://${window.location.hostname}:3000`);
+    ws.onerror = (e) => console.error(e);
+    ws.onopen = () => console.log('WebSocket connection established');
+    ws.onclose = () => console.log('WebSocket connection closed');
+    ws.onmessage = (m) => console.info(m);
   }
 
 	render() {

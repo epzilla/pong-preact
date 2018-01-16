@@ -1,15 +1,13 @@
 const crypto = require('crypto');
-
-var Games;
-var SimpleGames;
-var Players;
-var Matches;
-var sequelize;
-var sendSocketMsg;
+const constants = require('../constants');
+let SimpleGames;
+let Matches;
+let sequelize;
+let sendSocketMsg;
 
 const generateGuid = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-      var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+      let r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
   });
 };
@@ -25,10 +23,8 @@ const validateMatchToken = (req, res) => {
 };
 
 exports.init = (models, db, ws) => {
-  Games = models['Games'];
-  SimpleGames = models['SimpleGames'];
-  Players = models['Players'];
-  Matches = models['Matches'];
+  SimpleGames = models.SimpleGames;
+  Matches = models.Matches;
   sequelize = db;
   sendSocketMsg = ws;
 };
@@ -84,6 +80,7 @@ exports.create = (req, res) => {
       player2MiddleInitial: playersInfo.player2.middleInitial
     };
     match.games[0] = game;
+    sendSocketMsg(constants.MATCH_STARTED, match);
     return res.json({
       match: match,
       token: token
@@ -139,7 +136,10 @@ exports.finish = (req, res) => {
     finishedMatch = updatedMatch;
     return sequelize.query(`delete from match_key where match_id='${match.id}'`, { type: sequelize.QueryTypes.DELETE });
   })
-  .then(() => res.json(finishedMatch))
+  .then(() => {
+    sendSocketMsg(constants.MATCH_FINISHED, finishedMatch);
+    res.json(finishedMatch);
+  })
   .catch(e => {
     return res.send(500, e);
   });
@@ -171,6 +171,7 @@ exports.addGame = (req, res) => {
         player2Lname: oldGame.player2Lname,
         player2MiddleInitial: oldGame.player2MiddleInitial
       };
+      sendSocketMsg(constants.GAME_STARTED, game);
       res.json(game);
     });
   } catch (e) {
@@ -180,6 +181,7 @@ exports.addGame = (req, res) => {
 
 exports.updateGame = (req, res) => {
   const game = req.body.game;
+  const scorer = req.body.scorer;
   return validateMatchToken(req, res).then(result => {
     if (!result) {
       return res.sendStatus(400);
@@ -192,7 +194,11 @@ exports.updateGame = (req, res) => {
     g.gameFinished = game.gameFinished;
     return g.save();
   }).then(() => {
-    sendSocketMsg('score-update', game);
+    if (game.gameFinished) {
+      sendSocketMsg(constants.GAME_FINISHED, { game });
+    } else {
+      sendSocketMsg(constants.SCORE_UPDATE, { game, scorer });
+    }
     return res.json(game);
   }).catch(e => {
     return res.send(500, e);

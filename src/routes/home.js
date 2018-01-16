@@ -41,12 +41,6 @@ export default class Home extends Component {
         });
       }
     });
-
-    const ws = new WebSocket(`ws://${window.location.hostname}:3000`);
-    ws.onerror = () => console.log('WebSocket error');
-    ws.onopen = () => console.log('WebSocket connection established');
-    ws.onclose = () => console.log('WebSocket connection closed');
-    ws.onmessage = (m) => alert(m);
   }
 
   render() {

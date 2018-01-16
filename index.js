@@ -33,20 +33,18 @@ fs.readdirSync(__dirname + '/models').forEach(m => {
 });
 
 const wss = new WebSocket.Server({ server });
-wss.on('connection', function connection(ws, req) {
-  ws.on('message', function incoming(message) {
+wss.on('connection', ws => {
+  ws.on('message', message => {
     console.log('received: %s', message);
   });
 
-  ws.send('something');
+  ws.on('error', () => {});
 });
 
 const sendSocketMsg = (type, data) => {
-  console.log(`Sending socket message of typepe: ${type}`);
-  console.log(data);
   let obj = { type };
   obj.data = typeof data === 'string' ? data : JSON.stringify(data);
-  wss.clients.forEach(function each(client) {
+  wss.clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(JSON.stringify(obj));
     }

@@ -46,9 +46,9 @@ export default class UpdateScore extends Component {
     let { match, token } = this.state;
     let { games } = match;
     let i = games.findIndex(g => g.gameId === game.gameId);
-    if (i !== undefined) {
+    if (i !== -1) {
       games[i][`score${ playerNum }`] = amount;
-      Rest.post('games/update', { game: games[i], token: token }).then(game => {
+      Rest.post('games/update', { game: games[i], scorer: playerNum, token: token }).then(() => {
         match.games = games;
         this.setState({ match });
       });
@@ -60,7 +60,7 @@ export default class UpdateScore extends Component {
     let i = match.games.findIndex(g => g.gameId === id);
     if (i !== -1) {
       match.games[i].gameFinished = !match.games[i].gameFinished;
-      Rest.post('games/update', { game: match.games[i], token: token }).then(game => {
+      Rest.post('games/update', { game: match.games[i], token: token }).then(() => {
         this.setState({ match });
       });
     }
@@ -81,7 +81,7 @@ export default class UpdateScore extends Component {
   endMatch = () => {
     let { match, token } = this.state;
     match.finished = 1;
-    Rest.post('matches/finish', { match, token }).then(game => {
+    Rest.post('matches/finish', { match, token }).then(() => {
       LocalStorageService.delete('match-token');
       route(`/match-summary/${match.id}`);
     });
