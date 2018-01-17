@@ -1,6 +1,7 @@
 import { Component } from 'preact';
 import Rest from '../lib/rest-service';
 import { Link } from 'preact-router/match';
+import { NEW_MATCH_PERMISSION_GRANTED } from '../lib/constants';
 import BoxScore from '../components/boxScore';
 import LocalStorageService from '../lib/local-storage-service';
 
@@ -39,7 +40,12 @@ export default class Home extends Component {
   checkCanUpdate = () => {
     if (this.state.matchInProgress) {
       Rest.get(`matches/can-update-score/${this.props.device.id}`).then(canUpdateScore => {
-        this.setState({ canUpdateScore });
+        let showNewPermission = !this.state.canUpdateScore && canUpdateScore && this.props.postAlert;
+        this.setState({ canUpdateScore }, () => {
+          if (showNewPermission) {
+            this.props.postAlert({ type: 'success', msg: NEW_MATCH_PERMISSION_GRANTED });
+          }
+        });
       });
     }
   };

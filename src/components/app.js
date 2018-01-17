@@ -129,7 +129,9 @@ export default class App extends Component {
           matchIds.push(match.id);
         }
         LocalStorageService.set('match-ids', matchIds);
-        this.setState({ updatableMatchIds: matchIds });
+        this.setState({ updatableMatchIds: matchIds }, () => {
+
+        });
       }
     }
   };
@@ -182,7 +184,7 @@ export default class App extends Component {
 					showKeyboardShortcuts={() => this.showKeyboardShortcuts()}
 				/>
 				<Router onChange={this.handleRoute}>
-					<Home path="/" config={this.config} device={this.state.device} updatableMatchIds={this.state.updatableMatchIds} />
+					<Home path="/" config={this.config} device={this.state.device} postAlert={this.postAlert} updatableMatchIds={this.state.updatableMatchIds} />
           <StartMatch path="/new-match/:num?/:addedPlayer?" config={this.config} device={this.state.device} />
           <UpdateScore path="/update-score" config={this.config} device={this.state.device} postAlert={this.postAlert} updatableMatchIds={this.state.updatableMatchIds} />
           <AddNewPlayer path="/add-new-player/:returnRoute?/:playerNum?" config={this.config} />

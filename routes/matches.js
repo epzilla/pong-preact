@@ -263,15 +263,21 @@ exports.current = (req, res) => {
       order by m.start_time desc`, { type: sequelize.QueryTypes.SELECT}
     )
   ]).then(result => {
-    return res.json({
-      games: result[1],
-      id: result[0].id,
-      player1Id: result[0].player1Id,
-      player2Id: result[0].player2Id,
-      finished: result[0].finished,
-      startTime: result[0].startTime,
-      finishTime: result[0].finishTime
-    });
+    if (result[0] && result[1]) {
+      return res.json({
+        games: result[1],
+        id: result[0].id,
+        player1Id: result[0].player1Id,
+        player2Id: result[0].player2Id,
+        finished: result[0].finished,
+        startTime: result[0].startTime,
+        finishTime: result[0].finishTime
+      });
+    }
+
+    return res.json({});
+  }).catch(e => {
+    return res.status(400).send(e);
   });
 };
 

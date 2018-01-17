@@ -22,10 +22,14 @@ export default class UpdateScore extends Component {
   }
 
   componentDidMount() {
-    let match
+    let match;
     Rest.get('matches/current').then(m => {
-      match = m;
-      return Rest.get(`matches/can-update-score/${this.props.device.id}`);
+      if (m && m.id) {
+        match = m;
+        return Rest.get(`matches/can-update-score/${this.props.device.id}`);
+      } else {
+        return Promise.resolve(false);
+      }
     }).then(canUpdateScore => {
       if (canUpdateScore) {
         this.setState({
@@ -35,6 +39,9 @@ export default class UpdateScore extends Component {
         console.warn(Constants.DEVICE_CANNOT_UPDATE_MATCH);
         route('/');
       }
+    }).catch(e => {
+      console.warn(Constants.DEVICE_CANNOT_UPDATE_MATCH);
+      route('/');
     });
 
     Rest.get('devices').then(ds => {
