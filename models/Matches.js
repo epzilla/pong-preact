@@ -21,6 +21,12 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
       defaultValue: 21
     },
+    winByTwo: {
+      field: 'win_by_two',
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 1
+    },
     bestOf: {
       field: 'best_of',
       type: DataTypes.INTEGER,

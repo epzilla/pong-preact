@@ -47,7 +47,8 @@ exports.create = (req, res) => {
       player2Id: matchInfo.player2.id,
       updateEveryPoint: matchInfo.updateEveryPoint,
       bestOf: matchInfo.bestOf || 4,
-      playTo: matchInfo.playTo || 21
+      playTo: matchInfo.playTo || 21,
+      winByTwo: matchInfo.winByTwo || 1
     });
   }).then(m => {
     match = {
