@@ -10,10 +10,22 @@ module.exports = function(sequelize, DataTypes) {
       primaryKey: true
     },
     updateEveryPoint: {
-      field: 'player1_id',
+      field: 'update_every_point',
       type: DataTypes.INTEGER,
       allowNull: true,
       defaultValue: 1
+    },
+    playTo: {
+      field: 'play_to',
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 21
+    },
+    bestOf: {
+      field: 'best_of',
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 4
     },
     player1Id: {
       field: 'player1_id',

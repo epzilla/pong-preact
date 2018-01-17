@@ -45,7 +45,9 @@ exports.create = (req, res) => {
     return Matches.create({
       player1Id: matchInfo.player1.id,
       player2Id: matchInfo.player2.id,
-      updateEveryPoint: matchInfo.updateEveryPoint
+      updateEveryPoint: matchInfo.updateEveryPoint,
+      bestOf: matchInfo.bestOf || 4,
+      playTo: matchInfo.playTo || 21
     });
   }).then(m => {
     match = {
@@ -187,8 +189,8 @@ exports.addGame = (req, res) => {
     }).then(result => {
       const game = {
         gameId: result[0],
-        score1: 21,
-        score2: 21,
+        score1: match.updateEveryPoint ? 0 : 21,
+        score2: match.updateEveryPoint ? 0 : 21,
         matchFinished: 0,
         gameFinished: 0,
         player1Id: match.player1Id,
