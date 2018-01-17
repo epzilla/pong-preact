@@ -221,13 +221,13 @@ export default class NotSoSecretCode extends Component {
 
         if (this.props.customAction) {
           this.props.customAction();
-        } else if (!this.props.useGiphy) {
-          this.highlightSound && this.highlightSound.play();
         }
 
         if (this.touchpad) {
           this.touchpad.style.transform = 'translateY(100vh)';
         }
+
+        this.highlightSound && this.highlightSound.play();
       }
 
       if (this.props.customAction) {
