@@ -9,6 +9,12 @@ module.exports = function(sequelize, DataTypes) {
       autoIncrement: true,
       primaryKey: true
     },
+    updateEveryPoint: {
+      field: 'player1_id',
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 1
+    },
     player1Id: {
       field: 'player1_id',
       type: DataTypes.INTEGER,
