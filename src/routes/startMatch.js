@@ -3,6 +3,8 @@ import { route } from 'preact-router';
 import Rest from '../lib/rest-service';
 import LocalStorageService from '../lib/local-storage-service';
 import SelectPlayerModal from '../components/selectPlayerModal';
+import Stepper from '../components/stepper';
+import SegmentedControl from '../components/SegmentedControl';
 
 export default class StartMatch extends Component {
   constructor(props) {
@@ -11,7 +13,11 @@ export default class StartMatch extends Component {
       player1: null,
       player2: null,
       isSelectingPlayer: 0,
-      players: []
+      players: [],
+      playTo: props.config && props.config.playTo ? props.config.playTo : 21,
+      winByTwo: props.config && props.config.winByTwo,
+      bestOf: props.config && props.config.bestOf ? props.config.bestOf : 4,
+      updateEveryPoint: 1
     }
   }
 
@@ -86,6 +92,18 @@ export default class StartMatch extends Component {
     route(`/add-new-player/new-match/${num}`);
   };
 
+  onBestOfChange = (e) => {
+    console.log(e);
+  };
+
+  onPlayToChange = (e) => {
+    console.log(e);
+  };
+
+  onScoringTypeChange = (e) => {
+    console.log(e);
+  };
+
   render() {
     let { player1, player2 } = this.state;
     return (
@@ -124,7 +142,36 @@ export default class StartMatch extends Component {
             </div>
           }
         </div>
-        <div class="start-btn-wrap">
+        <hr />
+        <div class="match-settings flex-col">
+          <div class="flex-col margin-bottom-1rem">
+            <div class="stepper-wrap flex-center">
+              <label>Best of</label>
+              <Stepper full onChange={(e) => this.onBestOfChange(e)} initialValue={this.state.bestOf} />
+              <label>Games</label>
+            </div>
+            <hr />
+            <div class="flex-center">
+              <label>Play to</label>
+              <Stepper full onChange={(e) => this.onPlayToChange(e)} initialValue={this.state.playTo}/>
+              <label>Points</label>
+            </div>
+            <hr />
+            <div class="flex-center flex-col update-scores-setting-control">
+              <label>Update scores</label>
+              <SegmentedControl
+                options={[
+                  { label: 'Point-by-point', value: 1 },
+                  { label: 'After each game', value: 0 }
+                ]}
+                value={this.state.updateEveryPoint}
+                onChange={(e) => this.onScoringTypeChange(e)}
+              />
+            </div>
+          </div>
+          <hr />
+        </div>
+        <div class="start-btn-wrap margin-bottom-1rem">
           <button class="btn success big" onClick={() => this.beginMatch()}>Begin</button>
         </div>
         <SelectPlayerModal {...this.state} select={this.selectPlayer} dismiss={this.dismissModal} />

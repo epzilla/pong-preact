@@ -3,6 +3,9 @@ export default {
   devMode: false,
   giphyAPIkey: 'giZ0uAJomvzuJPOw49LvUbK3m1erZIMJ',
   useGiphy: true,
+  bestOf: 4,
+  playTo: 21,
+  winByTwo: true,
   themeProperties: {
     pageBg: '#f4fcff',
     primary: '#405784',
