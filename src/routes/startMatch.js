@@ -93,15 +93,15 @@ export default class StartMatch extends Component {
   };
 
   onBestOfChange = ({ amount }) => {
-    this.setState({ bestOf: amount }, () => console.info(this.state));
+    this.setState({ bestOf: amount });
   };
 
   onPlayToChange = ({ amount }) => {
-    this.setState({ playTo: amount }, () => console.info(this.state));
+    this.setState({ playTo: amount });
   };
 
   onScoringTypeChange = (updateEveryPoint) => {
-    this.setState({ updateEveryPoint }, () => console.info(this.state))
+    this.setState({ updateEveryPoint })
   };
 
   render() {
