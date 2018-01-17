@@ -30,24 +30,17 @@ export default class Home extends Component {
     });
   }
 
-  componentWillReceiveProps({ matchToken }) {
-    if (matchTokens && matchTokens.length > 0) {
-      this.checkCanUpdate(matchToken)
+  componentWillReceiveProps({ updatableMatchIds }) {
+    if (updatableMatchIds && updatableMatchIds.length > 0) {
+      this.checkCanUpdate(updatableMatchIds)
     }
   }
 
   checkCanUpdate = () => {
     if (this.state.matchInProgress) {
-      try {
-        let { token } = LocalStorageService.get('match-token');
-        if (token) {
-          Rest.get(`matches/can-update-score/${token}/${this.props.device.id}`).then(canUpdateScore => {
-            this.setState({ canUpdateScore });
-          })
-        }
-      } catch (e) {
-        console.info('Match token not found. Cannot update scores.');
-      }
+      Rest.get(`matches/can-update-score/${this.props.device.id}`).then(canUpdateScore => {
+        this.setState({ canUpdateScore });
+      });
     }
   };
 

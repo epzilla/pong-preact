@@ -44,7 +44,6 @@ export default class SelectDeviceModal extends Component {
    };
 
    submit = () => {
-    let { match, token } = this.props;
     let { selectedDevices } = this.state;
     this.props.select(selectedDevices);
    };

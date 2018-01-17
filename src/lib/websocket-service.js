@@ -1,55 +1,55 @@
-export default class WebSocketService {
-  constructor() {
-    this.callbacks = {};
-    this.ws = null;
-    this.initialized = false;
-  }
+let callbacks = {};
+let ws = null;
+let initialized = false;
 
-  init = () => {
+const fireCallbacks = ({ type, data }) => {
+  if (type && data && callbacks[type] && callbacks[type].length > 0) {
+    try {
+      let json = JSON.parse(data);
+      if (json) {
+        callbacks[type].forEach(cb => cb(json));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+};
+
+const WebSocketService = {
+  init: () => {
     return new Promise((resolve, reject) => {
-      if (this.initialized) {
+      if (initialized) {
         resolve();
       } else {
         try {
-          this.ws = new WebSocket(`ws://${window.location.hostname}:3000`);
-          this.ws.onerror = (e) => console.error(e);
-          this.ws.onopen = () => console.log('WebSocket connection established');
-          this.ws.onclose = () => console.log('WebSocket connection closed');
-          this.ws.onmessage = (m) => {
+          ws = new WebSocket(`ws://${window.location.hostname}:3000`);
+          ws.onerror = (e) => console.error(e);
+          ws.onopen = () => console.log('WebSocket connection established');
+          ws.onclose = () => console.log('WebSocket connection closed');
+          ws.onmessage = (m) => {
             if (m && m.data) {
               let json = JSON.parse(m.data);
               if (json && json.data) {
-                this.fireCallbacks(json);
+                fireCallbacks(json);
               }
             }
           };
-          this.initialized = true;
+          initialized = true;
           resolve();
         } catch (e) {
           reject(e);
         }
       }
     });
-  };
+  },
 
-  fireCallbacks = ({ type, data }) => {
-    if (type && data && this.callbacks[type] && this.callbacks[type].length > 0) {
-      try {
-        let json = JSON.parse(data);
-        if (json) {
-          this.callbacks[type].forEach(cb => cb(json));
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  };
-
-  register = (type, cb) => {
-    if (this.callbacks[type]) {
-      this.callbacks[type].push(cb);
+  register: (type, cb) => {
+    if (callbacks[type]) {
+      callbacks[type].push(cb);
     } else {
-      this.callbacks[type] = [cb];
+      callbacks[type] = [cb];
     }
-  };
+  }
 }
+
+export default WebSocketService;

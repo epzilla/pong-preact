@@ -1,32 +1,20 @@
 const crypto = require('crypto');
 const constants = require('../constants');
-const guid = require('../helpers').generateGuid;
 let SimpleGames;
 let Matches;
 let sequelize;
 let sendSocketMsg;
 
 const validateMatchToken = (req, res) => {
-  const token = req.body.token || req.params.token;
   const deviceId = req.body.deviceId || req.params.deviceId;
-  if (!token || !deviceId) {
+  if (!deviceId) {
     return Promise.reject(constants.DEVICE_CANNOT_UPDATE_MATCH);
   }
   const hash = crypto.createHash('sha256');
-  hash.update(token + deviceId);
+  hash.update('01a217ea-67bf-' + deviceId + '411a-965e-3e874e15e490');
   const hashedToken = hash.digest('hex');
   return sequelize.query(`select match_id from match_key where key = '${hashedToken}'`).then(result => {
-    if (result.length > 0 && result[0].length > 0) {
-      return true;
-    }
-
-     return sequelize.query(`select token from will_call where device_id = '${deviceId}'`, { type: sequelize.QueryTypes.SELECT });
-  }).then(result => {
-    if (result.length > 0 && result[0].length > 0) {
-      return result[0];
-    }
-
-    return false;
+    return (result.length > 0 && result[0].length > 0);
   });
 };
 
@@ -44,7 +32,7 @@ exports.create = (req, res) => {
     return res.status(400).send(constants.NO_DEVICE_ID);
   }
 
-  let token, hashedToken, match, game;
+  let match, game;
   return Matches.findOne({
     where: {
       finished: 0
@@ -67,10 +55,9 @@ exports.create = (req, res) => {
       startTime: m.startTime,
       finishTime: m.finishTime
     };
-    token = guid();
     const hash = crypto.createHash('sha256');
-    hash.update(token + deviceId);
-    hashedToken = hash.digest('hex');
+    hash.update('01a217ea-67bf-' + deviceId + '411a-965e-3e874e15e490');
+    const hashedToken = hash.digest('hex');
     return Promise.all([
       sequelize.query(`insert into match_key (key, match_id) values ('${hashedToken}', '${m.id}')`, { type: sequelize.QueryTypes.INSERT }),
       sequelize.query(`insert into games (match_id) values ('${m.id}')`, { type: sequelize.QueryTypes.INSERT })
@@ -96,7 +83,7 @@ exports.create = (req, res) => {
     sendSocketMsg(constants.MATCH_STARTED, match);
     return res.json({
       match: match,
-      token: token
+      deviceId: deviceId
     });
   });
 };
@@ -135,24 +122,17 @@ exports.addDevices = (req, res) => {
       return res.sendStatus(400);
     }
 
-    let tokens = [];
-
     let promises = devices.map(d => {
-      let newToken = guid();
-      tokens.push({ token: newToken, device: d });
       const hash = crypto.createHash('sha256');
-      hash.update(newToken + d.id);
+      hash.update('01a217ea-67bf-' + d.id + '411a-965e-3e874e15e490');
       const hashedToken = hash.digest('hex');
-      return Promise.all([
-        sequelize.query(`insert into match_key (key, match_id) values ('${hashedToken}', '${match.id}')`, { type: sequelize.QueryTypes.INSERT }),
-        sequelize.query(`insert into will_call (device_id, token) values ('${d.id}', '${newToken}')`, { type: sequelize.QueryTypes.INSERT })
-      ]);
+      return sequelize.query(`insert into match_key (key, match_id) values ('${hashedToken}', '${match.id}')`, { type: sequelize.QueryTypes.INSERT });
     });
 
-    return Promise.all(promises).then(result => {
-      sendSocketMsg(constants.ADDED_DEVICES_TO_MATCH, { match, tokens });
-      return res.sendStatus(200);
-    });
+    return Promise.all(promises);
+  }).then(result => {
+    sendSocketMsg(constants.ADDED_DEVICES_TO_MATCH, { match, deviceIds: devices.map(dev => dev.id) });
+    return res.sendStatus(200);
   }).catch(e => {
     return res.status(500).send(e);
   });
@@ -295,8 +275,6 @@ exports.current = (req, res) => {
 };
 
 exports.mostRecent = (req, res) => {
-  const player1Id = req.params.player1Id;
-  const player2Id = req.params.player2Id;
   return Promise.all([
     Matches.findAll({
       order: sequelize.literal('start_time DESC'),
@@ -329,7 +307,7 @@ exports.mostRecent = (req, res) => {
     )
   ]).then(result => {
     let augmentedMatches = result[0].map(m => {
-      m['games'] = [];
+      m.games = [];
       return {
         games: [],
         id: m.id,

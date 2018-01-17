@@ -29,7 +29,7 @@ export default class App extends Component {
       kb: false,
       debugConsole: true,
       device: null,
-      matchToken: null,
+      updatableMatchIds: null,
       alerts: []
     };
     let conf = this.ls.get('config');
@@ -101,12 +101,18 @@ export default class App extends Component {
     });
   };
 
-  handleAddedDevicesToMatch = ({ tokens }) => {
+  handleAddedDevicesToMatch = ({ match, deviceIds }) => {
     if (this.state.device) {
-      let myToken = tokens.find(t => t.device.id === this.state.device.id);
-      if (myToken) {
-        LocalStorageService.set('match-token', { token: myToken.token });
-        this.setState({ matchToken: myToken.token });
+      let myDevice = deviceIds.indexOf(this.state.device.id);
+      if (myDevice) {
+        let matchIds = LocalStorageService.get('match-ids');
+        if (!matchIds || matchIds.length === 0) {
+          matchIds = [match.id];
+        } else {
+          matchIds.push(match.id);
+        }
+        LocalStorageService.set('match-ids', matchIds);
+        this.setState({ updatableMatchIds: matchIds });
       }
     }
   };
@@ -144,9 +150,9 @@ export default class App extends Component {
 					showKeyboardShortcuts={() => this.showKeyboardShortcuts()}
 				/>
 				<Router onChange={this.handleRoute}>
-					<Home path="/" config={this.config} device={this.state.device} matchToken={this.state.matchToken} />
+					<Home path="/" config={this.config} device={this.state.device} updatableMatchIds={this.state.updatableMatchIds} />
           <StartMatch path="/new-match/:num?/:addedPlayer?" config={this.config} device={this.state.device} />
-          <UpdateScore path="/update-score" config={this.config} device={this.state.device} postAlert={this.postAlert} matchToken={this.state.matchToken} />
+          <UpdateScore path="/update-score" config={this.config} device={this.state.device} postAlert={this.postAlert} updatableMatchIds={this.state.updatableMatchIds} />
           <AddNewPlayer path="/add-new-player/:returnRoute?/:playerNum?" config={this.config} />
           <SetDevice path="/set-device" config={this.config} callback={this.onDeviceSet} />
 				</Router>

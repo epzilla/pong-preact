@@ -1,5 +1,6 @@
 import { Component } from 'preact';
 import { route } from 'preact-router';
+import * as Constants from '../lib/constants';
 import Rest from '../lib/rest-service';
 import LocalStorageService from '../lib/local-storage-service';
 import Stepper from '../components/stepper';
@@ -13,7 +14,6 @@ export default class UpdateScore extends Component {
     super(props);
     this.state = {
       match: null,
-      token: null,
       devices: null,
       showConfirmEndMatch: false,
       showChooseOtherDevice: false,
@@ -22,25 +22,17 @@ export default class UpdateScore extends Component {
   }
 
   componentDidMount() {
-    Rest.get('matches/current').then(match => {
-      try {
-        let { token } = LocalStorageService.get('match-token');
-        if (token) {
-          Rest.get(`matches/can-update-score/${token}/${this.props.device.id}`).then(canUpdateScore => {
-            if (canUpdateScore) {
-              this.setState({
-                match: match,
-                token: token
-              });
-            } else {
-              route('/');
-            }
-          })
-        } else {
-          route('/');
-        }
-      } catch (e) {
-        console.info('Match token not found. Cannot update scores.');
+    let match
+    Rest.get('matches/current').then(m => {
+      match = m;
+      return Rest.get(`matches/can-update-score/${this.props.device.id}`);
+    }).then(canUpdateScore => {
+      if (canUpdateScore) {
+        this.setState({
+          match: match
+        });
+      } else {
+        console.warn(Constants.DEVICE_CANNOT_UPDATE_MATCH);
         route('/');
       }
     });
@@ -52,13 +44,13 @@ export default class UpdateScore extends Component {
   }
 
   scoreChange = (game, playerNum, { amount }) => {
-    let { match, token } = this.state;
+    let { match } = this.state;
     let { games } = match;
     let deviceId = this.props.device.id;
     let i = games.findIndex(g => g.gameId === game.gameId);
     if (i !== -1) {
       games[i][`score${ playerNum }`] = amount;
-      Rest.post('games/update', { game: games[i], scorer: playerNum, token, deviceId }).then(() => {
+      Rest.post('games/update', { game: games[i], scorer: playerNum, deviceId }).then(() => {
         match.games = games;
         this.setState({ match });
       });
@@ -66,12 +58,12 @@ export default class UpdateScore extends Component {
   };
 
   toggleFinished = (id) => {
-    const { match, token } = this.state;
+    const { match } = this.state;
     let i = match.games.findIndex(g => g.gameId === id);
     if (i !== -1) {
       match.games[i].gameFinished = !match.games[i].gameFinished;
       let deviceId = this.props.device.id;
-      Rest.post('games/update', { game: match.games[i], token, deviceId}).then(() => {
+      Rest.post('games/update', { game: match.games[i], deviceId}).then(() => {
         this.setState({ match });
       });
     }
@@ -90,11 +82,18 @@ export default class UpdateScore extends Component {
   };
 
   endMatch = () => {
-    let { match, token } = this.state;
+    let { match } = this.state;
     let deviceId = this.props.device.id;
     match.finished = 1;
-    Rest.post('matches/finish', { match, token, deviceId }).then(() => {
-      LocalStorageService.delete('match-token');
+    Rest.post('matches/finish', { match, deviceId }).then(() => {
+      let matchIds = LocalStorageService.get('match-ids');
+      if (matchIds) {
+        let i = matchIds.indexOf(match.id);
+        if (i !== -1) {
+          matchIds.splice(i, 1);
+          LocalStorageService.set('match-ids', matchIds);
+        }
+      }
       route(`/match-summary/${match.id}`);
     });
   };
