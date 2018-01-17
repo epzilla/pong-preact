@@ -61,7 +61,8 @@ export default class SelectDeviceModal extends Component {
           <div class="modal-backdrop select-device-modal-backdrop"></div>
           <div class="modal select-device-modal-main">
             <div class="modal-header">
-              <h2>Select Device</h2>
+              <h2>Select Devices</h2>
+              <p>Choose one or more other registered devices who can update scores for this match. Hit the "Share" button when you&apos;re done.</p>
               <button class="dismiss-btn" onClick={() => this.props.dismiss()}>&times;</button>
             </div>
             <div class="modal-body flex-1 flex-col">

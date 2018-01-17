@@ -94,7 +94,7 @@ export default class NotSoSecretCode extends Component {
       let allPics = this.props.config.highlightImages.portrait.concat(this.props.config.highlightImages.landscape);
       return allPics[Math.floor(Math.random() * allPics.length)];
     }
-touch
+
     let portrait = window.matchMedia('(orientation: portrait)').matches;
     let allPics = this.props.config.highlightImages;
     let chosenPics = portrait ? allPics.portrait : allPics.landscape;

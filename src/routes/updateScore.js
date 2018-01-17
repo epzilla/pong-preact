@@ -17,7 +17,8 @@ export default class UpdateScore extends Component {
       devices: null,
       showConfirmEndMatch: false,
       showChooseOtherDevice: false,
-      confirmedSharingWithDevices: []
+      confirmedSharingWithDevices: [],
+      gamesCollapsed: {}
     };
   }
 
@@ -32,9 +33,9 @@ export default class UpdateScore extends Component {
       }
     }).then(canUpdateScore => {
       if (canUpdateScore) {
-        this.setState({
-          match: match
-        });
+        let { gamesCollapsed } = this.state;
+        match.games.forEach(g => gamesCollapsed[g.gameId] = !!g.gameFinished);
+        this.setState({ match, gamesCollapsed });
       } else {
         console.warn(Constants.DEVICE_CANNOT_UPDATE_MATCH);
         route('/');
@@ -65,22 +66,36 @@ export default class UpdateScore extends Component {
   };
 
   toggleFinished = (id) => {
-    const { match } = this.state;
+    const { match, gamesCollapsed } = this.state;
     let i = match.games.findIndex(g => g.gameId === id);
     if (i !== -1) {
       match.games[i].gameFinished = !match.games[i].gameFinished;
       let deviceId = this.props.device.id;
       Rest.post('games/update', { game: match.games[i], deviceId}).then(() => {
-        this.setState({ match });
+        this.setState({ match }, () => {
+          if (match.games[i].gameFinished) {
+            gamesCollapsed[match.games[i].gameId] = true;
+            this.setState({ gamesCollapsed });
+          }
+        });
       });
+    }
+  };
+
+  toggleExpanded = (gameId) => {
+    let { gamesCollapsed } = this.state;
+    if (gamesCollapsed.hasOwnProperty(gameId)) {
+      gamesCollapsed[gameId] = !gamesCollapsed[gameId];
+      this.setState({ gamesCollapsed });
     }
   };
 
   addGame = () => {
     Rest.post('games/add', Object.assign({ deviceId: this.props.device.id }, this.state)).then(g => {
-      let { match } = this.state;
+      let { match, gamesCollapsed } = this.state;
       match.games.push(g);
-      this.setState({ match });
+      gamesCollapsed[g.gameId] = false;
+      this.setState({ match, gamesCollapsed });
     });
   };
 
@@ -148,7 +163,7 @@ export default class UpdateScore extends Component {
           }
 
           return (
-            <Expandable title={title} defaultCollapsed={ g.gameFinished }>
+            <Expandable title={title} collapsed={ this.state.gamesCollapsed[g.gameId] } id={g.gameId} toggle={(id) => this.toggleExpanded(id)}>
               <div class="game-update-row">
                 <div class="flex-col flex-center">
                   <h4>{ g.player1Fname } {g.player1Lname }</h4>
@@ -188,14 +203,14 @@ export default class UpdateScore extends Component {
               <i class="fa fa-exchange"></i>
               <i class="fa fa-mobile"></i>
             </div>
-            <span>Allow Another Device to Update</span>
+            <span>Let Other Devices Update</span>
           </button>
           : null
         }
         <GenericModal
           header="Confirm End Match"
           show={showConfirmEndMatch}
-          content="hey fella you really wanna end this thing?"
+          content="Are you sure you want to end this match?"
           confirmText="Yep! It's Over, son!"
           cancelText="Oops! No."
           confirm={this.endMatch}

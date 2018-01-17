@@ -1,6 +1,6 @@
 export default {
   siteName: 'Pong Tracker',
-  devMode: false,
+  devMode: true,
   giphyAPIkey: 'giZ0uAJomvzuJPOw49LvUbK3m1erZIMJ',
   useGiphy: true,
   themeProperties: {

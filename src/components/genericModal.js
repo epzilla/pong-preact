@@ -24,7 +24,7 @@ const GenericModal = ({ header, content, show, confirm, confirmText, cancelText,
 
   return (
     <CSSTransitionGroup
-      transitionName="modal-flip-in"
+      transitionName="modal-pop-in"
       transitionAppear={false}
       transitionLeave={true}
       transitionEnter={true}

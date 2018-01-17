@@ -37,11 +37,11 @@ export default class Home extends Component {
     }
   }
 
-  checkCanUpdate = () => {
-    if (this.state.matchInProgress) {
+  checkCanUpdate = (matchIds) => {
+    if (matchIds || this.state.matchInProgress) {
       Rest.get(`matches/can-update-score/${this.props.device.id}`).then(canUpdateScore => {
-        let showNewPermission = !this.state.canUpdateScore && canUpdateScore && this.props.postAlert;
-        this.setState({ canUpdateScore }, () => {
+        let showNewPermission = matchIds && !this.state.canUpdateScore && canUpdateScore && this.props.postAlert;
+        this.setState({ canUpdateScore, matchInProgress: true }, () => {
           if (showNewPermission) {
             this.props.postAlert({ type: 'success', msg: NEW_MATCH_PERMISSION_GRANTED });
           }
