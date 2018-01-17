@@ -49,8 +49,6 @@ export default class App extends Component {
           if (result && result.data) {
             this.config.highlightImages.portrait = result.data.slice(0, 5).map(d => d.images.downsized_medium.url);
             this.config.highlightImages.landscape = result.data.slice(5, 10).map(d => d.images.downsized_medium.url);
-            console.log(this.config.highlightImages.portrait);
-            console.log(this.config.highlightImages.landscape);
           }
         });
     }

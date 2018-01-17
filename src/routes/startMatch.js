@@ -92,16 +92,16 @@ export default class StartMatch extends Component {
     route(`/add-new-player/new-match/${num}`);
   };
 
-  onBestOfChange = (e) => {
-    console.log(e);
+  onBestOfChange = ({ amount }) => {
+    this.setState({ bestOf: amount }, () => console.info(this.state));
   };
 
-  onPlayToChange = (e) => {
-    console.log(e);
+  onPlayToChange = ({ amount }) => {
+    this.setState({ playTo: amount }, () => console.info(this.state));
   };
 
-  onScoringTypeChange = (e) => {
-    console.log(e);
+  onScoringTypeChange = (updateEveryPoint) => {
+    this.setState({ updateEveryPoint }, () => console.info(this.state))
   };
 
   render() {
