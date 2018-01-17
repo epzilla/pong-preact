@@ -40,5 +40,19 @@ export default {
         return;
       }
     }
+  },
+
+  deleteAll: function () {
+    self = this;
+    if (window.localStorage && window.localStorage.removeItem) {
+      try {
+        const keys = Object.keys(localStorage).filter(k => k.indexOf(self.prefix) !== -1);
+        keys.forEach(k => {
+          window.localStorage.removeItem(k);
+        });
+      } catch (e) {
+        return;
+      }
+    }
   }
 };

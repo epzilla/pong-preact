@@ -27,5 +27,25 @@ module.exports = function (models, app, sequelize, ws) {
   app.get('/api/devices', devices.get);
   app.post('/api/devices', devices.create);
 
+  app.del('/api/reset-all', (req, res) => {
+    return sequelize.query(`
+      delete from games where id in
+      ( select
+          g.id as gameId
+        from
+          (select * from matches m where finished = 0 order by start_time limit 1) as m
+          join games g on g.match_id = m.id
+          join players p1 on m.player1_id = p1.id
+          join players p2 on m.player2_id = p2.id
+        order by m.start_time desc
+      )`, { type: sequelize.QueryTypes.DELETE }
+    )
+    .then(() => sequelize.query(`delete from match_key`, { type: sequelize.QueryTypes.DELETE }))
+    .then(() => sequelize.query(`delete from matches where finished = 0`, { type: sequelize.QueryTypes.DELETE }))
+    .then(() => sequelize.query(`delete from devices`, { type: sequelize.QueryTypes.DELETE }))
+    .then(() => res.sendStatus(200))
+    .catch(e => res.status(500).send(e));
+  });
+
   app.get('/*', (req, res) => res.render('index'));
 };

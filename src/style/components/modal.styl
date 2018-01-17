@@ -25,8 +25,14 @@
 .secret-modal {
   background-color: rgba(51, 51, 51, 0.95);
   background-size: cover;
+  background-repeat: no-repeat;
   background-position-x: center;
   background-position-y: top;
+
+  &.gif {
+    background-position-x: center;
+    background-size: contain;
+  }
 
   h1 {
     background: rgba(255, 255, 255, 0.36);

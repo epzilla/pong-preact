@@ -1,6 +1,8 @@
 export default {
   siteName: 'Pong Tracker',
   devMode: false,
+  giphyAPIkey: 'giZ0uAJomvzuJPOw49LvUbK3m1erZIMJ',
+  useGiphy: true,
   themeProperties: {
     pageBg: '#f4fcff',
     primary: '#405784',

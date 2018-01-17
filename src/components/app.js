@@ -37,6 +37,23 @@ export default class App extends Component {
     if (Config && JSON.stringify(conf) !== JSON.stringify(Config)) {
       this.ls.set('config', Config);
     }
+
+    if (this.config.devMode) {
+      this.resetClicks = 0;
+      this.canReset = false;
+    }
+
+    if (this.config.useGiphy) {
+      Rest.getExternal(`https://api.giphy.com/v1/gifs/search?api_key=${this.config.giphyAPIkey}&q=ping pong&limit=10&offset=${Math.random() * 200}&rating=PG-13&lang=en`)
+        .then(result => {
+          if (result && result.data) {
+            this.config.highlightImages.portrait = result.data.slice(0, 5).map(d => d.images.downsized_medium.url);
+            this.config.highlightImages.landscape = result.data.slice(5, 10).map(d => d.images.downsized_medium.url);
+            console.log(this.config.highlightImages.portrait);
+            console.log(this.config.highlightImages.landscape);
+          }
+        });
+    }
   }
 
 	/**
@@ -117,6 +134,21 @@ export default class App extends Component {
     }
   };
 
+  resetApp = () => {
+    this.resetClicks++;
+    if (this.resetClicks > 2) {
+      this.resetClicks = 0;
+      this.canReset = true;
+    }
+  };
+
+  resetAppAfterCode = () => {
+    LocalStorageService.deleteAll();
+    Rest.del('reset-all').then(() => {
+      window.location.assign('/');
+    });
+  }
+
 	componentDidMount() {
     // Set CSS Custom Properties
     if (this.config && this.config.themeProperties) {
@@ -156,15 +188,28 @@ export default class App extends Component {
           <AddNewPlayer path="/add-new-player/:returnRoute?/:playerNum?" config={this.config} />
           <SetDevice path="/set-device" config={this.config} callback={this.onDeviceSet} />
 				</Router>
-        {
+        {/*
           (this.config.devMode && !this.state.debugConsole) ?
           <div class="debug-mode-btn-container" onClick={() => this.showDebugConsole()}>
               <i class="fa fa-bug"></i>
           </div>
           : null
+        */}
+        {
+          this.config.devMode ?
+          <div class="debug-nuke-btn-container">
+            <button class="btn" onClick={() => this.resetApp()}>
+              <i class="fa fa-bomb"></i>
+              <span>Reset App</span>
+            </button>
+          </div>
+          : null
         }
-        { this.config.devMode ? <DebugConsole show={this.state.debugConsole} close={this.hideDebugConsole} /> : null }
-				<NotSoSecretCode config={this.config} menu={this.state.menu} />
+        { /*this.config.devMode ? <DebugConsole show={this.state.debugConsole} close={this.hideDebugConsole} /> : null */}
+				{ this.config.devMode ?
+          <NotSoSecretCode config={this.config} menu={this.state.menu} customAction={this.resetAppAfterCode} /> :
+          <NotSoSecretCode config={this.config} menu={this.state.menu} useGiphy={true} />
+        }
         <GlobalKeyboardShortcuts
           toggleKeyboardShortcuts={this.toggleKeyboardShortcuts}
           escape={this.escapeKeyCallback}
