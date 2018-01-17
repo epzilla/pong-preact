@@ -26,8 +26,8 @@ exports.init = (models, db, ws) => {
 };
 
 exports.create = (req, res) => {
-  const playersInfo = req.body;
-  const deviceId = playersInfo.deviceId || req.params.deviceId;
+  const matchInfo = req.body;
+  const deviceId = matchInfo.deviceId || req.params.deviceId;
   if (!deviceId) {
     return res.status(400).send(constants.NO_DEVICE_ID);
   }
@@ -42,7 +42,11 @@ exports.create = (req, res) => {
       return res.status(400).send(constants.MATCH_IN_PROGRESS);
     }
 
-    return Matches.create({ player1Id: playersInfo.player1.id, player2Id: playersInfo.player2.id });
+    return Matches.create({
+      player1Id: matchInfo.player1.id,
+      player2Id: matchInfo.player2.id,
+      updateEveryPoint: matchInfo.updateEveryPoint
+    });
   }).then(m => {
     match = {
       games: [{
@@ -72,12 +76,12 @@ exports.create = (req, res) => {
       gameFinished: 0,
       player1Id: match.player1Id,
       player2Id: match.player2Id,
-      player1Fname: playersInfo.player1.fname,
-      player1Lname: playersInfo.player2.fname,
-      player1MiddleInitial: playersInfo.player2.middleInitial,
-      player2Fname: playersInfo.player1.lname,
-      player2Lname: playersInfo.player2.lname,
-      player2MiddleInitial: playersInfo.player2.middleInitial
+      player1Fname: matchInfo.player1.fname,
+      player1Lname: matchInfo.player2.fname,
+      player1MiddleInitial: matchInfo.player2.middleInitial,
+      player2Fname: matchInfo.player1.lname,
+      player2Lname: matchInfo.player2.lname,
+      player2MiddleInitial: matchInfo.player2.middleInitial
     };
     match.games[0] = game;
     sendSocketMsg(constants.MATCH_STARTED, match);
