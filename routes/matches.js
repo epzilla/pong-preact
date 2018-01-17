@@ -5,20 +5,16 @@ let Matches;
 let sequelize;
 let sendSocketMsg;
 
-const generateGuid = () => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-      let r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-  });
-};
-
 const validateMatchToken = (req, res) => {
-  const token = req.body.token || req.params.token;
+  const deviceId = req.body.deviceId || req.params.deviceId;
+  if (!deviceId) {
+    return Promise.reject(constants.DEVICE_CANNOT_UPDATE_MATCH);
+  }
   const hash = crypto.createHash('sha256');
-  hash.update(token + req.headers['user-agent']);
+  hash.update('01a217ea-67bf-' + deviceId + '411a-965e-3e874e15e490');
   const hashedToken = hash.digest('hex');
   return sequelize.query(`select match_id from match_key where key = '${hashedToken}'`).then(result => {
-    return result.length > 0 && result[0].length > 0;
+    return (result.length > 0 && result[0].length > 0);
   });
 };
 
@@ -31,14 +27,19 @@ exports.init = (models, db, ws) => {
 
 exports.create = (req, res) => {
   const playersInfo = req.body;
-  let token, hashedToken, match, game;
+  const deviceId = playersInfo.deviceId || req.params.deviceId;
+  if (!deviceId) {
+    return res.status(400).send(constants.NO_DEVICE_ID);
+  }
+
+  let match, game;
   return Matches.findOne({
     where: {
       finished: 0
     }
   }).then(matchInProgress => {
     if (matchInProgress) {
-      return res.send(400);
+      return res.status(400).send(constants.MATCH_IN_PROGRESS);
     }
 
     return Matches.create({ player1Id: playersInfo.player1.id, player2Id: playersInfo.player2.id });
@@ -54,10 +55,9 @@ exports.create = (req, res) => {
       startTime: m.startTime,
       finishTime: m.finishTime
     };
-    token = generateGuid();
     const hash = crypto.createHash('sha256');
-    hash.update(token + req.headers['user-agent']);
-    hashedToken = hash.digest('hex');
+    hash.update('01a217ea-67bf-' + deviceId + '411a-965e-3e874e15e490');
+    const hashedToken = hash.digest('hex');
     return Promise.all([
       sequelize.query(`insert into match_key (key, match_id) values ('${hashedToken}', '${m.id}')`, { type: sequelize.QueryTypes.INSERT }),
       sequelize.query(`insert into games (match_id) values ('${m.id}')`, { type: sequelize.QueryTypes.INSERT })
@@ -83,7 +83,7 @@ exports.create = (req, res) => {
     sendSocketMsg(constants.MATCH_STARTED, match);
     return res.json({
       match: match,
-      token: token
+      deviceId: deviceId
     });
   });
 };
@@ -111,6 +111,31 @@ exports.update = (req, res) => {
     return res.json(match);
   }).catch(e => {
     return res.send(500, e);
+  });
+};
+
+exports.addDevices = (req, res) => {
+  const match = req.body.match;
+  const devices = req.body.devices;
+  return validateMatchToken(req, res).then(result => {
+    if (!result) {
+      return res.sendStatus(400);
+    }
+
+    let promises = devices.map(d => {
+      const hash = crypto.createHash('sha256');
+      hash.update('01a217ea-67bf-' + d.id + '411a-965e-3e874e15e490');
+      const hashedToken = hash.digest('hex');
+      return sequelize.query(`insert into match_key (key, match_id) values ('${hashedToken}', '${match.id}')`, { type: sequelize.QueryTypes.INSERT });
+    });
+
+    return Promise.all(promises);
+  }).then(result => {
+    let packet = { match, deviceIds: devices.map(dev => dev.id) };
+    sendSocketMsg(constants.ADDED_DEVICES_TO_MATCH, packet);
+    return res.json(packet);
+  }).catch(e => {
+    return res.status(500).send(e);
   });
 };
 
@@ -238,21 +263,25 @@ exports.current = (req, res) => {
       order by m.start_time desc`, { type: sequelize.QueryTypes.SELECT}
     )
   ]).then(result => {
-    return res.json({
-      games: result[1],
-      id: result[0].id,
-      player1Id: result[0].player1Id,
-      player2Id: result[0].player2Id,
-      finished: result[0].finished,
-      startTime: result[0].startTime,
-      finishTime: result[0].finishTime
-    });
+    if (result[0] && result[1]) {
+      return res.json({
+        games: result[1],
+        id: result[0].id,
+        player1Id: result[0].player1Id,
+        player2Id: result[0].player2Id,
+        finished: result[0].finished,
+        startTime: result[0].startTime,
+        finishTime: result[0].finishTime
+      });
+    }
+
+    return res.json({});
+  }).catch(e => {
+    return res.status(400).send(e);
   });
 };
 
 exports.mostRecent = (req, res) => {
-  const player1Id = req.params.player1Id;
-  const player2Id = req.params.player2Id;
   return Promise.all([
     Matches.findAll({
       order: sequelize.literal('start_time DESC'),
@@ -285,7 +314,7 @@ exports.mostRecent = (req, res) => {
     )
   ]).then(result => {
     let augmentedMatches = result[0].map(m => {
-      m['games'] = [];
+      m.games = [];
       return {
         games: [],
         id: m.id,

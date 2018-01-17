@@ -1,6 +1,7 @@
 import { Component } from 'preact';
 import Rest from '../lib/rest-service';
 import { Link } from 'preact-router/match';
+import { NEW_MATCH_PERMISSION_GRANTED } from '../lib/constants';
 import BoxScore from '../components/boxScore';
 import LocalStorageService from '../lib/local-storage-service';
 
@@ -25,23 +26,29 @@ export default class Home extends Component {
           currentMatch: currentMatch,
           recentMatches: matches,
           matchInProgress: !currentMatch.finished
-        }, () => {
-          if (this.state.matchInProgress) {
-            try {
-              let { token } = LocalStorageService.get('match-token');
-              if (token) {
-                Rest.get(`matches/can-update-score/${token}`).then(canUpdateScore => {
-                  this.setState({ canUpdateScore });
-                })
-              }
-            } catch (e) {
-              console.info('Match token not found. Cannot update scores.');
-            }
-          }
-        });
+        }, this.checkCanUpdate);
       }
     });
   }
+
+  componentWillReceiveProps({ updatableMatchIds }) {
+    if (updatableMatchIds && updatableMatchIds.length > 0) {
+      this.checkCanUpdate(updatableMatchIds)
+    }
+  }
+
+  checkCanUpdate = (matchIds) => {
+    if (matchIds || this.state.matchInProgress) {
+      Rest.get(`matches/can-update-score/${this.props.device.id}`).then(canUpdateScore => {
+        let showNewPermission = matchIds && !this.state.canUpdateScore && canUpdateScore && this.props.postAlert;
+        this.setState({ canUpdateScore, matchInProgress: true }, () => {
+          if (showNewPermission) {
+            this.props.postAlert({ type: 'success', msg: NEW_MATCH_PERMISSION_GRANTED });
+          }
+        });
+      });
+    }
+  };
 
   render() {
     let { matchInProgress, currentMatch, recentMatches, canUpdateScore } = this.state;
@@ -50,7 +57,7 @@ export default class Home extends Component {
       <div class="main home">
         { currentMatch ? <h2 class="align-center primary-text">{ matchStatus }</h2> : null }
         { currentMatch ? <BoxScore jumbotron={true} match={ currentMatch } /> : null }
-        { !matchInProgress ? <Link href="/new-match" class="btn big primary center margin-top-1rem">Start New Match</Link> : null }
+        { !matchInProgress && this.props.device ? <Link href="/new-match" class="btn big primary center margin-top-1rem">Start New Match</Link> : null }
         { matchInProgress && canUpdateScore ? <Link href="/update-score" class="btn big success update-score">Update Score</Link> : null }
         { recentMatches && recentMatches.length > 0 ? <hr /> : null }
         { recentMatches && recentMatches.length > 0 ? <h3 class="align-center primary-text">Recent Matches</h3> : null }

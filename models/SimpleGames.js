@@ -6,28 +6,24 @@ module.exports = function(sequelize, DataTypes) {
       field: 'id',
       type: DataTypes.INTEGER,
       allowNull: true,
-      allowNull: true,
       autoIncrement: true,
       primaryKey: true
     },
     score1: {
       field: 'score1',
       type: DataTypes.INTEGER,
-      allowNull: true,
-      defaultValue: '0'
+      allowNull: true
     },
     score2: {
       field: 'score2',
       type: DataTypes.INTEGER,
-      allowNull: true,
-      defaultValue: '0'
+      allowNull: true
     },
     gameFinished: {
       field: 'finished',
       type: DataTypes.INTEGER,
-      allowNull: true,
-      defaultValue: '0'
-    },
+      allowNull: true
+    }
   }, {
     tableName: 'games',
     timestamps: false,

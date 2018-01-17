@@ -1,7 +1,7 @@
-var Players;
+let Players;
 
 exports.init = (models) => {
-  Players = models['Players'];
+  Players = models.Players;
 };
 
 exports.get = (req, res) => {

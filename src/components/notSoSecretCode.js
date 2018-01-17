@@ -75,6 +75,10 @@ export default class NotSoSecretCode extends Component {
     document.addEventListener('keyup', this.listener);
     document.addEventListener('touchstart', this.onDocTouchstart);
     document.addEventListener('touchend', this.onTouchend);
+    this.highlightSound = document.getElementById('highlight-sound');
+    if (this.props.config.highlightSound) {
+      this.highlightSound.src = this.props.config.highlightSound;
+    }
   }
 
   componentWillUnmount() {
@@ -90,6 +94,11 @@ export default class NotSoSecretCode extends Component {
   }
 
   getRandomImg = () => {
+    if (this.props.useGiphy) {
+      let allPics = this.props.config.highlightImages.portrait.concat(this.props.config.highlightImages.landscape);
+      return allPics[Math.floor(Math.random() * allPics.length)];
+    }
+
     let portrait = window.matchMedia('(orientation: portrait)').matches;
     let allPics = this.props.config.highlightImages;
     let chosenPics = portrait ? allPics.portrait : allPics.landscape;
@@ -101,7 +110,6 @@ export default class NotSoSecretCode extends Component {
       //ESC
       this.dismiss();
     } else {
-      this.highlightSound = document.getElementById('highlight-sound');
       let keys = this.keys + `${e.which}`;
       if (this.pattern.indexOf(keys.toString()) === -1) {
         this.keys = `${e.which}`;
@@ -138,14 +146,14 @@ export default class NotSoSecretCode extends Component {
       this.touchpad = document.getElementById('touchpad');
       this.listenForSwipes = true;
       this.highlightSound = document.getElementById('highlight-sound');
-      this.highlightSound.load();
+      this.highlightSound && this.highlightSound.load();
     }
   };
 
   onDocTouchstart = (e) => {
     this.touches = e.touches.length;
     this.secretSound = document.getElementById('secret-sound');
-    this.secretSound.load();
+    this.secretSound && this.secretSound.load();
   };
 
   onTouchmove = e => {
@@ -213,18 +221,28 @@ export default class NotSoSecretCode extends Component {
       let bgImgStyle = `background-image: url('${this.getRandomImg()}');`;
       if (!this.isShowing) {
         this.isShowing = true;
-        this.highlightSound.play();
+
+        if (this.props.customAction) {
+          this.props.customAction();
+        }
+
         if (this.touchpad) {
           this.touchpad.style.transform = 'translateY(100vh)';
         }
+
+        this.highlightSound && this.highlightSound.play();
       }
 
-      return (
-        <div class="secret-modal modal flex-center" style={ bgImgStyle }>
-          <button class="dismiss-btn" onClick={() => this.dismiss()}>&times;</button>
-          <h1>Touchdown { this.props.config.team }!</h1>
-        </div>
-      );
+      if (this.props.customAction) {
+        return;
+      } else {
+        return (
+          <div class={`secret-modal modal flex-center ${this.props.useGiphy ? 'gif' : ''}`} style={ bgImgStyle }>
+            <button class="dismiss-btn" onClick={() => this.dismiss()}>&times;</button>
+            { !this.props.useGiphy ? <h1>Touchdown { this.props.config.team }!</h1> : null }
+          </div>
+        );
+      }
     }
     else if (this.props.menu) {
       let emoji = <span>🤔</span>;

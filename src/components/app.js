@@ -1,5 +1,5 @@
 import { h, Component } from 'preact';
-import { Router } from 'preact-router';
+import { route, Router } from 'preact-router';
 
 import Config from '../config';
 import Header from './header';
@@ -7,13 +7,17 @@ import Home from '../routes/home';
 import StartMatch from '../routes/startMatch';
 import AddNewPlayer from '../routes/addNewPlayer';
 import UpdateScore from '../routes/updateScore';
+import SetDevice from '../routes/setDevice';
 import DebugConsole from './debugConsole';
 import NotSoSecretCode from './notSoSecretCode';
 import GlobalKeyboardShortcuts from './globalKeyboardShortcuts';
 import KeyboardShortcutHelp from './keyboardShortcutHelp';
+import FixedAlerts from './fixedAlerts';
 import Rest from '../lib/rest-service';
 import LocalStorageService from '../lib/local-storage-service';
+import WebSocketService from '../lib/websocket-service';
 import { lightenOrDarken } from '../lib/helpers';
+import * as Constants from '../lib/constants';
 
 export default class App extends Component {
 	constructor(props) {
@@ -23,12 +27,32 @@ export default class App extends Component {
     this.state = {
       menu: false,
       kb: false,
-      debugConsole: true
+      debugConsole: true,
+      device: null,
+      updatableMatchIds: null,
+      alerts: []
     };
     let conf = this.ls.get('config');
     this.config = Config || conf;
     if (Config && JSON.stringify(conf) !== JSON.stringify(Config)) {
       this.ls.set('config', Config);
+    }
+
+    if (this.config.devMode) {
+      this.resetClicks = 0;
+      this.canReset = false;
+    }
+
+    if (this.config.useGiphy) {
+      Rest.getExternal(`https://api.giphy.com/v1/gifs/search?api_key=${this.config.giphyAPIkey}&q=ping pong&limit=10&offset=${Math.random() * 200}&rating=PG-13&lang=en`)
+        .then(result => {
+          if (result && result.data) {
+            this.config.highlightImages.portrait = result.data.slice(0, 5).map(d => d.images.downsized_medium.url);
+            this.config.highlightImages.landscape = result.data.slice(5, 10).map(d => d.images.downsized_medium.url);
+            console.log(this.config.highlightImages.portrait);
+            console.log(this.config.highlightImages.landscape);
+          }
+        });
     }
   }
 
@@ -40,6 +64,15 @@ export default class App extends Component {
 	handleRoute = e => {
     this.currentUrl = e.url;
     this.setState({ menu: false});
+  };
+
+  onDeviceSet = device => {
+    let { alerts } = this.state;
+    alerts.push({ type: 'success', msg: `Registered ${device.name}!`});
+    this.setState({ device, alerts }, () => {
+      route('/');
+      setTimeout(() => this.setState({ alerts: [] }), 5000);
+    })
   };
 
 	menuToggledCallback = (menu) => {
@@ -72,6 +105,52 @@ export default class App extends Component {
     this.setState({ debugConsole: true });
   };
 
+  // Passed as a prop to children to let them post alerts
+  postAlert = (alert) => {
+    let { alerts } = this.state;
+    alerts.push(alert);
+    this.setState({ alerts }, () => {
+      setTimeout(() => {
+        alerts = this.state.alerts;
+        alerts.splice(alerts.indexOf(alert), 1);
+        this.setState({ alerts });
+      }, 5000);
+    });
+  };
+
+  handleAddedDevicesToMatch = ({ match, deviceIds }) => {
+    if (this.state.device) {
+      let i = deviceIds.indexOf(this.state.device.id);
+      if (i !== -1) {
+        let matchIds = LocalStorageService.get('match-ids');
+        if (!matchIds || matchIds.length === 0) {
+          matchIds = [match.id];
+        } else {
+          matchIds.push(match.id);
+        }
+        LocalStorageService.set('match-ids', matchIds);
+        this.setState({ updatableMatchIds: matchIds }, () => {
+
+        });
+      }
+    }
+  };
+
+  resetApp = () => {
+    this.resetClicks++;
+    if (this.resetClicks > 2) {
+      this.resetClicks = 0;
+      this.canReset = true;
+    }
+  };
+
+  resetAppAfterCode = () => {
+    LocalStorageService.deleteAll();
+    Rest.del('reset-all').then(() => {
+      window.location.assign('/');
+    });
+  }
+
 	componentDidMount() {
     // Set CSS Custom Properties
     if (this.config && this.config.themeProperties) {
@@ -84,12 +163,16 @@ export default class App extends Component {
       document.body.style.setProperty('--secondaryBtnBorder', sbg ? lightenOrDarken(sbg, -40) : '#888');
     }
 
-    // Subscribe to WebSockets for score/new game updates
-    const ws = new WebSocket(`ws://${window.location.hostname}:3000`);
-    ws.onerror = (e) => console.error(e);
-    ws.onopen = () => console.log('WebSocket connection established');
-    ws.onclose = () => console.log('WebSocket connection closed');
-    ws.onmessage = (m) => console.info(m);
+    WebSocketService.init().then(() => {
+      WebSocketService.register(Constants.ADDED_DEVICES_TO_MATCH, this.handleAddedDevicesToMatch);
+    });
+
+    let device = this.ls.get('device');
+    if (device) {
+      this.setState({ device });
+    } else {
+      route('/set-device');
+    }
   }
 
 	render() {
@@ -101,26 +184,42 @@ export default class App extends Component {
 					showKeyboardShortcuts={() => this.showKeyboardShortcuts()}
 				/>
 				<Router onChange={this.handleRoute}>
-					<Home path="/" config={this.config} />
-          <StartMatch path="/new-match/:num?/:addedPlayer?" config={this.config} />
-          <UpdateScore path="/update-score" config={this.config} />
+					<Home path="/" config={this.config} device={this.state.device} postAlert={this.postAlert} updatableMatchIds={this.state.updatableMatchIds} />
+          <StartMatch path="/new-match/:num?/:addedPlayer?" config={this.config} device={this.state.device} />
+          <UpdateScore path="/update-score" config={this.config} device={this.state.device} postAlert={this.postAlert} updatableMatchIds={this.state.updatableMatchIds} />
           <AddNewPlayer path="/add-new-player/:returnRoute?/:playerNum?" config={this.config} />
+          <SetDevice path="/set-device" config={this.config} callback={this.onDeviceSet} />
 				</Router>
-        {
+        {/*
           (this.config.devMode && !this.state.debugConsole) ?
           <div class="debug-mode-btn-container" onClick={() => this.showDebugConsole()}>
               <i class="fa fa-bug"></i>
           </div>
           : null
+        */}
+        {
+          this.config.devMode ?
+          <div class="debug-nuke-btn-container">
+            <button class="btn" onClick={() => this.resetApp()}>
+              <i class="fa fa-bomb"></i>
+              <span>Reset App</span>
+            </button>
+          </div>
+          : null
         }
-        { this.config.devMode ? <DebugConsole show={this.state.debugConsole} close={this.hideDebugConsole} /> : null }
-				<NotSoSecretCode config={this.config} menu={this.state.menu} />
+        { /*this.config.devMode ? <DebugConsole show={this.state.debugConsole} close={this.hideDebugConsole} /> : null */}
+				{ this.config.devMode ?
+          <NotSoSecretCode config={this.config} menu={this.state.menu} customAction={this.resetAppAfterCode} /> :
+          <NotSoSecretCode config={this.config} menu={this.state.menu} useGiphy={true} />
+        }
         <GlobalKeyboardShortcuts
           toggleKeyboardShortcuts={this.toggleKeyboardShortcuts}
           escape={this.escapeKeyCallback}
         />
         <KeyboardShortcutHelp config={this.config} show={this.state.kb} dismiss={() => this.hideKeyboardShortcuts()} />
         <audio preload id="secret-sound" src="/assets/sounds/secret.wav" />
+        <audio preload id="highlight-sound" src="/assets/sounds/secret.wav" />
+        <FixedAlerts alerts={this.state.alerts} />
 			</div>
 		);
 	}
