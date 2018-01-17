@@ -103,8 +103,8 @@ export default class App extends Component {
 
   handleAddedDevicesToMatch = ({ match, deviceIds }) => {
     if (this.state.device) {
-      let myDevice = deviceIds.indexOf(this.state.device.id);
-      if (myDevice) {
+      let i = deviceIds.indexOf(this.state.device.id);
+      if (i !== -1) {
         let matchIds = LocalStorageService.get('match-ids');
         if (!matchIds || matchIds.length === 0) {
           matchIds = [match.id];

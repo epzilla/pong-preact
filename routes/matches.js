@@ -131,8 +131,9 @@ exports.addDevices = (req, res) => {
 
     return Promise.all(promises);
   }).then(result => {
-    sendSocketMsg(constants.ADDED_DEVICES_TO_MATCH, { match, deviceIds: devices.map(dev => dev.id) });
-    return res.sendStatus(200);
+    let packet = { match, deviceIds: devices.map(dev => dev.id) };
+    sendSocketMsg(constants.ADDED_DEVICES_TO_MATCH, packet);
+    return res.json(packet);
   }).catch(e => {
     return res.status(500).send(e);
   });

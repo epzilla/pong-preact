@@ -18,3 +18,4 @@ export const DEVICE_TYPES = {
 
 export const ADDED_DEVICES_TO_MATCH = 'added-devices-to-match';
 export const DEVICE_CANNOT_UPDATE_MATCH = 'This device is not authorized to update this match.';
+export const NO_DEVICES_SELECTED_ERROR = 'No devices selected.';

@@ -111,21 +111,23 @@ export default class UpdateScore extends Component {
   };
 
   selectDevices = (devices) => {
-    this.setState({ showChooseOtherDevice: false }, () => {
-      let packet = Object.assign({
-        deviceId: this.props.device.id,
-        devices
-      }, this.state);
-      Rest.post('matches/add-devices', packet).then(() => {
-        let msg = 'This match can now be updated by ';
-        if (devices.length > 1) {
-          msg += `${devices.slice(0, -1).map(d => d.name).join(', ')}, and ${devices[devices.length - 1].name}.`;
-        } else {
-          msg += `${devices[0].name}.`;
-        }
-        this.props.postAlert({ type: 'success', msg });
-      }).catch(e => this.props.postAlert({ type: 'error', msg: e }));
-    });
+    if (devices && devices.length > 0) {
+      this.setState({ showChooseOtherDevice: false }, () => {
+        let packet = Object.assign({
+          deviceId: this.props.device.id
+        }, this.state);
+        packet.devices = devices;
+        Rest.post('matches/add-devices', packet).then(() => {
+          let msg = 'This match can now be updated by ';
+          if (devices.length > 1) {
+            msg += `${devices.slice(0, -1).map(d => d.name).join(', ')}, and ${devices[devices.length - 1].name}.`;
+          } else {
+            msg += `${devices[0].name}.`;
+          }
+          this.props.postAlert({ type: 'success', msg });
+        }).catch(e => this.props.postAlert({ type: 'error', msg: e }));
+      });
+    }
   };
 
   render() {
@@ -192,7 +194,7 @@ export default class UpdateScore extends Component {
           confirm={this.endMatch}
           dismiss={this.dismissEndMatchModal}
         />
-        <SelectDeviceModal {...this.state} device={this.props.device} select={this.selectDevices} dismiss={this.dismissDeviceModal} />
+        <SelectDeviceModal {...this.state} {...this.props} select={this.selectDevices} dismiss={this.dismissDeviceModal} />
       </div>
     );
   }

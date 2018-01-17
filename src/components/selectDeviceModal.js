@@ -1,6 +1,6 @@
 import { Component } from 'preact';
 import { Link } from 'preact-router/match';
-import { DEVICE_TYPES } from '../lib/constants';
+import { DEVICE_TYPES, NO_DEVICES_SELECTED_ERROR } from '../lib/constants';
 import CSSTransitionGroup from 'preact-css-transition-group';
 import DeviceIcon from './deviceIcon';
 import SelectList from './selectList';
@@ -45,7 +45,11 @@ export default class SelectDeviceModal extends Component {
 
    submit = () => {
     let { selectedDevices } = this.state;
-    this.props.select(selectedDevices);
+    if (selectedDevices && selectedDevices.length > 0) {
+      this.props.select(selectedDevices);
+    } else if (this.props.postAlert) {
+      this.props.postAlert({ type: 'error', msg: NO_DEVICES_SELECTED_ERROR });
+    }
    };
 
   render() {
