@@ -75,6 +75,10 @@ export default class NotSoSecretCode extends Component {
     document.addEventListener('keyup', this.listener);
     document.addEventListener('touchstart', this.onDocTouchstart);
     document.addEventListener('touchend', this.onTouchend);
+    this.highlightSound = document.getElementById('highlight-sound');
+    if (this.props.config.highlightSound) {
+      this.highlightSound.src = this.props.config.highlightSound;
+    }
   }
 
   componentWillUnmount() {
@@ -106,7 +110,6 @@ export default class NotSoSecretCode extends Component {
       //ESC
       this.dismiss();
     } else {
-      this.highlightSound = document.getElementById('highlight-sound');
       let keys = this.keys + `${e.which}`;
       if (this.pattern.indexOf(keys.toString()) === -1) {
         this.keys = `${e.which}`;

@@ -218,6 +218,7 @@ export default class App extends Component {
         />
         <KeyboardShortcutHelp config={this.config} show={this.state.kb} dismiss={() => this.hideKeyboardShortcuts()} />
         <audio preload id="secret-sound" src="/assets/sounds/secret.wav" />
+        <audio preload id="highlight-sound" src="/assets/sounds/secret.wav" />
         <FixedAlerts alerts={this.state.alerts} />
 			</div>
 		);
