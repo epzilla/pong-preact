@@ -15,7 +15,7 @@ import KeyboardShortcutHelp from './keyboardShortcutHelp';
 import FixedAlerts from './fixedAlerts';
 import Rest from '../lib/rest-service';
 import LocalStorageService from '../lib/local-storage-service';
-import WebSocketService from '../lib.websocket-service';
+import WebSocketService from '../lib/websocket-service';
 import { lightenOrDarken } from '../lib/helpers';
 import * as Constants from '../lib/constants';
 

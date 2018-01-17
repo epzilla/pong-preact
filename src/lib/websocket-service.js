@@ -39,6 +39,8 @@ export default class WebSocketService {
         if (json) {
           this.callbacks[type].forEach(cb => cb(json));
         }
+      } catch (e) {
+        console.error(e);
       }
     }
   };

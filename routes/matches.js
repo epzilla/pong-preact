@@ -16,7 +16,17 @@ const validateMatchToken = (req, res) => {
   hash.update(token + deviceId);
   const hashedToken = hash.digest('hex');
   return sequelize.query(`select match_id from match_key where key = '${hashedToken}'`).then(result => {
-    return result.length > 0 && result[0].length > 0;
+    if (result.length > 0 && result[0].length > 0) {
+      return true;
+    }
+
+     return sequelize.query(`select token from will_call where device_id = '${deviceId}'`, { type: sequelize.QueryTypes.SELECT });
+  }).then(result => {
+    if (result.length > 0 && result[0].length > 0) {
+      return result[0];
+    }
+
+    return false;
   });
 };
 
@@ -132,11 +142,11 @@ exports.addDevices = (req, res) => {
       tokens.push({ token: newToken, device: d });
       const hash = crypto.createHash('sha256');
       hash.update(newToken + d.id);
-      hashedToken = hash.digest('hex');
-      return sequelize.query(
-        `insert into match_key (key, match_id) values ('${hashedToken}', '${match.id}')`,
-        { type: sequelize.QueryTypes.INSERT }
-      );
+      const hashedToken = hash.digest('hex');
+      return Promise.all([
+        sequelize.query(`insert into match_key (key, match_id) values ('${hashedToken}', '${match.id}')`, { type: sequelize.QueryTypes.INSERT }),
+        sequelize.query(`insert into will_call (device_id, token) values ('${d.id}', '${newToken}')`, { type: sequelize.QueryTypes.INSERT })
+      ]);
     });
 
     return Promise.all(promises).then(result => {
