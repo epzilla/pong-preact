@@ -17,7 +17,7 @@ export default class StartMatch extends Component {
       playTo: props.config && props.config.playTo ? props.config.playTo : 21,
       winByTwo: props.config && props.config.winByTwo,
       bestOf: props.config && props.config.bestOf ? props.config.bestOf : 4,
-      updateEveryPoint: 1
+      updateEveryPoint: 0
     }
   }
 
@@ -161,8 +161,8 @@ export default class StartMatch extends Component {
               <label>Update scores</label>
               <SegmentedControl
                 options={[
-                  { label: 'Point-by-point', value: 1 },
-                  { label: 'After each game', value: 0 }
+                  { label: 'After each game', value: 0 },
+                  { label: 'Point-by-point', value: 1 }
                 ]}
                 value={this.state.updateEveryPoint}
                 onChange={(e) => this.onScoringTypeChange(e)}

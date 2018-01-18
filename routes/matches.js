@@ -58,6 +58,10 @@ exports.create = (req, res) => {
       id: m.id,
       player1Id: m.player1Id,
       player2Id: m.player2Id,
+      updateEveryPoint: m.updateEveryPoint,
+      bestOf: m.bestOf,
+      playTo: m.playTo,
+      winByTwo: m.winByTwo,
       finished: m.finished,
       startTime: m.startTime,
       finishTime: m.finishTime
@@ -65,9 +69,10 @@ exports.create = (req, res) => {
     const hash = crypto.createHash('sha256');
     hash.update('01a217ea-67bf-' + deviceId + '411a-965e-3e874e15e490');
     const hashedToken = hash.digest('hex');
+    const initialScore = m.updateEveryPoint ? 0 : m.playTo;
     return Promise.all([
       sequelize.query(`insert into match_key (key, match_id) values ('${hashedToken}', '${m.id}')`, { type: sequelize.QueryTypes.INSERT }),
-      sequelize.query(`insert into games (match_id) values ('${m.id}')`, { type: sequelize.QueryTypes.INSERT })
+      sequelize.query(`insert into games (match_id, score1, score2) values ('${m.id}', ${initialScore}, ${initialScore})`, { type: sequelize.QueryTypes.INSERT })
     ]);
   }).then(result => {
 
@@ -260,6 +265,10 @@ exports.current = (req, res) => {
         g.id as gameId,
         m.finished as matchFinished,
         g.finished as gameFinished,
+        m.best_of as bestOf,
+        m.win_by_two as winByTwo,
+        m.play_to as playTo,
+        m.update_every_point as updateEveryPoint,
         m.start_time as startTime,
         m.finish_time as finishTime
       from
@@ -276,6 +285,10 @@ exports.current = (req, res) => {
         id: result[0].id,
         player1Id: result[0].player1Id,
         player2Id: result[0].player2Id,
+        updateEveryPoint: result[0].updateEveryPoint,
+        bestOf: result[0].bestOf,
+        playTo: result[0].playTo,
+        winByTwo: result[0].winByTwo,
         finished: result[0].finished,
         startTime: result[0].startTime,
         finishTime: result[0].finishTime
@@ -308,6 +321,10 @@ exports.mostRecent = (req, res) => {
         g.score2,
         m.id as matchId,
         g.id as gameId,
+        m.best_of as bestOf,
+        m.win_by_two as winByTwo,
+        m.play_to as playTo,
+        m.update_every_point as updateEveryPoint,
         m.finished as matchFinished,
         g.finished as gameFinished,
         m.start_time as startTime,
@@ -327,6 +344,10 @@ exports.mostRecent = (req, res) => {
         id: m.id,
         player1Id: m.player1Id,
         player2Id: m.player2Id,
+        updateEveryPoint: m.updateEveryPoint,
+        bestOf: m.bestOf,
+        playTo: m.playTo,
+        winByTwo: m.winByTwo,
         finished: m.finished,
         startTime: m.startTime,
         finishTime: m.finishTime
@@ -367,6 +388,10 @@ exports.matchesByPlayers = (req, res) => {
         g.id as gameId,
         m.finished as matchFinished,
         g.finished as gameFinished,
+        m.best_of as bestOf,
+        m.win_by_two as winByTwo,
+        m.play_to as playTo,
+        m.update_every_point as updateEveryPoint,
         m.start_time as startTime,
         m.finish_time as finishTime
       from matches m
@@ -400,6 +425,10 @@ exports.matchesByPlayers = (req, res) => {
         id: m.id,
         player1Id: m.player1Id,
         player2Id: m.player2Id,
+        updateEveryPoint: m.updateEveryPoint,
+        bestOf: m.bestOf,
+        playTo: m.playTo,
+        winByTwo: m.winByTwo,
         finished: m.finished,
         startTime: m.startTime,
         finishTime: m.finishTime
