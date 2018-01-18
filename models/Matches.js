@@ -9,6 +9,36 @@ module.exports = function(sequelize, DataTypes) {
       autoIncrement: true,
       primaryKey: true
     },
+    updateEveryPoint: {
+      field: 'update_every_point',
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0
+    },
+    playTo: {
+      field: 'play_to',
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 21
+    },
+    winByTwo: {
+      field: 'win_by_two',
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 1
+    },
+    bestOf: {
+      field: 'best_of',
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 4
+    },
+    playAllGames: {
+      field: 'play_all_games',
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 1
+    },
     player1Id: {
       field: 'player1_id',
       type: DataTypes.INTEGER,

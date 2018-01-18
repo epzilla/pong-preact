@@ -49,8 +49,6 @@ export default class App extends Component {
           if (result && result.data) {
             this.config.highlightImages.portrait = result.data.slice(0, 5).map(d => d.images.downsized_medium.url);
             this.config.highlightImages.landscape = result.data.slice(5, 10).map(d => d.images.downsized_medium.url);
-            console.log(this.config.highlightImages.portrait);
-            console.log(this.config.highlightImages.landscape);
           }
         });
     }
@@ -118,7 +116,11 @@ export default class App extends Component {
     });
   };
 
-  handleAddedDevicesToMatch = ({ match, deviceIds }) => {
+  onMatchStart = ({ match }) => {
+    this.postAlert({ type: Constants.MATCH_STARTED, msg: match });
+  };
+
+  onAddedDevicesToMatch = ({ match, deviceIds }) => {
     if (this.state.device) {
       let i = deviceIds.indexOf(this.state.device.id);
       if (i !== -1) {
@@ -164,7 +166,8 @@ export default class App extends Component {
     }
 
     WebSocketService.init().then(() => {
-      WebSocketService.register(Constants.ADDED_DEVICES_TO_MATCH, this.handleAddedDevicesToMatch);
+      WebSocketService.register(Constants.ADDED_DEVICES_TO_MATCH, this.onAddedDevicesToMatch);
+      WebSocketService.register(Constants.MATCH_STARTED, this.onMatchStart);
     });
 
     let device = this.ls.get('device');

@@ -26,8 +26,8 @@ exports.init = (models, db, ws) => {
 };
 
 exports.create = (req, res) => {
-  const playersInfo = req.body;
-  const deviceId = playersInfo.deviceId || req.params.deviceId;
+  const matchInfo = req.body;
+  const deviceId = matchInfo.deviceId || req.params.deviceId;
   if (!deviceId) {
     return res.status(400).send(constants.NO_DEVICE_ID);
   }
@@ -42,7 +42,15 @@ exports.create = (req, res) => {
       return res.status(400).send(constants.MATCH_IN_PROGRESS);
     }
 
-    return Matches.create({ player1Id: playersInfo.player1.id, player2Id: playersInfo.player2.id });
+    return Matches.create({
+      player1Id: matchInfo.player1.id,
+      player2Id: matchInfo.player2.id,
+      updateEveryPoint: matchInfo.updateEveryPoint,
+      bestOf: matchInfo.bestOf || 4,
+      playTo: matchInfo.playTo || 21,
+      winByTwo: matchInfo.winByTwo || 1,
+      playAllGames: matchInfo.playAllGames || 0
+    });
   }).then(m => {
     match = {
       games: [{
@@ -51,6 +59,11 @@ exports.create = (req, res) => {
       id: m.id,
       player1Id: m.player1Id,
       player2Id: m.player2Id,
+      updateEveryPoint: m.updateEveryPoint,
+      bestOf: m.bestOf,
+      playTo: m.playTo,
+      winByTwo: m.winByTwo,
+      playAllGames: m.playAllGames,
       finished: m.finished,
       startTime: m.startTime,
       finishTime: m.finishTime
@@ -58,9 +71,10 @@ exports.create = (req, res) => {
     const hash = crypto.createHash('sha256');
     hash.update('01a217ea-67bf-' + deviceId + '411a-965e-3e874e15e490');
     const hashedToken = hash.digest('hex');
+    const initialScore = m.updateEveryPoint ? 0 : m.playTo;
     return Promise.all([
       sequelize.query(`insert into match_key (key, match_id) values ('${hashedToken}', '${m.id}')`, { type: sequelize.QueryTypes.INSERT }),
-      sequelize.query(`insert into games (match_id) values ('${m.id}')`, { type: sequelize.QueryTypes.INSERT })
+      sequelize.query(`insert into games (match_id, score1, score2) values ('${m.id}', ${initialScore}, ${initialScore})`, { type: sequelize.QueryTypes.INSERT })
     ]);
   }).then(result => {
 
@@ -72,12 +86,12 @@ exports.create = (req, res) => {
       gameFinished: 0,
       player1Id: match.player1Id,
       player2Id: match.player2Id,
-      player1Fname: playersInfo.player1.fname,
-      player1Lname: playersInfo.player2.fname,
-      player1MiddleInitial: playersInfo.player2.middleInitial,
-      player2Fname: playersInfo.player1.lname,
-      player2Lname: playersInfo.player2.lname,
-      player2MiddleInitial: playersInfo.player2.middleInitial
+      player1Fname: matchInfo.player1.fname,
+      player1Lname: matchInfo.player2.fname,
+      player1MiddleInitial: matchInfo.player2.middleInitial,
+      player2Fname: matchInfo.player1.lname,
+      player2Lname: matchInfo.player2.lname,
+      player2MiddleInitial: matchInfo.player2.middleInitial
     };
     match.games[0] = game;
     sendSocketMsg(constants.MATCH_STARTED, match);
@@ -183,8 +197,8 @@ exports.addGame = (req, res) => {
     }).then(result => {
       const game = {
         gameId: result[0],
-        score1: 21,
-        score2: 21,
+        score1: match.updateEveryPoint ? 0 : 21,
+        score2: match.updateEveryPoint ? 0 : 21,
         matchFinished: 0,
         gameFinished: 0,
         player1Id: match.player1Id,
@@ -253,6 +267,11 @@ exports.current = (req, res) => {
         g.id as gameId,
         m.finished as matchFinished,
         g.finished as gameFinished,
+        m.best_of as bestOf,
+        m.win_by_two as winByTwo,
+        m.play_to as playTo,
+        m.update_every_point as updateEveryPoint,
+        m.play_all_games as playAllGames,
         m.start_time as startTime,
         m.finish_time as finishTime
       from
@@ -269,6 +288,11 @@ exports.current = (req, res) => {
         id: result[0].id,
         player1Id: result[0].player1Id,
         player2Id: result[0].player2Id,
+        updateEveryPoint: result[0].updateEveryPoint,
+        playAllGames: result[0].playAllGames,
+        bestOf: result[0].bestOf,
+        playTo: result[0].playTo,
+        winByTwo: result[0].winByTwo,
         finished: result[0].finished,
         startTime: result[0].startTime,
         finishTime: result[0].finishTime
@@ -301,6 +325,11 @@ exports.mostRecent = (req, res) => {
         g.score2,
         m.id as matchId,
         g.id as gameId,
+        m.best_of as bestOf,
+        m.win_by_two as winByTwo,
+        m.play_to as playTo,
+        m.update_every_point as updateEveryPoint,
+        m.play_all_games as playAllGames,
         m.finished as matchFinished,
         g.finished as gameFinished,
         m.start_time as startTime,
@@ -320,6 +349,11 @@ exports.mostRecent = (req, res) => {
         id: m.id,
         player1Id: m.player1Id,
         player2Id: m.player2Id,
+        updateEveryPoint: m.updateEveryPoint,
+        playAllGames: m.playAllGames,
+        bestOf: m.bestOf,
+        playTo: m.playTo,
+        winByTwo: m.winByTwo,
         finished: m.finished,
         startTime: m.startTime,
         finishTime: m.finishTime
@@ -360,6 +394,11 @@ exports.matchesByPlayers = (req, res) => {
         g.id as gameId,
         m.finished as matchFinished,
         g.finished as gameFinished,
+        m.best_of as bestOf,
+        m.win_by_two as winByTwo,
+        m.play_to as playTo,
+        m.update_every_point as updateEveryPoint,
+        m.play_all_games as playAllGames,
         m.start_time as startTime,
         m.finish_time as finishTime
       from matches m
@@ -393,6 +432,11 @@ exports.matchesByPlayers = (req, res) => {
         id: m.id,
         player1Id: m.player1Id,
         player2Id: m.player2Id,
+        updateEveryPoint: m.updateEveryPoint,
+        playAllGames: m.playAllGames,
+        bestOf: m.bestOf,
+        playTo: m.playTo,
+        winByTwo: m.winByTwo,
         finished: m.finished,
         startTime: m.startTime,
         finishTime: m.finishTime

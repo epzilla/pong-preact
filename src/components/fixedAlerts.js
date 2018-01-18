@@ -1,3 +1,19 @@
+import * as Constants from '../lib/constants';
+
+const RenderAlertBody = ({ type, msg }) => {
+  switch (type) {
+    case Constants.MATCH_STARTED:
+      return NewMatchAlert(msg);
+    default:
+      return msg;
+  }
+};
+
+const NewMatchAlert = (match) => {
+  // placeholder
+  return (<div></div>);
+};
+
 const FixedAlerts = ({ alerts }) => {
   if (!alerts || alerts.length === 0) {
     return;
@@ -6,13 +22,7 @@ const FixedAlerts = ({ alerts }) => {
   return (
     <div class="fixed-alerts">
       {
-        alerts.map(al => {
-          return (
-            <div class={`alert alert-${al.type}`}>
-              { al.msg }
-            </div>
-          )
-        })
+        alerts.map(al => <div class={`alert alert-${al.type}`}>{ RenderAlertBody(al) } </div>)
       }
     </div>
   );

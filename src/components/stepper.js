@@ -74,16 +74,16 @@ export default class Stepper extends Component {
 
   stepUpFull = () => {
     let curVal = parseInt(this.state.val);
-
-    if (this.props.max && curVal === this.props.max) {
-      if (this.props.wrap) {
-        curVal = this.props.min;
+    let { min, max, wrap, padSingleDigits, onChange } = this.props;
+    if (typeof max !== 'undefined' && curVal === max) {
+      if (wrap) {
+        curVal = min;
       }
     } else {
       curVal++;
     }
 
-    if (this.props.padSingleDigits && curVal < 10) {
+    if (padSingleDigits && curVal < 10) {
       curVal = '0' + curVal;
     }
 
@@ -91,7 +91,7 @@ export default class Stepper extends Component {
       val: curVal
     });
 
-    this.props.onChange({
+    onChange({
       full: true,
       amount: curVal
     });
@@ -118,23 +118,21 @@ export default class Stepper extends Component {
 
   stepDownFull = () => {
     let curVal = parseInt(this.state.val);
-
-    if (this.props.min && curVal === this.props.min) {
-      if (this.props.wrap) {
-        curVal = this.props.max;
-      }
+    let { min, max, wrap, padSingleDigits, onChange } = this.props;
+    if (typeof min !== 'undefined' && curVal === min) {
+      curVal = wrap ? max : min;
     } else {
       curVal--;
     }
 
-    if (this.props.padSingleDigits && curVal < 10) {
+    if (padSingleDigits && curVal < 10) {
       curVal = '0' + curVal;
     }
 
     this.setState({
       val: curVal
     });
-    this.props.onChange({
+    onChange({
       full: true,
       amount: curVal
     });

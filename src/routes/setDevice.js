@@ -35,9 +35,9 @@ export default class SetDevice extends Component {
     const lesserDimension = greaterDimension === height ? width: height;
     const hiDpi = window.matchMedia('(min-resolution: 120dpi)').matches || window.matchMedia('(-webkit-min-device-pixel-ratio: 1.3)').matches;
 
-    if (greaterDimension < 1000) {
+    if (greaterDimension < 800) {
       return Constants.DEVICE_TYPES.MOBILE_DEVICE;
-    } else if (greaterDimension < 1400 && lesserDimension < 800) {
+    } else if (greaterDimension < 1200 && lesserDimension < 800) {
       return Constants.DEVICE_TYPES.TABLET_DEVICE;
     } else if (greaterDimension < 1800 && lesserDimension >= 800 || greaterDimension < 2400 && hiDpi) {
       return Constants.DEVICE_TYPES.LAPTOP_DEVICE
@@ -48,14 +48,21 @@ export default class SetDevice extends Component {
 
   setValue = (e) => {
     let obj = {};
-    obj[e.target.name] = e.target.value;
+    obj[e.target.name] = e.target.value.trim();
     this.setState(obj);
   };
 
   setDeviceType = (type) => {
     this.setState({ type }, () => {
       window.smoothScroll(this.submitInput, 500);
+      setTimeout(() => this.submitInput.focus(), 500);
     });
+  };
+
+  onKeyup = (e) => {
+    if (this.state.error && e.target.value.trim() !== this.state.name) {
+      this.setState({ error: null });
+    }
   };
 
   validate = () => {
@@ -115,26 +122,20 @@ export default class SetDevice extends Component {
               id="name"
               name="name"
               onChange={this.setValue}
+              onKeyup={this.onKeyup}
               ref={(input) => { this.textInput = input; }}
-              autocapitalize="off"
-              autocorrect="off"
-              autocomplete="off"
               tabindex="2"
             />
+            { this.state.error ?
+              <p class="alert alert-error">{ this.state.error }</p>
+              : null
+            }
           </div>
           <div class="form-group big">
             <label for="name">Device Type</label>
             <DeviceTypePicker selectedType={this.state.type} callback={this.setDeviceType}/>
           </div>
           <input tabindex="10" class="btn big success" type="submit" disabled={this.state.disableSubmit} value="Add" ref={(input) => { this.submitInput = input; }} />
-          { this.state.error ?
-            <p class="alert alert-error">{ this.state.error }</p>
-            : null
-          }
-          { !!this.state.addedDevice && !this.state.error ?
-            <p class="alert alert-success">Added!</p>
-            : null
-          }
         </form>
       </div>
     );
