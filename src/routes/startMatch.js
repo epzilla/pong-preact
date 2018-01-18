@@ -17,7 +17,8 @@ export default class StartMatch extends Component {
       playTo: props.config && props.config.playTo ? props.config.playTo : 21,
       winByTwo: props.config && props.config.winByTwo,
       bestOf: props.config && props.config.bestOf ? props.config.bestOf : 4,
-      updateEveryPoint: 0
+      updateEveryPoint: 0,
+      showPlayToInput: false
     }
   }
 
@@ -96,8 +97,16 @@ export default class StartMatch extends Component {
     this.setState({ bestOf: amount });
   };
 
-  onPlayToChange = ({ amount }) => {
-    this.setState({ playTo: amount });
+  onPlayToChange = (playTo) => {
+    if (playTo === 11 || playTo === 21) {
+      this.setState({ playTo, showPlayToInput: false });
+    } else {
+      this.setState({ showPlayToInput: true });
+    }
+  };
+
+  onPlayToInputChange = (e) => {
+    this.setState({ playTo: e.target.value });
   };
 
   onScoringTypeChange = (updateEveryPoint) => {
@@ -151,13 +160,24 @@ export default class StartMatch extends Component {
               <label>Games</label>
             </div>
             <hr />
-            <div class="flex-center">
+            <div class="flex-center flex-col controls-col">
               <label>Play to</label>
-              <Stepper full onChange={(e) => this.onPlayToChange(e)} initialValue={this.state.playTo}/>
-              <label>Points</label>
+              <SegmentedControl
+                options={[
+                  { label: '11', value: 11 },
+                  { label: '21', value: 21 },
+                  { label: 'Other', value: -1 }
+                ]}
+                value={this.state.playTo}
+                onChange={(e) => this.onPlayToChange(e)}
+              />
+              { this.state.showPlayToInput ?
+                <input type="number" name="play-to-input" id="play-to-input" value={this.state.playTo} onChange={this.onPlayToInputChange} />
+                : null
+              }
             </div>
             <hr />
-            <div class="flex-center flex-col update-scores-setting-control">
+            <div class="flex-center flex-col controls-col">
               <label>Update scores</label>
               <SegmentedControl
                 options={[

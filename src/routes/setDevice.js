@@ -35,9 +35,9 @@ export default class SetDevice extends Component {
     const lesserDimension = greaterDimension === height ? width: height;
     const hiDpi = window.matchMedia('(min-resolution: 120dpi)').matches || window.matchMedia('(-webkit-min-device-pixel-ratio: 1.3)').matches;
 
-    if (greaterDimension < 1000) {
+    if (greaterDimension < 800) {
       return Constants.DEVICE_TYPES.MOBILE_DEVICE;
-    } else if (greaterDimension < 1400 && lesserDimension < 800) {
+    } else if (greaterDimension < 1200 && lesserDimension < 800) {
       return Constants.DEVICE_TYPES.TABLET_DEVICE;
     } else if (greaterDimension < 1800 && lesserDimension >= 800 || greaterDimension < 2400 && hiDpi) {
       return Constants.DEVICE_TYPES.LAPTOP_DEVICE
