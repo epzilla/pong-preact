@@ -5,7 +5,8 @@ export default {
   useGiphy: true,
   bestOf: 4,
   playTo: 21,
-  winByTwo: true,
+  winByTwo: 1,
+  playAllGames: 1,
   themeProperties: {
     pageBg: '#f4fcff',
     primary: '#405784',
