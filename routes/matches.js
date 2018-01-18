@@ -48,7 +48,8 @@ exports.create = (req, res) => {
       updateEveryPoint: matchInfo.updateEveryPoint,
       bestOf: matchInfo.bestOf || 4,
       playTo: matchInfo.playTo || 21,
-      winByTwo: matchInfo.winByTwo || 1
+      winByTwo: matchInfo.winByTwo || 1,
+      playAllGames: matchInfo.playAllGames || 0
     });
   }).then(m => {
     match = {
@@ -62,6 +63,7 @@ exports.create = (req, res) => {
       bestOf: m.bestOf,
       playTo: m.playTo,
       winByTwo: m.winByTwo,
+      playAllGames: m.playAllGames,
       finished: m.finished,
       startTime: m.startTime,
       finishTime: m.finishTime
@@ -269,6 +271,7 @@ exports.current = (req, res) => {
         m.win_by_two as winByTwo,
         m.play_to as playTo,
         m.update_every_point as updateEveryPoint,
+        m.play_all_games as playAllGames,
         m.start_time as startTime,
         m.finish_time as finishTime
       from
@@ -286,6 +289,7 @@ exports.current = (req, res) => {
         player1Id: result[0].player1Id,
         player2Id: result[0].player2Id,
         updateEveryPoint: result[0].updateEveryPoint,
+        playAllGames: result[0].playAllGames,
         bestOf: result[0].bestOf,
         playTo: result[0].playTo,
         winByTwo: result[0].winByTwo,
@@ -325,6 +329,7 @@ exports.mostRecent = (req, res) => {
         m.win_by_two as winByTwo,
         m.play_to as playTo,
         m.update_every_point as updateEveryPoint,
+        m.play_all_games as playAllGames,
         m.finished as matchFinished,
         g.finished as gameFinished,
         m.start_time as startTime,
@@ -345,6 +350,7 @@ exports.mostRecent = (req, res) => {
         player1Id: m.player1Id,
         player2Id: m.player2Id,
         updateEveryPoint: m.updateEveryPoint,
+        playAllGames: m.playAllGames,
         bestOf: m.bestOf,
         playTo: m.playTo,
         winByTwo: m.winByTwo,
@@ -392,6 +398,7 @@ exports.matchesByPlayers = (req, res) => {
         m.win_by_two as winByTwo,
         m.play_to as playTo,
         m.update_every_point as updateEveryPoint,
+        m.play_all_games as playAllGames,
         m.start_time as startTime,
         m.finish_time as finishTime
       from matches m
@@ -426,6 +433,7 @@ exports.matchesByPlayers = (req, res) => {
         player1Id: m.player1Id,
         player2Id: m.player2Id,
         updateEveryPoint: m.updateEveryPoint,
+        playAllGames: m.playAllGames,
         bestOf: m.bestOf,
         playTo: m.playTo,
         winByTwo: m.winByTwo,

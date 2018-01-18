@@ -4,20 +4,27 @@ import Rest from '../lib/rest-service';
 import LocalStorageService from '../lib/local-storage-service';
 import SelectPlayerModal from '../components/selectPlayerModal';
 import Stepper from '../components/stepper';
-import SegmentedControl from '../components/SegmentedControl';
+import SegmentedControl from '../components/segmentedControl';
+import Toggle from '../components/toggle';
 
 export default class StartMatch extends Component {
   constructor(props) {
     super(props);
+    let selectedPlayToOption = -1;
+    if (props.config && props.config.playTo && (props.config.playTo === 11 || props.config.playTo === 21)) {
+      selectedPlayToOption = props.config.playTo;
+    }
     this.state = {
       player1: null,
       player2: null,
       isSelectingPlayer: 0,
       players: [],
       playTo: props.config && props.config.playTo ? props.config.playTo : 21,
+      selectedPlayToOption,
       winByTwo: props.config && props.config.winByTwo,
       bestOf: props.config && props.config.bestOf ? props.config.bestOf : 4,
-      updateEveryPoint: 0,
+      updateEveryPoint: props.config && typeof props.config.updateEveryPoint !== 'undefined' ? props.config.updateEveryPoint : 0,
+      playAllGames: props.config && typeof props.config.playAllGames !== 'undefined' ? props.config.playAllGames : 0,
       showPlayToInput: false
     }
   }
@@ -97,20 +104,24 @@ export default class StartMatch extends Component {
     this.setState({ bestOf: amount });
   };
 
-  onPlayToChange = (playTo) => {
+  onPlayToOptionChange = (playTo) => {
     if (playTo === 11 || playTo === 21) {
-      this.setState({ playTo, showPlayToInput: false });
+      this.setState({ selectedPlayToOption: playTo, playTo, showPlayToInput: false });
     } else {
-      this.setState({ showPlayToInput: true });
+      this.setState({ selectedPlayToOption: -1, showPlayToInput: true });
     }
   };
 
   onPlayToInputChange = (e) => {
-    this.setState({ playTo: e.target.value });
+    this.setState({ playTo: parseInt(e.target.value) });
   };
 
   onScoringTypeChange = (updateEveryPoint) => {
     this.setState({ updateEveryPoint })
+  };
+
+  togglePlayAllGames = () => {
+    this.setState({ playAllGames: !this.state.playAllGames });
   };
 
   render() {
@@ -155,21 +166,21 @@ export default class StartMatch extends Component {
         <div class="match-settings flex-col">
           <div class="flex-col margin-bottom-1rem">
             <div class="stepper-wrap flex-center">
-              <label>Best of</label>
+              <label class="label">Best of</label>
               <Stepper full onChange={(e) => this.onBestOfChange(e)} initialValue={this.state.bestOf} />
-              <label>Games</label>
+              <label class="label">Games</label>
             </div>
             <hr />
             <div class="flex-center flex-col controls-col">
-              <label>Play to</label>
+              <label class="label">Play to</label>
               <SegmentedControl
                 options={[
                   { label: '11', value: 11 },
                   { label: '21', value: 21 },
                   { label: 'Other', value: -1 }
                 ]}
-                value={this.state.playTo}
-                onChange={(e) => this.onPlayToChange(e)}
+                value={this.state.selectedPlayToOption}
+                onChange={(e) => this.onPlayToOptionChange(e)}
               />
               { this.state.showPlayToInput ?
                 <input type="number" name="play-to-input" id="play-to-input" value={this.state.playTo} onChange={this.onPlayToInputChange} />
@@ -178,7 +189,12 @@ export default class StartMatch extends Component {
             </div>
             <hr />
             <div class="flex-center flex-col controls-col">
-              <label>Update scores</label>
+              <label class="label">Play all games, even if match clinched?</label>
+              <Toggle altColor id={'play-all-toggle'} toggled={this.togglePlayAllGames} onOff={!!this.state.playAllGames} property="playAllGames" />
+            </div>
+            <hr />
+            <div class="flex-center flex-col controls-col">
+              <label class="label">Update scores</label>
               <SegmentedControl
                 options={[
                   { label: 'After each game', value: 0 },

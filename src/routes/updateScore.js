@@ -88,7 +88,11 @@ export default class UpdateScore extends Component {
         wins2++;
       }
     });
-    if (match.bestOf && ((wins1 > match.bestOf / 2) || (wins2 > match.bestOf / 2) || (wins1 + wins2 === match.bestOf))) {
+    if (match.bestOf && (
+      (wins1 + wins2 === match.bestOf) ||
+      (wins1 > match.bestOf / 2 && !match.playAllGames) ||
+      (wins2 > match.bestOf / 2 && !match.playAllGames)
+    )) {
       this.confirmEndMatch();
     } else {
       this.addGame();

@@ -33,6 +33,10 @@
     background: var(--primary);
   }
 
+  &.alt-color input:checked + label {
+    background: var(--primaryBtnBg);
+  }
+
   input:checked + label:after {
     left: calc(100% - 2px);
     transform: translateX(-100%);
