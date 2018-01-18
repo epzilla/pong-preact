@@ -33,6 +33,12 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
       defaultValue: 4
     },
+    playAllGames: {
+      field: 'play_all_games',
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 1
+    },
     player1Id: {
       field: 'player1_id',
       type: DataTypes.INTEGER,
