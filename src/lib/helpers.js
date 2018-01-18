@@ -3,6 +3,7 @@ import isThisYear from 'date-fns/is_this_year';
 import differenceInDays from 'date-fns/difference_in_days'
 import distanceInWords from 'date-fns/distance_in_words'
 import format from 'date-fns/format';
+import { DEVICE_TYPES } from './constants';
 
 export const lightenOrDarken = (col, amt) => {
     let usePound = false;
@@ -123,4 +124,24 @@ export const getFullPlayerName = (p) => {
 
   console.log(name);
   return name;
+};
+
+export const getBestGuessDevice = () => {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  const greaterDimension = height >= width ? height : width;
+  const lesserDimension = greaterDimension === height ? width: height;
+  const hiDpi = window.matchMedia('(min-resolution: 120dpi)').matches || window.matchMedia('(-webkit-min-device-pixel-ratio: 1.3)').matches;
+
+  if (greaterDimension < 800) {
+    return DEVICE_TYPES.MOBILE_DEVICE;
+  } else if (greaterDimension < 1200 && lesserDimension < 800) {
+    return DEVICE_TYPES.TABLET_DEVICE;
+  } else if (greaterDimension < 1800 && lesserDimension >= 800 || greaterDimension < 2400 && hiDpi) {
+    return DEVICE_TYPES.LAPTOP_DEVICE
+  } else if (greaterDimension > 1800) {
+    return DEVICE_TYPES.DESKTOP_DEVICE
+  }
+
+  return DEVICE_TYPES.OTHER_DEVICE;
 };

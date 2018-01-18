@@ -41,8 +41,8 @@ wss.on('connection', ws => {
   ws.on('error', () => {});
 });
 
-const sendSocketMsg = (type, data) => {
-  let obj = { type };
+const sendSocketMsg = (type, data, originDeviceId) => {
+  let obj = { type, originDeviceId };
   obj.data = typeof data === 'string' ? data : JSON.stringify(data);
   wss.clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {

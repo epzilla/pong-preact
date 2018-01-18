@@ -43,7 +43,7 @@ export default class Home extends Component {
         let showNewPermission = matchIds && !this.state.canUpdateScore && canUpdateScore && this.props.postAlert;
         this.setState({ canUpdateScore, matchInProgress: true }, () => {
           if (showNewPermission) {
-            this.props.postAlert({ type: 'success', msg: NEW_MATCH_PERMISSION_GRANTED });
+            this.props.postAlert({ type: 'info', msg: NEW_MATCH_PERMISSION_GRANTED });
           }
         });
       });

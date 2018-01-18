@@ -69,6 +69,7 @@ export default class App extends Component {
     alerts.push({ type: 'success', msg: `Registered ${device.name}!`});
     this.setState({ device, alerts }, () => {
       route('/');
+      this.initWebSockets(device.id);
       setTimeout(() => this.setState({ alerts: [] }), 5000);
     })
   };
@@ -104,7 +105,7 @@ export default class App extends Component {
   };
 
   // Passed as a prop to children to let them post alerts
-  postAlert = (alert) => {
+  postAlert = (alert, duration) => {
     let { alerts } = this.state;
     alerts.push(alert);
     this.setState({ alerts }, () => {
@@ -112,12 +113,12 @@ export default class App extends Component {
         alerts = this.state.alerts;
         alerts.splice(alerts.indexOf(alert), 1);
         this.setState({ alerts });
-      }, 5000);
+      }, duration || 5000);
     });
   };
 
-  onMatchStart = ({ match }) => {
-    this.postAlert({ type: Constants.MATCH_STARTED, msg: match });
+  onMatchStart = (match) => {
+    this.postAlert({ type: Constants.MATCH_STARTED, msg: match }, 10000);
   };
 
   onAddedDevicesToMatch = ({ match, deviceIds }) => {
@@ -131,11 +132,16 @@ export default class App extends Component {
           matchIds.push(match.id);
         }
         LocalStorageService.set('match-ids', matchIds);
-        this.setState({ updatableMatchIds: matchIds }, () => {
-
-        });
+        this.setState({ updatableMatchIds: matchIds });
       }
     }
+  };
+
+  initWebSockets = (deviceId) => {
+    WebSocketService.init(deviceId, this.config.devMode).then(() => {
+      WebSocketService.register(Constants.ADDED_DEVICES_TO_MATCH, this.onAddedDevicesToMatch);
+      WebSocketService.register(Constants.MATCH_STARTED, this.onMatchStart);
+    });
   };
 
   resetApp = () => {
@@ -151,7 +157,28 @@ export default class App extends Component {
     Rest.del('reset-all').then(() => {
       window.location.assign('/');
     });
-  }
+  };
+
+  dismissAlert = (i) => {
+    let { alerts } = this.state;
+    alerts.splice(i, 1);
+    this.setState({ alerts });
+  };
+
+  testAlerts = () => {
+    this.postAlert({ type: 'success', msg: `This is a very long alert. You know, it's always a good idea to test things using absurdly long strings. Why, one time, my cousing who is a Software Developer failed to do so, and then he got fired when something looked like crap. So yeah, totally do that, bruh.`}, 999999999);
+    this.postAlert({ type: 'info', msg: 'Short one'}, 999999999);
+    this.postAlert({ type: 'warning', msg: `Hey! cut that out. I'm watchin' you...`}, 999999999);
+    this.postAlert({ type: 'error', msg: `Oh boy, now you've done it! What did I tell you, man???`}, 999999999);
+    this.postAlert({ type: 'success', msg: `This is a very long alert. You know, it's always a good idea to test things using absurdly long strings. Why, one time, my cousing who is a Software Developer failed to do so, and then he got fired when something looked like crap. So yeah, totally do that, bruh.`}, 999999999);
+    this.postAlert({ type: 'info', msg: 'Short one'}, 999999999);
+    this.postAlert({ type: 'warning', msg: `Hey! cut that out. I'm watchin' you...`}, 999999999);
+    this.postAlert({ type: 'error', msg: `Oh boy, now you've done it! What did I tell you, man???`}, 999999999);
+    this.postAlert({ type: 'success', msg: `This is a very long alert. You know, it's always a good idea to test things using absurdly long strings. Why, one time, my cousing who is a Software Developer failed to do so, and then he got fired when something looked like crap. So yeah, totally do that, bruh.`}, 999999999);
+    this.postAlert({ type: 'info', msg: 'Short one'}, 999999999);
+    this.postAlert({ type: 'warning', msg: `Hey! cut that out. I'm watchin' you...`}, 999999999);
+    this.postAlert({ type: 'error', msg: `Oh boy, now you've done it! What did I tell you, man???`}, 999999999);
+  };
 
 	componentDidMount() {
     // Set CSS Custom Properties
@@ -165,14 +192,10 @@ export default class App extends Component {
       document.body.style.setProperty('--secondaryBtnBorder', sbg ? lightenOrDarken(sbg, -40) : '#888');
     }
 
-    WebSocketService.init().then(() => {
-      WebSocketService.register(Constants.ADDED_DEVICES_TO_MATCH, this.onAddedDevicesToMatch);
-      WebSocketService.register(Constants.MATCH_STARTED, this.onMatchStart);
-    });
-
     let device = this.ls.get('device');
     if (device) {
       this.setState({ device });
+      this.initWebSockets(device.id);
     } else {
       route('/set-device');
     }
@@ -207,6 +230,10 @@ export default class App extends Component {
               <i class="fa fa-bomb"></i>
               <span>Reset App</span>
             </button>
+            <button class="btn" onClick={() => this.testAlerts()}>
+              <i class="fa fa-exclamation-triangle"></i>
+              <span>Test Alerts</span>
+            </button>
           </div>
           : null
         }
@@ -222,7 +249,7 @@ export default class App extends Component {
         <KeyboardShortcutHelp config={this.config} show={this.state.kb} dismiss={() => this.hideKeyboardShortcuts()} />
         <audio preload id="secret-sound" src="/assets/sounds/secret.wav" />
         <audio preload id="highlight-sound" src="/assets/sounds/secret.wav" />
-        <FixedAlerts alerts={this.state.alerts} />
+        <FixedAlerts alerts={this.state.alerts} device={this.state.device} dismiss={this.dismissAlert} />
 			</div>
 		);
 	}

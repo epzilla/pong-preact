@@ -92,7 +92,7 @@ export default class AddNewPlayer extends Component {
             : null
           }
           { !!this.state.submittedPlayer && !this.state.error ?
-            <p class="alert alert-success">Added { this.state.submittedPlayer } as a player.</p>
+            <p class="alert alert-info">Added { this.state.submittedPlayer } as a player.</p>
             : null
           }
         </form>

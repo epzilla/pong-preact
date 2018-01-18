@@ -59,6 +59,12 @@ exports.create = (req, res) => {
       id: m.id,
       player1Id: m.player1Id,
       player2Id: m.player2Id,
+      player1Fname: matchInfo.player1.fname,
+      player1Lname: matchInfo.player2.fname,
+      player1MiddleInitial: matchInfo.player2.middleInitial,
+      player2Fname: matchInfo.player2.fname,
+      player2Lname: matchInfo.player2.lname,
+      player2MiddleInitial: matchInfo.player2.middleInitial,
       updateEveryPoint: m.updateEveryPoint,
       bestOf: m.bestOf,
       playTo: m.playTo,
@@ -89,12 +95,12 @@ exports.create = (req, res) => {
       player1Fname: matchInfo.player1.fname,
       player1Lname: matchInfo.player2.fname,
       player1MiddleInitial: matchInfo.player2.middleInitial,
-      player2Fname: matchInfo.player1.lname,
+      player2Fname: matchInfo.player2.fname,
       player2Lname: matchInfo.player2.lname,
       player2MiddleInitial: matchInfo.player2.middleInitial
     };
     match.games[0] = game;
-    sendSocketMsg(constants.MATCH_STARTED, match);
+    sendSocketMsg(constants.MATCH_STARTED, match, deviceId);
     return res.json({
       match: match,
       deviceId: deviceId
@@ -146,7 +152,7 @@ exports.addDevices = (req, res) => {
     return Promise.all(promises);
   }).then(result => {
     let packet = { match, deviceIds: devices.map(dev => dev.id) };
-    sendSocketMsg(constants.ADDED_DEVICES_TO_MATCH, packet);
+    sendSocketMsg(constants.ADDED_DEVICES_TO_MATCH, packet, req.body.deviceId);
     return res.json(packet);
   }).catch(e => {
     return res.status(500).send(e);
@@ -176,7 +182,7 @@ exports.finish = (req, res) => {
     return sequelize.query(`delete from match_key where match_id='${match.id}'`, { type: sequelize.QueryTypes.DELETE });
   })
   .then(() => {
-    sendSocketMsg(constants.MATCH_FINISHED, finishedMatch);
+    sendSocketMsg(constants.MATCH_FINISHED, finishedMatch, req.body.deviceId);
     res.json(finishedMatch);
   })
   .catch(e => {
@@ -210,7 +216,7 @@ exports.addGame = (req, res) => {
         player2Lname: oldGame.player2Lname,
         player2MiddleInitial: oldGame.player2MiddleInitial
       };
-      sendSocketMsg(constants.GAME_STARTED, game);
+      sendSocketMsg(constants.GAME_STARTED, game, req.body.deviceId);
       res.json(game);
     });
   } catch (e) {
@@ -234,9 +240,9 @@ exports.updateGame = (req, res) => {
     return g.save();
   }).then(() => {
     if (game.gameFinished) {
-      sendSocketMsg(constants.GAME_FINISHED, { game });
+      sendSocketMsg(constants.GAME_FINISHED, { game }, req.body.deviceId);
     } else {
-      sendSocketMsg(constants.SCORE_UPDATE, { game, scorer });
+      sendSocketMsg(constants.SCORE_UPDATE, { game, scorer }, req.body.deviceId);
     }
     return res.json(game);
   }).catch(e => {

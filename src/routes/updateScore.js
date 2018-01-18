@@ -180,7 +180,7 @@ export default class UpdateScore extends Component {
           } else {
             msg += `${devices[0].name}.`;
           }
-          this.props.postAlert({ type: 'success', msg });
+          this.props.postAlert({ type: 'info', msg });
         }).catch(e => this.props.postAlert({ type: 'error', msg: e }));
       });
     }
