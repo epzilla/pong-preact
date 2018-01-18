@@ -16,7 +16,7 @@ import FixedAlerts from './fixedAlerts';
 import Rest from '../lib/rest-service';
 import LocalStorageService from '../lib/local-storage-service';
 import WebSocketService from '../lib/websocket-service';
-import { lightenOrDarken } from '../lib/helpers';
+import { lightenOrDarken, generateGuid } from '../lib/helpers';
 import * as Constants from '../lib/constants';
 
 export default class App extends Component {
@@ -107,6 +107,7 @@ export default class App extends Component {
   // Passed as a prop to children to let them post alerts
   postAlert = (alert, duration) => {
     let { alerts } = this.state;
+    alert.id = generateGuid();
     alerts.push(alert);
     this.setState({ alerts }, () => {
       setTimeout(() => {
@@ -166,14 +167,6 @@ export default class App extends Component {
   };
 
   testAlerts = () => {
-    this.postAlert({ type: 'success', msg: `This is a very long alert. You know, it's always a good idea to test things using absurdly long strings. Why, one time, my cousing who is a Software Developer failed to do so, and then he got fired when something looked like crap. So yeah, totally do that, bruh.`}, 999999999);
-    this.postAlert({ type: 'info', msg: 'Short one'}, 999999999);
-    this.postAlert({ type: 'warning', msg: `Hey! cut that out. I'm watchin' you...`}, 999999999);
-    this.postAlert({ type: 'error', msg: `Oh boy, now you've done it! What did I tell you, man???`}, 999999999);
-    this.postAlert({ type: 'success', msg: `This is a very long alert. You know, it's always a good idea to test things using absurdly long strings. Why, one time, my cousing who is a Software Developer failed to do so, and then he got fired when something looked like crap. So yeah, totally do that, bruh.`}, 999999999);
-    this.postAlert({ type: 'info', msg: 'Short one'}, 999999999);
-    this.postAlert({ type: 'warning', msg: `Hey! cut that out. I'm watchin' you...`}, 999999999);
-    this.postAlert({ type: 'error', msg: `Oh boy, now you've done it! What did I tell you, man???`}, 999999999);
     this.postAlert({ type: 'success', msg: `This is a very long alert. You know, it's always a good idea to test things using absurdly long strings. Why, one time, my cousing who is a Software Developer failed to do so, and then he got fired when something looked like crap. So yeah, totally do that, bruh.`}, 999999999);
     this.postAlert({ type: 'info', msg: 'Short one'}, 999999999);
     this.postAlert({ type: 'warning', msg: `Hey! cut that out. I'm watchin' you...`}, 999999999);

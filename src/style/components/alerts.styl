@@ -1,3 +1,5 @@
+@import 'animations';
+
 .fixed-alerts {
   position: fixed;
   bottom: 1rem;
@@ -13,6 +15,22 @@
   .alert {
     flex: 1 0 0%;
   }
+}
+
+.alert-slide-in-enter.alert-slide-in-enter-active {
+  display: flex !important;
+}
+
+.alert-slide-in-leave.alert-slide-in-leave-active {
+  display: flex !important;
+}
+
+.alert-slide-in-enter {
+  animation: slide-in-overshoot 300ms ease;
+}
+
+.alert-slide-in-leave {
+  animation: ready-set-slide-out 300ms ease;
 }
 
 .alert {

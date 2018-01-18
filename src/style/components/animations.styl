@@ -45,3 +45,38 @@
     transform: scale(0);
   }
 }
+
+@keyframes slide-up-overshoot {
+    0% {
+        transform: translateY(100%);
+    }
+
+    75% {
+        transform: perspective(20px) rotateX(-1deg) translateY(-10px);
+    }
+
+    100% {
+        transform: perspective(0) translateY(0);
+    }
+}
+
+@keyframes ready-set-slide-down {
+    50% {
+        transform: perspective(20px) rotateX(-1deg) translateY(-10px);
+    }
+
+    100% {
+        transform: perspective(0) translateY(100%);
+    }
+}
+
+@keyframes slide-in-overshoot {
+    0% { transform: translateX(-100%); }
+    75% { transform: skewX(-15deg) translateX(30px); }
+    100% { transform: skewX(0) translateX(0); }
+}
+
+@keyframes ready-set-slide-out {
+    50% { transform: skewX(-15deg) translateX(10px); }
+    100% { transform: skewX(0) translateX(-100%); }
+}
