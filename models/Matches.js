@@ -13,7 +13,7 @@ module.exports = function(sequelize, DataTypes) {
       field: 'update_every_point',
       type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue: 1
+      defaultValue: 0
     },
     playTo: {
       field: 'play_to',
