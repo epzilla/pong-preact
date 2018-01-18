@@ -19,6 +19,7 @@ export default class AddNewPlayer extends Component {
   componentDidMount() {
     Rest.get('players').then(players => {
       this.setState({ playerNames: players.map(getFullPlayerName) });
+      this.nameInput.focus();
     });
   }
 
@@ -79,10 +80,11 @@ export default class AddNewPlayer extends Component {
     return (
       <div class="main add-new-player">
         <h2>Add New Player</h2>
+        <button class="dismiss-btn" onClick={() => this.props.dismiss()}>&times;</button>
         <form class="flex-1 flex-col full-width-small-screen pad-1rem" onSubmit={(e) => this.submit(e)}>
           <div class="form-group big">
             <label for="name">Name</label>
-            <input type="text" id="fname" name="name" onChange={this.setValue} />
+            <input type="text" id="name" name="name" onChange={this.setValue} ref={(input) => {this.nameInput = input;}} />
           </div>
           <input class="btn big success" type="submit" disabled={this.state.disableSubmit} value="Add" />
           { this.state.error ?

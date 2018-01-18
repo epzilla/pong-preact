@@ -52,16 +52,46 @@ export default class UpdateScore extends Component {
   }
 
   scoreChange = (game, playerNum, { amount }) => {
-    let { match } = this.state;
+    let { match, gamesCollapsed } = this.state;
     let { games } = match;
     let deviceId = this.props.device.id;
     let i = games.findIndex(g => g.gameId === game.gameId);
     if (i !== -1) {
+      let checkForFinishedMatch = false;
       games[i][`score${ playerNum }`] = amount;
+      if (amount >= match.playTo && (!match.winByTwo || Math.abs(games[i].score1 - games[i].score2) > 1)) {
+        games[i].gameFinished = 1;
+        gamesCollapsed[games[i].gameId] = true;
+        checkForFinishedMatch = true;
+        this.setState({ gamesCollapsed });
+      }
       Rest.post('games/update', { game: games[i], scorer: playerNum, deviceId }).then(() => {
         match.games = games;
-        this.setState({ match });
+        this.setState({ match }, () => {
+          if (checkForFinishedMatch) {
+            this.checkIfMatchFinished();
+          }
+        });
       });
+    }
+  };
+
+  checkIfMatchFinished = () => {
+    let { match } = this.state;
+    let wins1 = 0;
+    let wins2 = 0;
+    match.games.forEach(g => {
+      if (g.score1 > g.score2 && g.gameFinished) {
+        wins1++;
+      }
+      else if (g.score2 > g.score1 && g.gameFinished) {
+        wins2++;
+      }
+    });
+    if (match.bestOf && ((wins1 > match.bestOf / 2) || (wins2 > match.bestOf / 2))) {
+      this.confirmEndMatch();
+    } else {
+      this.addGame();
     }
   };
 
@@ -167,12 +197,12 @@ export default class UpdateScore extends Component {
               <div class="game-update-row">
                 <div class="flex-col flex-center">
                   <h4>{ g.player1Fname } {g.player1Lname }</h4>
-                  <Stepper full onChange={(e) => this.scoreChange(g, 1, e)} initialValue={g.score1}/>
+                  <Stepper full min={0} onChange={(e) => this.scoreChange(g, 1, e)} initialValue={g.score1}/>
                 </div>
                 <h4 class="align-center">vs.</h4>
                 <div class="flex-col flex-center">
                   <h4>{ g.player2Fname } {g.player2Lname }</h4>
-                  <Stepper full onChange={(e) => this.scoreChange(g, 2, e)} initialValue={g.score2}/>
+                  <Stepper full min={0} onChange={(e) => this.scoreChange(g, 2, e)} initialValue={g.score2}/>
                 </div>
               </div>
               <div class="flex final-score-toggle">
