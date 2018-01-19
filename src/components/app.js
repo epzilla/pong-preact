@@ -4,6 +4,7 @@ import { route, Router } from 'preact-router';
 import Config from '../config';
 import Header from './header';
 import Home from '../routes/home';
+import Stats from '../routes/stats';
 import StartMatch from '../routes/startMatch';
 import AddNewPlayer from '../routes/addNewPlayer';
 import UpdateScore from '../routes/updateScore';
@@ -62,7 +63,7 @@ export default class App extends Component {
 	 */
 	handleRoute = e => {
     this.currentUrl = e.url;
-    this.setState({ menu: false});
+    this.menuToggledCallback(false);
   };
 
   onDeviceSet = device => {
@@ -200,11 +201,13 @@ export default class App extends Component {
 			<div id="app">
 				<Header
 					config={this.config}
+          menu={this.state.menu}
 					menuToggledCallback={(e) => this.menuToggledCallback(e)}
 					showKeyboardShortcuts={() => this.showKeyboardShortcuts()}
 				/>
 				<Router onChange={this.handleRoute}>
 					<Home path="/" config={this.config} device={this.state.device} postAlert={this.postAlert} updatableMatchIds={this.state.updatableMatchIds} />
+          <Stats path="/stats" config={this.config} />
           <StartMatch path="/new-match/:num?/:addedPlayer?" config={this.config} device={this.state.device} />
           <UpdateScore path="/update-score" config={this.config} device={this.state.device} postAlert={this.postAlert} updatableMatchIds={this.state.updatableMatchIds} />
           <AddNewPlayer path="/add-new-player/:returnRoute?/:playerNum?" config={this.config} />
