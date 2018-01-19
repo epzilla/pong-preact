@@ -1,13 +1,18 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('Games', {
+  return sequelize.define('SimpleGames', {
     gameId: {
       field: 'id',
       type: DataTypes.INTEGER,
       allowNull: true,
       autoIncrement: true,
       primaryKey: true
+    },
+    matchId: {
+      field: 'match_id',
+      type: DataTypes.INTEGER,
+      allowNull: true
     },
     score1: {
       field: 'score1',

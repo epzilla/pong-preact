@@ -20,6 +20,7 @@ const validateMatchToken = (req, res) => {
 
 exports.init = (models, db, ws) => {
   SimpleGames = models.SimpleGames;
+  Players = models.Players;
   Matches = models.Matches;
   sequelize = db;
   sendSocketMsg = ws;
@@ -38,9 +39,16 @@ exports.findById = (req, res) => {
         p2.lname as player2Lname,
         p2.mi as player2MiddleInitial,
         p2.id as player2Id,
+        p3.fname as partner1Fname,
+        p3.lname as partner1Lname,
+        p3.mi as partner1MiddleInitial,
+        p3.id as partner1Id,
+        p4.fname as partner2Fname,
+        p4.lname as partner2Lname,
         g.score1,
         g.score2,
         m.id as matchId,
+        m.doubles as doubles,
         g.id as gameId,
         m.finished as matchFinished,
         g.finished as gameFinished,
@@ -55,7 +63,9 @@ exports.findById = (req, res) => {
         (select * from matches m where id = ${req.params.id} limit 1) as m
         join games g on g.match_id = m.id
         join players p1 on m.player1_id = p1.id
-        join players p2 on m.player2_id = p2.id`, { type: sequelize.QueryTypes.SELECT}
+        join players p2 on m.player2_id = p2.id
+        join players p3 on m.partner1_id = p3.id
+        join players p4 on m.partner2_id = p4.id`, { type: sequelize.QueryTypes.SELECT}
     )
   ]).then(result => {
     if (result[0] && result[1]) {
@@ -64,6 +74,9 @@ exports.findById = (req, res) => {
         id: result[0].id,
         player1Id: result[0].player1Id,
         player2Id: result[0].player2Id,
+        partner1Id: result[0].partner1Id,
+        partner2Id: result[0].partner2Id,
+        doubles: result[0].doubles,
         updateEveryPoint: result[0].updateEveryPoint,
         playAllGames: result[0].playAllGames,
         bestOf: result[0].bestOf,
@@ -101,6 +114,9 @@ exports.create = (req, res) => {
     return Matches.create({
       player1Id: matchInfo.player1.id,
       player2Id: matchInfo.player2.id,
+      partner1Id: matchInfo.player3.id,
+      partner2Id: matchInfo.player4.id,
+      doubles: matchInfo.doubles,
       updateEveryPoint: matchInfo.updateEveryPoint,
       bestOf: matchInfo.bestOf || 4,
       playTo: matchInfo.playTo || 21,
@@ -113,14 +129,23 @@ exports.create = (req, res) => {
         gameId: null
       }],
       id: m.id,
+      doubles: m.doubles,
       player1Id: m.player1Id,
       player2Id: m.player2Id,
+      partner1Id: m.partner1Id,
+      partner2Id: m.partner2Id,
       player1Fname: matchInfo.player1.fname,
       player1Lname: matchInfo.player2.fname,
       player1MiddleInitial: matchInfo.player2.middleInitial,
       player2Fname: matchInfo.player2.fname,
       player2Lname: matchInfo.player2.lname,
       player2MiddleInitial: matchInfo.player2.middleInitial,
+      partner1Fname: matchInfo.player3.fname,
+      partner1Lname: matchInfo.player3.fname,
+      partner1MiddleInitial: matchInfo.player3.middleInitial,
+      partner2Fname: matchInfo.player4.fname,
+      partner2Lname: matchInfo.player4.lname,
+      partner2MiddleInitial: matchInfo.player4.middleInitial,
       updateEveryPoint: m.updateEveryPoint,
       bestOf: m.bestOf,
       playTo: m.playTo,
@@ -153,7 +178,13 @@ exports.create = (req, res) => {
       player1MiddleInitial: matchInfo.player2.middleInitial,
       player2Fname: matchInfo.player2.fname,
       player2Lname: matchInfo.player2.lname,
-      player2MiddleInitial: matchInfo.player2.middleInitial
+      player2MiddleInitial: matchInfo.player2.middleInitial,
+      partner1Fname: matchInfo.partner1.fname,
+      partner1Lname: matchInfo.partner1.lname,
+      partner1MiddleInitial: matchInfo.partner1.middleInitial,
+      partner2Fname: matchInfo.partner2.fname,
+      partner2Lname: matchInfo.partner2.lname,
+      partner2MiddleInitial: matchInfo.partner2.middleInitial
     };
     match.games[0] = game;
     sendSocketMsg(constants.MATCH_STARTED, match, deviceId);
@@ -228,6 +259,8 @@ exports.finish = (req, res) => {
   .then(m => {
     m.player1Id = match.player1Id;
     m.player2Id = match.player2Id;
+    m.partner1Id = match.partner1Id;
+    m.partner2Id = match.partner2Id;
     m.finished = 1;
     m.finishTime = new Date();
     return m.save();
@@ -247,9 +280,18 @@ exports.finish = (req, res) => {
           p2.lname as player2Lname,
           p2.mi as player2MiddleInitial,
           p2.id as player2Id,
+          p3.fname as partner1Fname,
+          p3.lname as partner1Lname,
+          p3.mi as partner1MiddleInitial,
+          p3.id as partner1Id,
+          p4.fname as partner2Fname,
+          p4.lname as partner2Lname,
+          p4.mi as partner2MiddleInitial,
+          p4.id as partner2Id,
           g.score1,
           g.score2,
           m.id as matchId,
+          m.doubles as doubles,
           g.id as gameId,
           m.finished as matchFinished,
           g.finished as gameFinished,
@@ -264,7 +306,9 @@ exports.finish = (req, res) => {
           (select * from matches m where id = ${match.id} limit 1) as m
           join games g on g.match_id = m.id
           join players p1 on m.player1_id = p1.id
-          join players p2 on m.player2_id = p2.id`, { type: sequelize.QueryTypes.SELECT}
+          join players p2 on m.player2_id = p2.id
+          join players p3 on m.partner1_id = p3.id
+          join players p4 on m.partner2_id = p4.id`, { type: sequelize.QueryTypes.SELECT}
       )
     ]);
   })
@@ -272,8 +316,11 @@ exports.finish = (req, res) => {
     let json = {
       games: result[1],
       id: finishedMatch.id,
+      doubles: finishedMatch.doubles,
       player1Id: finishedMatch.player1Id,
       player2Id: finishedMatch.player2Id,
+      partner1Id: finishedMatch.partner1Id,
+      partner2Id: finishedMatch.partner2Id,
       updateEveryPoint: finishedMatch.updateEveryPoint,
       playAllGames: finishedMatch.playAllGames,
       bestOf: finishedMatch.bestOf,
@@ -310,12 +357,20 @@ exports.addGame = (req, res) => {
         gameFinished: 0,
         player1Id: match.player1Id,
         player2Id: match.player2Id,
+        partner1Id: match.partner1Id,
+        partner2Id: match.partner2Id,
         player1Fname: oldGame.player1Fname,
         player1Lname: oldGame.player1Lname,
         player1MiddleInitial: oldGame.player1MiddleInitial,
         player2Fname: oldGame.player2Fname,
         player2Lname: oldGame.player2Lname,
-        player2MiddleInitial: oldGame.player2MiddleInitial
+        player2MiddleInitial: oldGame.player2MiddleInitial,
+        partner1Fname: oldGame.partner1Fname,
+        partner1Lname: oldGame.partner1Lname,
+        partner1MiddleInitial: oldGame.partner1MiddleInitial,
+        partner2Fname: oldGame.partner2Fname,
+        partner2Lname: oldGame.partner2Lname,
+        partner2MiddleInitial: oldGame.partner2MiddleInitial
       };
       sendSocketMsg(constants.GAME_STARTED, game, req.body.deviceId);
       res.json(game);
@@ -368,9 +423,16 @@ exports.current = (req, res) => {
         p2.lname as player2Lname,
         p2.mi as player2MiddleInitial,
         p2.id as player2Id,
+        p3.fname as partner1Fname,
+        p3.lname as partner1Lname,
+        p3.mi as partner1MiddleInitial,
+        p3.id as partner1Id,
+        p4.fname as partner2Fname,
+        p4.lname as partner2Lname,
         g.score1,
         g.score2,
         m.id as matchId,
+        m.doubles as doubles,
         g.id as gameId,
         m.finished as matchFinished,
         g.finished as gameFinished,
@@ -386,6 +448,8 @@ exports.current = (req, res) => {
         join games g on g.match_id = m.id
         join players p1 on m.player1_id = p1.id
         join players p2 on m.player2_id = p2.id
+        join players p3 on m.partner1_id = p3.id
+        join players p4 on m.partner2_id = p4.id
       order by m.start_time desc`, { type: sequelize.QueryTypes.SELECT}
     )
   ]).then(result => {
@@ -395,6 +459,9 @@ exports.current = (req, res) => {
         id: result[0].id,
         player1Id: result[0].player1Id,
         player2Id: result[0].player2Id,
+        partner1Id: result[0].partner1Id,
+        partner2Id: result[0].partner2Id,
+        doubles: result[0].doubles,
         updateEveryPoint: result[0].updateEveryPoint,
         playAllGames: result[0].playAllGames,
         bestOf: result[0].bestOf,
@@ -413,48 +480,52 @@ exports.current = (req, res) => {
 };
 
 exports.mostRecent = (req, res) => {
-  return Promise.all([
-    Matches.findAll({
-      order: sequelize.literal('start_time DESC'),
-      limit: req.params.count
-    }),
-    sequelize.query(`
-      select
-        p1.fname as player1Fname,
-        p1.lname as player1Lname,
-        p1.mi as player1MiddleInitial,
-        p1.id as player1Id,
-        p2.fname as player2Fname,
-        p2.lname as player2Lname,
-        p2.mi as player2MiddleInitial,
-        p2.id as player2Id,
-        g.score1,
-        g.score2,
-        m.id as matchId,
-        g.id as gameId,
-        m.best_of as bestOf,
-        m.win_by_two as winByTwo,
-        m.play_to as playTo,
-        m.update_every_point as updateEveryPoint,
-        m.play_all_games as playAllGames,
-        m.finished as matchFinished,
-        g.finished as gameFinished,
-        m.start_time as startTime,
-        m.finish_time as finishTime
-      from
-        (select * from matches m order by m.start_time desc limit ${req.params.count}) as m
-        join games g on g.match_id = m.id
-        join players p1 on m.player1_id = p1.id
-        join players p2 on m.player2_id = p2.id
-      order by m.start_time desc`, { type: sequelize.QueryTypes.SELECT}
-    )
-  ]).then(result => {
-    let augmentedMatches = result[0].map(m => {
+  let foundMatches;
+  return Matches.findAll({
+    order: sequelize.literal('start_time DESC'),
+    limit: req.params.count
+  }).then(matches => {
+    if (!matches || matches.length === 0) {
+      return res.json({});
+    }
+
+    let playerIds = [];
+    foundMatches = matches;
+    matches.forEach(m => {
+      if (playerIds.indexOf(m.player1Id) === -1) {
+        playerIds.push(m.player1Id);
+      }
+      if (playerIds.indexOf(m.player2Id) === -1) {
+        playerIds.push(m.player2Id);
+      }
+    });
+
+    return Promise.all([
+      Players.findAll({
+        where: {
+          id: {
+            $in: playerIds
+          }
+        }
+      }),
+      SimpleGames.findAll({
+        where: {
+          matchId: {
+            $in: matches.map(m => m.id)
+          }
+        }
+      })
+    ]);
+  }).then(results => {
+    let augmentedMatches = foundMatches.map(m => {
       return {
         games: [],
         id: m.id,
         player1Id: m.player1Id,
         player2Id: m.player2Id,
+        partner1Id: m.partner1Id,
+        partner2Id: m.partner2Id,
+        doubles: m.doubles,
         updateEveryPoint: m.updateEveryPoint,
         playAllGames: m.playAllGames,
         bestOf: m.bestOf,
@@ -465,7 +536,8 @@ exports.mostRecent = (req, res) => {
         finishTime: m.finishTime
       };
     });
-    let games = result[1];
+    let players = results[0];
+    let games = results[1];
     games.forEach(g => {
       let match = augmentedMatches.find(m => m.id === g.matchId);
       if (match) {
@@ -475,6 +547,83 @@ exports.mostRecent = (req, res) => {
     return res.json(augmentedMatches);
   });
 };
+
+
+// exports.mostRecent = (req, res) => {
+//   return Promise.all([
+//     Matches.findAll({
+//       order: sequelize.literal('start_time DESC'),
+//       limit: req.params.count
+//     }),
+//     sequelize.query(`
+//       select
+//         p1.fname as player1Fname,
+//         p1.lname as player1Lname,
+//         p1.mi as player1MiddleInitial,
+//         p1.id as player1Id,
+//         p2.fname as player2Fname,
+//         p2.lname as player2Lname,
+//         p2.mi as player2MiddleInitial,
+//         p2.id as player2Id,
+//         p3.fname as partner1Fname,
+//         p3.lname as partner1Lname,
+//         p3.mi as partner1MiddleInitial,
+//         p3.id as partner1Id,
+//         p4.fname as partner2Fname,
+//         p4.lname as partner2Lname,
+//         g.score1,
+//         g.score2,
+//         m.id as matchId,
+//         m.doubles as doubles,
+//         g.id as gameId,
+//         m.best_of as bestOf,
+//         m.win_by_two as winByTwo,
+//         m.play_to as playTo,
+//         m.update_every_point as updateEveryPoint,
+//         m.play_all_games as playAllGames,
+//         m.finished as matchFinished,
+//         g.finished as gameFinished,
+//         m.start_time as startTime,
+//         m.finish_time as finishTime
+//       from
+//         (select * from matches m order by m.start_time desc limit ${req.params.count}) as m
+//         join games g on g.match_id = m.id
+//         join players p1 on m.player1_id = p1.id
+//         join players p2 on m.player2_id = p2.id
+//         join players p3 on m.partner1_id = p3.id
+//         join players p4 on m.partner2_id = p4.id
+//       order by m.start_time desc`, { type: sequelize.QueryTypes.SELECT}
+//     )
+//   ]).then(result => {
+//     let augmentedMatches = result[0].map(m => {
+//       return {
+//         games: [],
+//         id: m.id,
+//         player1Id: m.player1Id,
+//         player2Id: m.player2Id,
+//         partner1Id: m.partner1Id,
+//         partner2Id: m.partner2Id,
+//         doubles: m.doubles,
+//         updateEveryPoint: m.updateEveryPoint,
+//         playAllGames: m.playAllGames,
+//         bestOf: m.bestOf,
+//         playTo: m.playTo,
+//         winByTwo: m.winByTwo,
+//         finished: m.finished,
+//         startTime: m.startTime,
+//         finishTime: m.finishTime
+//       };
+//     });
+//     let games = result[1];
+//     games.forEach(g => {
+//       let match = augmentedMatches.find(m => m.id === g.matchId);
+//       if (match) {
+//         match.games.push(g);
+//       }
+//     });
+//     return res.json(augmentedMatches);
+//   });
+// };
 
 exports.matchesByPlayers = (req, res) => {
   const player1Id = parseInt(req.params.player1Id);
@@ -494,9 +643,16 @@ exports.matchesByPlayers = (req, res) => {
         p2.lname as player2Lname,
         p2.mi as player2MiddleInitial,
         p2.id as player2Id,
+        p3.fname as partner1Fname,
+        p3.lname as partner1Lname,
+        p3.mi as partner1MiddleInitial,
+        p3.id as partner1Id,
+        p4.fname as partner2Fname,
+        p4.lname as partner2Lname,
         g.score1,
         g.score2,
         m.id as matchId,
+        m.doubles as doubles,
         g.id as gameId,
         m.finished as matchFinished,
         g.finished as gameFinished,
@@ -511,7 +667,9 @@ exports.matchesByPlayers = (req, res) => {
         left outer join games g on g.match_id = m.id
         left outer join players p1 on p1.id = m.player1_id
         left outer join players p2 on p2.id = m.player2_id
-      where (p1.id = ${player1Id} and p2.id = ${player2Id}) or (p2.id = ${player1Id} and p1.id = ${player2Id})
+        left outer join players p3 on p3.id = m.partner1_id
+        left outer join players p4 on p4.id = m.partner2_id
+      where ((p1.id = ${player1Id} and p2.id = ${player2Id}) or (p2.id = ${player1Id} and p1.id = ${player2Id})) and (doubles = 0)
       order by m.start_time desc`, { type: sequelize.QueryTypes.SELECT}
     )
   ]).then(result => {

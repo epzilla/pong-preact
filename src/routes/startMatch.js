@@ -145,47 +145,6 @@ export default class StartMatch extends Component {
 
   render() {
     let { player1, player2, player3, player4, doubles, players } = this.state;
-    let player3block, player4block;
-    let selectPlayersBlock;
-
-    // selectPlayersBlock = (
-    //   <div class="player-select-blocks">
-    //     {
-    //       player1 ?
-    //       <div class="player-selected-block flex-col flex-center">
-    //         <h3>{ player1.fname } { player1.lname }</h3>
-    //         {
-    //           this.state.players.length > 2 ?
-    //           <button class="btn primary" onClick={() => this.setState({ isSelectingPlayer: 1 })}>Change</button> :
-    //           <button class="btn primary" onClick={() => this.addNewPlayer(1)}>Add New Player</button>
-    //         }
-    //       </div>
-    //       :
-    //       <div class="player-selected-block flex-col flex-center">
-    //         <button class="btn primary big" onClick={() => this.setState({ isSelectingPlayer: 1 })}>Select</button>
-    //       </div>
-    //     }
-    //     { doubles ? <span class="and-separator">&</span> : null }
-    //     { player3block }
-    //     <div class="versus-separator">vs.</div>
-    //     {
-    //       player2 ?
-    //       <div class="player-selected-block flex-col flex-center">
-    //         <h3>{ player2.fname } { player2.lname }</h3>
-    //         {
-    //           this.state.players.length > 2 ?
-    //           <button class="btn primary" onClick={() => this.setState({ isSelectingPlayer: 2 })}>Change</button> :
-    //           <button class="btn primary" onClick={() => this.addNewPlayer(2)}>Add New Player</button>
-    //         }
-    //       </div>
-    //       :
-    //       <div class="player-selected-block flex-col flex-center">
-    //         <button class="btn secondary big" onClick={() => this.setState({ isSelectingPlayer: 2 })}>Select</button>
-    //       </div>
-    //     }
-    //     { player4block }
-    //   </div>
-    // );
 
     let team1block = (
       <div class="team-select-block">
@@ -237,24 +196,6 @@ export default class StartMatch extends Component {
       </div>
     );
 
-    selectPlayersBlock = (
-      <div class="player-selection-area">
-        { team1block }
-        <div class="player-selected-block flex-center">
-          <div class="versus-separator">vs.</div>
-        </div>
-        { team2block }
-      </div>
-    );
-
-
-
-
-
-
-
-
-
     return (
       <div class="main new-match">
         <h2>Start New Match</h2>
@@ -269,7 +210,13 @@ export default class StartMatch extends Component {
           />
         </div>
         <hr />
-        { selectPlayersBlock }
+        <div class="player-selection-area">
+          { team1block }
+          <div class="player-selected-block flex-center">
+            <div class="versus-separator">vs.</div>
+          </div>
+          { team2block }
+        </div>
         <hr />
         <div class="match-settings flex-col">
           <div class="flex-col margin-bottom-1rem">

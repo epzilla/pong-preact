@@ -39,6 +39,12 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
       defaultValue: 1
     },
+    doubles: {
+      field: 'doubles',
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0
+    },
     player1Id: {
       field: 'player1_id',
       type: DataTypes.INTEGER,
@@ -47,6 +53,18 @@ module.exports = function(sequelize, DataTypes) {
     },
     player2Id: {
       field: 'player2_id',
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: undefined
+    },
+    partner1Id: {
+      field: 'partner1_id',
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: undefined
+    },
+    partner2Id: {
+      field: 'partner2_id',
       type: DataTypes.INTEGER,
       allowNull: true,
       defaultValue: undefined
