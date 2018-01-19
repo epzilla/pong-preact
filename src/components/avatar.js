@@ -62,6 +62,10 @@ export default class Avatar extends Component {
       classes += ' big';
     }
 
+    if (this.props.empty) {
+      classes += ' empty';
+    }
+
     if (this.props.editable) {
       classes += ' editable';
       let avatar = this.state.newAvatar || this.props.avatar;
@@ -82,13 +86,20 @@ export default class Avatar extends Component {
           </div>
         </div>
       );
-    }
-    else if (this.props.fname || this.props.lname) {
+    } else if (this.props.fname || this.props.lname) {
       let fi = this.props.fname ? this.props.fname[0] : '';
       let li = this.props.lname ? this.props.lname[0] : '';
       return (
         <div class={ classes }>
           <span class="avatar-initials">{fi}{li}</span>
+        </div>
+      );
+    } else if (this.props.empty) {
+      return (
+        <div class={ classes }>
+          <span class="avatar-empty">
+            <i class="fa fa-user-circle"></i>
+          </span>
         </div>
       );
     }

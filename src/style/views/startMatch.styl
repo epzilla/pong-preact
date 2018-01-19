@@ -21,6 +21,16 @@
     }
   }
 
+  .doubles-switch {
+    margin-bottom: 1rem;
+  }
+
+  .team-select-block .btn {
+    min-height: unset;
+    font-size: 1rem;
+    padding: 0.5rem;
+  }
+
   .match-settings {
     .label {
       font-size: 1.35rem;
@@ -48,26 +58,75 @@
   }
 }
 
+.team-select-block {
+  display: flex;
+  flex-direction: column;
+
+  .avatar {
+    margin: 0 0.5rem 0 1.5rem;
+  }
+}
+
 .player-selected-block,
 .versus-separator {
   margin-bottom: 1rem;
 }
 
-.player-select-blocks {
+.player-selection-area {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
 }
 
 .player-selected-block {
+  display: flex;
+  align-items: center;
+
   > h3 {
     font-size: 1.5rem;
     margin-bottom: 0.25rem;
   }
+
+  &.empty {
+    border: 1px dashed #AAA;
+    cursor: pointer;
+    opacity: 0.5;
+  }
+}
+
+.player-name-wrap {
+    flex: 1;
+    margin-right: 1rem;
+}
+
+.and-separator,
+.versus-separator {
+  font-size: 1.5rem;
+}
+
+.and-separator {
+  margin-bottom: 1rem;
 }
 
 .versus-separator {
-  font-size: 1.5rem;
   margin-bottom: 0;
+  position: relative;
+
+  &:before,
+  &:after {
+    content: '';
+    width: 5rem;
+    position: absolute;
+    top: 1.25rem;
+    border: 1px solid #EEE;
+  }
+
+  &:before {
+    left: -6rem;
+  }
+
+  &:after {
+    left: 2.75rem;
+  }
 }

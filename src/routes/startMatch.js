@@ -2,6 +2,7 @@ import { Component } from 'preact';
 import { route } from 'preact-router';
 import Rest from '../lib/rest-service';
 import LocalStorageService from '../lib/local-storage-service';
+import PlayerSelectBlock from '../components/playerSelectBlock';
 import SelectPlayerModal from '../components/selectPlayerModal';
 import Stepper from '../components/stepper';
 import SegmentedControl from '../components/segmentedControl';
@@ -15,8 +16,11 @@ export default class StartMatch extends Component {
       selectedPlayToOption = props.config.playTo;
     }
     this.state = {
+      doubles: false,
       player1: null,
       player2: null,
+      player3: null,
+      player4: null,
       isSelectingPlayer: 0,
       players: [],
       playTo: props.config && props.config.playTo ? props.config.playTo : 21,
@@ -47,8 +51,21 @@ export default class StartMatch extends Component {
           if (cachedState.player2) {
             stateCopy.player2 = cachedState.player2;
           }
+          if (cachedState.player3) {
+            stateCopy.player3 = cachedState.player3;
+          }
+          if (cachedState.player4) {
+            stateCopy.player4 = cachedState.player4;
+          }
           stateCopy[`player${num}`] = player;
           this.setState(stateCopy);
+        } else if (this.state.doubles) {
+          this.setState({
+            player1: cachedState && cachedState.player1 ? cachedState.player1 : players[0],
+            player2: cachedState && cachedState.player2 ? cachedState.player2 : players[1],
+            player3: cachedState && cachedState.player3 ? cachedState.player3 : players[2],
+            player4: cachedState && cachedState.player4 ? cachedState.player4 : players[3]
+          });
         } else {
           this.setState({
             player1: cachedState && cachedState.player1 ? cachedState.player1 : players[0],
@@ -61,17 +78,15 @@ export default class StartMatch extends Component {
 
   setAndCacheState = (obj) => {
     this.setState(obj, () => {
-      let { player1, player2 } = this.state;
+      let { player1, player2, player3, player4 } = this.state;
       LocalStorageService.set('start-match-state', { player1, player2 });
     });
   };
 
   selectPlayer = (p) => {
-    if (this.state.isSelectingPlayer === 1) {
-      this.setAndCacheState({ player1: p, isSelectingPlayer: null });
-    } else if (this.state.isSelectingPlayer === 2) {
-      this.setAndCacheState({ player2: p, isSelectingPlayer: null });
-    }
+    let obj = { isSelectingPlayer: null };
+    obj[`player${this.state.isSelectingPlayer}`] = p;
+    this.setAndCacheState(obj);
   };
 
   dismissModal = () => {
@@ -94,7 +109,7 @@ export default class StartMatch extends Component {
   };
 
   addNewPlayer = (num) => {
-    if (this.state.player1 || this.state.player2) {
+    if (this.state.player1 || this.state.player2 || this.state.player3 || this.state.player4) {
       LocalStorageService.set('start-match-state', this.state);
     }
     route(`/add-new-player/new-match/${num}`);
@@ -116,6 +131,10 @@ export default class StartMatch extends Component {
     this.setState({ playTo: parseInt(e.target.value) });
   };
 
+  onDoublesChange = (doubles) => {
+    this.setState({ doubles })
+  };
+
   onScoringTypeChange = (updateEveryPoint) => {
     this.setState({ updateEveryPoint })
   };
@@ -125,43 +144,132 @@ export default class StartMatch extends Component {
   };
 
   render() {
-    let { player1, player2 } = this.state;
+    let { player1, player2, player3, player4, doubles, players } = this.state;
+    let player3block, player4block;
+    let selectPlayersBlock;
+
+    // selectPlayersBlock = (
+    //   <div class="player-select-blocks">
+    //     {
+    //       player1 ?
+    //       <div class="player-selected-block flex-col flex-center">
+    //         <h3>{ player1.fname } { player1.lname }</h3>
+    //         {
+    //           this.state.players.length > 2 ?
+    //           <button class="btn primary" onClick={() => this.setState({ isSelectingPlayer: 1 })}>Change</button> :
+    //           <button class="btn primary" onClick={() => this.addNewPlayer(1)}>Add New Player</button>
+    //         }
+    //       </div>
+    //       :
+    //       <div class="player-selected-block flex-col flex-center">
+    //         <button class="btn primary big" onClick={() => this.setState({ isSelectingPlayer: 1 })}>Select</button>
+    //       </div>
+    //     }
+    //     { doubles ? <span class="and-separator">&</span> : null }
+    //     { player3block }
+    //     <div class="versus-separator">vs.</div>
+    //     {
+    //       player2 ?
+    //       <div class="player-selected-block flex-col flex-center">
+    //         <h3>{ player2.fname } { player2.lname }</h3>
+    //         {
+    //           this.state.players.length > 2 ?
+    //           <button class="btn primary" onClick={() => this.setState({ isSelectingPlayer: 2 })}>Change</button> :
+    //           <button class="btn primary" onClick={() => this.addNewPlayer(2)}>Add New Player</button>
+    //         }
+    //       </div>
+    //       :
+    //       <div class="player-selected-block flex-col flex-center">
+    //         <button class="btn secondary big" onClick={() => this.setState({ isSelectingPlayer: 2 })}>Select</button>
+    //       </div>
+    //     }
+    //     { player4block }
+    //   </div>
+    // );
+
+    let team1block = (
+      <div class="team-select-block">
+        <PlayerSelectBlock
+          doubles={doubles}
+          isPartner={false}
+          player={player1}
+          num={1}
+          selectCallback={() => this.setState({ isSelectingPlayer: 1 })}
+          selectBtnText="Change"
+        />
+        {
+          doubles ?
+          <PlayerSelectBlock
+            doubles={true}
+            isPartner={true}
+            player={player3}
+            num={3}
+            selectCallback={() => this.setState({ isSelectingPlayer: 3 })}
+            selectBtnText="Change"
+          />
+          : null
+        }
+      </div>
+    );
+
+    let team2block = (
+      <div class="team-select-block">
+        <PlayerSelectBlock
+          doubles={doubles}
+          isPartner={false}
+          player={player2}
+          num={2}
+          selectCallback={() => this.setState({ isSelectingPlayer: 2 })}
+          selectBtnText="Change"
+        />
+        {
+          doubles ?
+          <PlayerSelectBlock
+            doubles={true}
+            isPartner={true}
+            player={player4}
+            num={4}
+            selectCallback={() => this.setState({ isSelectingPlayer: 4 })}
+            selectBtnText="Change"
+          />
+          : null
+        }
+      </div>
+    );
+
+    selectPlayersBlock = (
+      <div class="player-selection-area">
+        { team1block }
+        <div class="player-selected-block flex-center">
+          <div class="versus-separator">vs.</div>
+        </div>
+        { team2block }
+      </div>
+    );
+
+
+
+
+
+
+
+
+
     return (
       <div class="main new-match">
         <h2>Start New Match</h2>
-        <div class="player-select-blocks">
-          {
-            player1 ?
-            <div class="player-selected-block flex-col flex-center">
-              <h3>{ player1.fname } { player1.lname }</h3>
-              {
-                this.state.players.length > 2 ?
-                <button class="btn primary" onClick={() => this.setState({ isSelectingPlayer: 1 })}>Change</button> :
-                <button class="btn primary" onClick={() => this.addNewPlayer(1)}>Add New Player</button>
-              }
-            </div>
-            :
-            <div class="player-selected-block flex-col flex-center">
-              <button class="btn primary big" onClick={() => this.setState({ isSelectingPlayer: 1 })}>Select</button>
-            </div>
-          }
-          <div class="versus-separator">vs.</div>
-          {
-            player2 ?
-            <div class="player-selected-block flex-col flex-center">
-              <h3>{ player2.fname } { player2.lname }</h3>
-              {
-                this.state.players.length > 2 ?
-                <button class="btn primary" onClick={() => this.setState({ isSelectingPlayer: 2 })}>Change</button> :
-                <button class="btn primary" onClick={() => this.addNewPlayer(2)}>Add New Player</button>
-              }
-            </div>
-            :
-            <div class="player-selected-block flex-col flex-center">
-              <button class="btn secondary big" onClick={() => this.setState({ isSelectingPlayer: 2 })}>Select</button>
-            </div>
-          }
+        <div class="doubles-switch">
+          <SegmentedControl
+            options={[
+              { label: 'Singles', value: false },
+              { label: 'Doubles', value: true }
+            ]}
+            value={this.state.doubles}
+            onChange={(e) => this.onDoublesChange(e)}
+          />
         </div>
+        <hr />
+        { selectPlayersBlock }
         <hr />
         <div class="match-settings flex-col">
           <div class="flex-col margin-bottom-1rem">
