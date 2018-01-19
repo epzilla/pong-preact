@@ -58,7 +58,7 @@ const BoxScore = ({ match, jumbotron }) => {
         </p>
         <p class="match-info-block">
           <i class={`fa fa-hourglass-${ getHourGlassIcon(match, currentGame) }`}></i>
-          <span class="match-info">{ match.playAllGames ? 'Playing' : 'Best of' } { match.bestOf } games.</span>
+          <span class="match-info">{ match.playAllGames ? 'Playing all' : 'Best of' } { match.bestOf } games.</span>
         </p>
       </p>
     );
