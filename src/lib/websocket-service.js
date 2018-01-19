@@ -1,3 +1,5 @@
+import Config from '../config';
+
 let callbacks = {};
 let ws = null;
 let deviceId = null;
@@ -55,6 +57,23 @@ const WebSocketService = {
       callbacks[type].push(cb);
     } else {
       callbacks[type] = [cb];
+    }
+
+    if (Config.devMode) {
+      console.log(callbacks);
+    }
+  },
+
+  unregister: (type, cb) => {
+    if (callbacks[type]) {
+      let i = callbacks[type].findIndex(fn => fn === cb);
+      if (i !== -1) {
+        callbacks[type].splice(i, 1);
+      }
+    }
+
+    if (Config.devMode) {
+      console.log(callbacks);
     }
   },
 

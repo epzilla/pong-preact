@@ -121,7 +121,9 @@ export default class App extends Component {
   };
 
   onMatchStart = (match) => {
-    this.postAlert({ type: Constants.MATCH_STARTED, msg: match }, 10000);
+    if (this.currentUrl !== '/') {
+      this.postAlert({ type: Constants.MATCH_STARTED, msg: match }, 10000);
+    }
   };
 
   onAddedDevicesToMatch = ({ match, deviceIds }) => {

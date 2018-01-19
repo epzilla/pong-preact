@@ -1,21 +1,31 @@
 import { getFormattedMatchDate, getStatsForMatch, getMatchTimeAgo } from '../lib/helpers';
 
-const calculateExpectedPointsPerMatch = (match, expectedPerGame) => {
-  if (match.playAllGames) {
-    return match.bestOf * expectedPerGame;
+const calculateExpectedPointsPerMatch = (match) => {
+  let expectedPerGame;
+
+  let finishedGames = match.games.filter(g => g.gameFinished);
+  if (finishedGames.length > 0) {
+    expectedPerGame = finishedGames.reduce((sum, current) => sum + (current.score1 + current.score2), 0) / finishedGames.length;
+  } else {
+    expectedPerGame = (match.playTo * 1.75);
   }
 
-  return Math.ceil((match.bestOf + Math.ceil(match.bestOf / 2)) / 2);
+  if (match.playAllGames) {
+    return expectedPerGame * match.bestOf;
+  }
+
+  return expectedPerGame * Math.ceil((match.bestOf + Math.ceil(match.bestOf / 2)) / 2);
 };
 
 const getHourGlassIcon = (match, currentGame) => {
   let game = match.games[currentGame];
-  let totalPoints = game.score1 + game.score2;
-  let expectedTotalPoints = calculateExpectedPointsPerMatch(match, (match.playTo - 1) * 2);
+  let previousPoints = match.games.filter(g => g.gameFinished).reduce((sum, current) => sum + (current.score1 + current.score2), 0) || 0;
+  let totalPoints = previousPoints + (game ? (game.score1 + game.score2) : 0);
+  let expectedTotalPoints = calculateExpectedPointsPerMatch(match);
   let pct = totalPoints / expectedTotalPoints;
-  if (pct < 0.34) {
+  if (pct < 0.25) {
     return 'start';
-  } else if (pct < 0.67) {
+  } else if (pct < 0.8) {
     return 'half';
   }
 

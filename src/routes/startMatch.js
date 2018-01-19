@@ -183,7 +183,7 @@ export default class StartMatch extends Component {
                 onChange={(e) => this.onPlayToOptionChange(e)}
               />
               { this.state.showPlayToInput ?
-                <input type="number" name="play-to-input" id="play-to-input" value={this.state.playTo} onChange={this.onPlayToInputChange} />
+                <input type="number" inputmode="numeric" pattern="[0-9]*" name="play-to-input" id="play-to-input" value={this.state.playTo} onChange={this.onPlayToInputChange} />
                 : null
               }
             </div>
