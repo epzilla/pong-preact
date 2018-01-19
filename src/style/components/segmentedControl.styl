@@ -1,6 +1,6 @@
 .segmented-control {
   display: flex;
-  align-items: center;
+  align-items: stretch;
 
   .btn {
     background-color: white;
@@ -10,7 +10,8 @@
     border-right: none;
     color: var(--primaryBtnBg);
     cursor: pointer;
-    height: 36px;
+    height: auto;
+    min-height: 40px;
     max-width: calc(50vw - 1rem);
 
     &.selected {

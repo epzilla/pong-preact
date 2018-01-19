@@ -215,7 +215,7 @@ export default class StartMatch extends Component {
           <hr />
         </div>
         <div class="start-btn-wrap margin-bottom-1rem">
-          <button class="btn success big" onClick={() => this.beginMatch()}>Begin</button>
+          <button class="btn success big begin-match-btn" onClick={() => this.beginMatch()}>Begin</button>
         </div>
         <SelectPlayerModal {...this.state} select={this.selectPlayer} dismiss={this.dismissModal} />
       </div>

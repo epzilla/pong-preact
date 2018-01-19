@@ -10,10 +10,21 @@
     margin-top: 2rem;
   }
 
+  .btn {
+    min-height: 50px;
+    font-size: 1.2rem;
+
+    &.big.begin-match-btn {
+      font-size: 1.35rem;
+      height: 60px;
+      min-width: 300px;
+    }
+  }
+
   .match-settings {
     .label {
       font-size: 1.35rem;
-      width: 4em;
+      max-width: calc(100vw - 2rem);
 
       &:first-of-type {
         text-align: right;
@@ -22,9 +33,7 @@
 
     .controls-col {
       .label {
-        flex: 1;
         text-align: center;
-        width: auto;
         margin-bottom: 0.5rem;
       }
 
