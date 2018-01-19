@@ -60,7 +60,8 @@ module.exports = function(sequelize, DataTypes) {
     startTime: {
       field: 'start_time',
       type: DataTypes.DATE,
-      allowNull: true
+      allowNull: false,
+      defaultValue: DataTypes.NOW
     },
     finishTime: {
       field: 'finish_time',

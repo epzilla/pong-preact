@@ -5,11 +5,14 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
 const WebSocket = require('ws');
+const morgan = require('morgan')
+const chalk = require('chalk');
 
 // Define your models
 const database = new Sequelize(null, null, null, {
   dialect: 'sqlite',
-  storage: './data/sport.db'
+  storage: './data/sport.db',
+  logging: false
 });
 
 // Initialize server
@@ -22,6 +25,7 @@ app.use(function (req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
   next();
 });
+app.use(morgan('dev'));
 app.set('views', path.join(__dirname, 'public/views'));
 app.set('view engine', 'pug');
 const server = http.createServer(app);
@@ -35,7 +39,7 @@ fs.readdirSync(__dirname + '/models').forEach(m => {
 const wss = new WebSocket.Server({ server });
 wss.on('connection', ws => {
   ws.on('message', message => {
-    console.log('received: %s', message);
+    console.log(chalk.bgCyan('WebSocket message received:') + ' ' + message.toString());
   });
 
   ws.on('error', () => {});
@@ -44,6 +48,10 @@ wss.on('connection', ws => {
 const sendSocketMsg = (type, data, originDeviceId) => {
   let obj = { type, originDeviceId };
   obj.data = typeof data === 'string' ? data : JSON.stringify(data);
+  console.log(chalk.cyan('=========== Sending WebSocket Message ==========='));
+  console.log(chalk.magenta(`Type: ${type}`));
+  console.dir(data);
+  console.log(chalk.cyan(`=================================================`));
   wss.clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(JSON.stringify(obj));
