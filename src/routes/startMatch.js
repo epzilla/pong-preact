@@ -120,8 +120,8 @@ export default class StartMatch extends Component {
     this.setState({ updateEveryPoint })
   };
 
-  togglePlayAllGames = () => {
-    this.setState({ playAllGames: !this.state.playAllGames });
+  onPlayAllChange = (playAllGames) => {
+    this.setState({ playAllGames })
   };
 
   render() {
@@ -190,7 +190,14 @@ export default class StartMatch extends Component {
             <hr />
             <div class="flex-center flex-col controls-col">
               <label class="label">Play all games, even if match clinched?</label>
-              <Toggle altColor id={'play-all-toggle'} toggled={this.togglePlayAllGames} onOff={!!this.state.playAllGames} property="playAllGames" />
+              <SegmentedControl
+                options={[
+                  { label: 'Yes', value: 1 },
+                  { label: 'No', value: 0 }
+                ]}
+                value={this.state.playAllGames}
+                onChange={(e) => this.onPlayAllChange(e)}
+              />
             </div>
             <hr />
             <div class="flex-center flex-col controls-col">
