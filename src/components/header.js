@@ -32,6 +32,7 @@ export default class Header extends Component {
         <button class="btn menu-btn" onClick={this.toggleMenu}>Menu</button>
         <Link class="center" href="/" tabindex="1"><h1>{ this.props.config.siteName }</h1></Link>
         <nav class={this.state.menu ? 'show' : 'hide'}>
+          <Link class="flex-pull-right" activeClassName="active" href="/" tabindex="1">Home</Link>
           <Link class="flex-pull-right" activeClassName="active" href="/stats" tabindex="2">Stats</Link>
         </nav>
         <div class={backdropClass} onClick={this.toggleMenu}></div>

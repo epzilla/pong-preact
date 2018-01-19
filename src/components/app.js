@@ -8,6 +8,7 @@ import StartMatch from '../routes/startMatch';
 import AddNewPlayer from '../routes/addNewPlayer';
 import UpdateScore from '../routes/updateScore';
 import SetDevice from '../routes/setDevice';
+import MatchSummary from '../routes/matchSummary';
 import DebugConsole from './debugConsole';
 import NotSoSecretCode from './notSoSecretCode';
 import GlobalKeyboardShortcuts from './globalKeyboardShortcuts';
@@ -208,6 +209,7 @@ export default class App extends Component {
           <UpdateScore path="/update-score" config={this.config} device={this.state.device} postAlert={this.postAlert} updatableMatchIds={this.state.updatableMatchIds} />
           <AddNewPlayer path="/add-new-player/:returnRoute?/:playerNum?" config={this.config} />
           <SetDevice path="/set-device" config={this.config} callback={this.onDeviceSet} />
+          <MatchSummary path="/match-summary/:id" config={this.config} />
 				</Router>
         {/*
           (this.config.devMode && !this.state.debugConsole) ?

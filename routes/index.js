@@ -16,6 +16,7 @@ module.exports = function (models, app, sequelize, ws) {
   app.get('/api/matches/most-recent/:count', matches.mostRecent);
   app.get('/api/matches/current', matches.current);
   app.get('/api/matches/can-update-score/:deviceId', matches.canUpdate);
+  app.get('/api/matches/:id', matches.findById);
   app.post('/api/matches/create', matches.create);
   app.post('/api/matches/update', matches.update);
   app.post('/api/matches/finish', matches.finish);

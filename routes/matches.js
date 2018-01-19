@@ -25,6 +25,62 @@ exports.init = (models, db, ws) => {
   sendSocketMsg = ws;
 };
 
+exports.findById = (req, res) => {
+  return Promise.all([
+    Matches.findById(req.params.id),
+    sequelize.query(`
+      select
+        p1.fname as player1Fname,
+        p1.lname as player1Lname,
+        p1.mi as player1MiddleInitial,
+        p1.id as player1Id,
+        p2.fname as player2Fname,
+        p2.lname as player2Lname,
+        p2.mi as player2MiddleInitial,
+        p2.id as player2Id,
+        g.score1,
+        g.score2,
+        m.id as matchId,
+        g.id as gameId,
+        m.finished as matchFinished,
+        g.finished as gameFinished,
+        m.best_of as bestOf,
+        m.win_by_two as winByTwo,
+        m.play_to as playTo,
+        m.update_every_point as updateEveryPoint,
+        m.play_all_games as playAllGames,
+        m.start_time as startTime,
+        m.finish_time as finishTime
+      from
+        (select * from matches m where id = ${req.params.id} limit 1) as m
+        join games g on g.match_id = m.id
+        join players p1 on m.player1_id = p1.id
+        join players p2 on m.player2_id = p2.id`, { type: sequelize.QueryTypes.SELECT}
+    )
+  ]).then(result => {
+    if (result[0] && result[1]) {
+      return res.json({
+        games: result[1],
+        id: result[0].id,
+        player1Id: result[0].player1Id,
+        player2Id: result[0].player2Id,
+        updateEveryPoint: result[0].updateEveryPoint,
+        playAllGames: result[0].playAllGames,
+        bestOf: result[0].bestOf,
+        playTo: result[0].playTo,
+        winByTwo: result[0].winByTwo,
+        finished: result[0].finished,
+        startTime: result[0].startTime,
+        finishTime: result[0].finishTime
+      });
+    }
+
+    return res.json({});
+  }).catch(e => {
+    return res.status(400).send(e);
+  });
+};
+
 exports.create = (req, res) => {
   const matchInfo = req.body;
   const deviceId = matchInfo.deviceId || req.params.deviceId;
