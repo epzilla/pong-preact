@@ -8,6 +8,7 @@ Ping pong score tracker and stats application
 4. To run the frontend dev environment with webpack: `npm run frontend`
 
 ### TODO
-- React to socket updates by showing live score updates
-- Refactor to allow multiple matches going on at once
-- WebSocket robustness. Reconnect, etc.
+- Animations on score updates
+- Doubles matches
+- Allow multiple matches going on at once
+- (Low priority) WebSocket robustness. Reconnect, etc.
