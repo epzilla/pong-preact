@@ -140,12 +140,12 @@ exports.create = (req, res) => {
       player2Fname: matchInfo.player2.fname,
       player2Lname: matchInfo.player2.lname,
       player2MiddleInitial: matchInfo.player2.middleInitial,
-      partner1Fname: matchInfo.player3.fname,
-      partner1Lname: matchInfo.player3.fname,
-      partner1MiddleInitial: matchInfo.player3.middleInitial,
-      partner2Fname: matchInfo.player4.fname,
-      partner2Lname: matchInfo.player4.lname,
-      partner2MiddleInitial: matchInfo.player4.middleInitial,
+      partner1Fname: matchInfo.player3 ? matchInfo.player3.fname : null,
+      partner1Lname: matchInfo.player3 ? matchInfo.player3.fname : null,
+      partner1MiddleInitial: matchInfo.player3 ? matchInfo.player3.middleInitial : null,
+      partner2Fname: matchInfo.player4 ? matchInfo.player4.fname : null,
+      partner2Lname: matchInfo.player4 ? matchInfo.player4.lname : null,
+      partner2MiddleInitial: matchInfo.player4 ? matchInfo.player4.middleInitial : null,
       updateEveryPoint: m.updateEveryPoint,
       bestOf: m.bestOf,
       playTo: m.playTo,
@@ -179,12 +179,12 @@ exports.create = (req, res) => {
       player2Fname: matchInfo.player2.fname,
       player2Lname: matchInfo.player2.lname,
       player2MiddleInitial: matchInfo.player2.middleInitial,
-      partner1Fname: matchInfo.partner1.fname,
-      partner1Lname: matchInfo.partner1.lname,
-      partner1MiddleInitial: matchInfo.partner1.middleInitial,
-      partner2Fname: matchInfo.partner2.fname,
-      partner2Lname: matchInfo.partner2.lname,
-      partner2MiddleInitial: matchInfo.partner2.middleInitial
+      partner1Fname: matchInfo.partner1 ? matchInfo.partner1.fname : null,
+      partner1Lname: matchInfo.partner1 ? matchInfo.partner1.lname : null,
+      partner1MiddleInitial: matchInfo.partner1 ? matchInfo.partner1.middleInitial : null,
+      partner2Fname: matchInfo.partner2 ? matchInfo.partner2.fname : null,
+      partner2Lname: matchInfo.partner2 ? matchInfo.partner2.lname : null,
+      partner2MiddleInitial: matchInfo.partner2.middleInitial ? matchInfo.partner2.middleInitial : null,
     };
     match.games[0] = game;
     sendSocketMsg(constants.MATCH_STARTED, match, deviceId);
@@ -538,10 +538,12 @@ exports.mostRecent = (req, res) => {
     });
     let players = results[0];
     let games = results[1];
-    games.forEach(g => {
+    games.map(g => {
       let match = augmentedMatches.find(m => m.id === g.matchId);
       if (match) {
+        //TODO look at sequelize.get({ plain: true }) to see if we can do that to get augmented game objects
         match.games.push(g);
+        return g;
       }
     });
     return res.json(augmentedMatches);
