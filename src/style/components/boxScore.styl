@@ -4,9 +4,15 @@
   background-color: white;
   border: 3px solid #AAA;
   border-radius: 5px;
+  min-width: 40vw;
+  max-width: calc(100vw - 1rem);
 
   h3 {
     margin: 0;
+  }
+
+  @media screen and (max-width: 700px) {
+    min-width: 65vw;
   }
 }
 
@@ -46,6 +52,15 @@
     font-weight: 900;
   }
 
+  &.loss {
+    color: var(--colorLighterText);
+  }
+
+  &.future {
+    color: var(--colorLighterText);
+    opacity: 0.5;
+  }
+
   @media screen and (min-width: 550px) {
     margin: 0 1rem;
     width: 2.75rem;
@@ -74,7 +89,7 @@
   margin-top: 0.5rem;
 
   .final,
-  .time-block {
+  .match-info-block {
     margin: 0;
   }
 
@@ -83,12 +98,15 @@
     margin-bottom: 0.25rem;
   }
 
-  .time-block {
+  .match-info-block {
     color: #AAA;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
   }
 
-  .time-ago {
-    font-size: 0.75rem;
+  p {
+    margin: 0;
   }
 }
 

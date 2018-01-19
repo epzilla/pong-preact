@@ -10,6 +10,8 @@ export default {
   updateEveryPoint: 1,
   themeProperties: {
     pageBg: '#f4fcff',
+    colorDefaultText: '#444',
+    colorLighterText: '#888',
     primary: '#405784',
     secondary: 'white',
     tertiary: '#44b2b5', // Used in cases where secondary is a light color
