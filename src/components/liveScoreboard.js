@@ -1,9 +1,7 @@
 import { Component } from 'preact';
 import { SCORE_UPDATE, GAME_FINISHED, GAME_STARTED, MATCH_FINISHED } from '../lib/constants';
-import Rest from '../lib/rest-service';
 import WebSocketService from '../lib/websocket-service';
 import BoxScore from './boxScore';
-import CSSTransitionGroup from 'preact-css-transition-group';
 
 export default class LiveScoreboard extends Component {
   constructor(props) {
@@ -52,16 +50,11 @@ export default class LiveScoreboard extends Component {
     }
   };
 
-  onMatchFinish = ({ match }) => {
-    // let { match } = this.state;
-    // let i = match.games.findIndex(g => g.gameId === game.gameId);
-    // if (i !== -1) {
-    //   match.games[i] = game;
-    //   this.setState({ match });
-    // }
+  onMatchFinish = (match) => {
+    this.setState({ match });
   };
 
   render() {
-    return <BoxScore jumbotron={true} match={this.state.match} />
+    return <BoxScore flashFinal={this.props.flashFinal} jumbotron={true} match={this.state.match} />
   }
 }

@@ -1,10 +1,11 @@
 import { Component } from 'preact';
 import Rest from '../lib/rest-service';
 import { Link } from 'preact-router/match';
-import { NEW_MATCH_PERMISSION_GRANTED } from '../lib/constants';
+import { NEW_MATCH_PERMISSION_GRANTED, MATCH_FINISHED } from '../lib/constants';
 import LiveScoreboard from '../components/liveScoreboard';
 import BoxScore from '../components/boxScore';
 import LocalStorageService from '../lib/local-storage-service';
+import WebSocketService from '../lib/websocket-service';
 
 export default class Home extends Component {
   constructor(props) {
@@ -14,12 +15,28 @@ export default class Home extends Component {
       recentMatches: [],
       currentMatch: null,
       canUpdateScore: false,
-      matchInProgress: false
+      matchInProgress: false,
+      flashFinal: false
     };
   }
 
   componentDidMount() {
+    WebSocketService.register(MATCH_FINISHED, this.onMatchFinish);
     Rest.get('players').then(players => this.setState({ players }));
+    this.getMostRecent();
+  }
+
+  componentWillReceiveProps({ updatableMatchIds }) {
+    if (updatableMatchIds && updatableMatchIds.length > 0) {
+      this.checkCanUpdate(updatableMatchIds)
+    }
+  }
+
+  componentWillUnmount() {
+    WebSocketService.unregister(MATCH_FINISHED, this.onMatchFinish);
+  }
+
+  getMostRecent = () => {
     Rest.get('matches/most-recent/5').then(matches => {
       if (matches.length > 0) {
         let currentMatch = matches.shift();
@@ -30,13 +47,16 @@ export default class Home extends Component {
         }, this.checkCanUpdate);
       }
     });
-  }
+  };
 
-  componentWillReceiveProps({ updatableMatchIds }) {
-    if (updatableMatchIds && updatableMatchIds.length > 0) {
-      this.checkCanUpdate(updatableMatchIds)
-    }
-  }
+  onMatchFinish = (match) => {
+    this.setState({ flashFinal: true });
+    // Wait for the live scoreboard to show the final score, do any animations/etc.
+    setTimeout(() => {
+      this.getMostRecent();
+      this.setState({ flashFinal: false });
+    }, 10000);
+  };
 
   checkCanUpdate = (matchIds) => {
     if (matchIds || this.state.matchInProgress) {
@@ -57,7 +77,7 @@ export default class Home extends Component {
     return (
       <div class="main home">
         { currentMatch ? <h2 class="align-center primary-text">{ matchStatus }</h2> : null }
-        { currentMatch ? <LiveScoreboard match={ currentMatch } /> : null }
+        { currentMatch ? <LiveScoreboard match={ currentMatch } flashFinal={this.state.flashFinal} /> : null }
         { !matchInProgress && this.props.device ? <Link href="/new-match" class="btn big primary center margin-top-1rem">Start New Match</Link> : null }
         { matchInProgress && canUpdateScore ? <Link href="/update-score" class="btn big success update-score">Update Score</Link> : null }
         { recentMatches && recentMatches.length > 0 ? <hr /> : null }

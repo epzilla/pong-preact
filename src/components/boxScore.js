@@ -32,12 +32,18 @@ const getHourGlassIcon = (match, currentGame) => {
   return 'end';
 };
 
-const BoxScore = ({ match, jumbotron }) => {
+const BoxScore = ({ match, jumbotron, flashFinal }) => {
   const stats = getStatsForMatch(match);
   let headerRowNums = [];
   let footer;
   let numCols = match.finished ? match.games.length : match.bestOf;
   let currentGame;
+  let classes = 'scoreboard ';
+  if (!jumbotron) {
+    classes += ' box-score';
+  } else if (flashFinal) {
+    classes += ' flash-final';
+  }
 
   for (let i = 0; i < numCols; i++) {
     headerRowNums.push(i);
@@ -82,7 +88,7 @@ const BoxScore = ({ match, jumbotron }) => {
   }
 
   return (
-    <div class={`scoreboard ${jumbotron ? '' : 'box-score'}`}>
+    <div class={classes}>
       { match.finished ? <h4 class="date-time-header">{ getFormattedMatchDate(match) }</h4> : null }
       <div class="header-row flex">
         <span class="player-name"></span>
