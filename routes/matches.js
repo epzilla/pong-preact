@@ -18,6 +18,52 @@ const validateMatchToken = (req, res) => {
   });
 };
 
+const augmentMatch = (m, players) => {
+  let match = m.get({ plain: true });
+  let player1 = players.find(p => p.id === match.player1Id);
+  let player2 = players.find(p => p.id === match.player2Id);
+  let partner1 = match.partner1Id ? players.find(p => p.id === match.partner1Id) : null;
+  let partner2 = match.partner2Id ? players.find(p => p.id === match.partner2Id) : null;
+  let augMatch = Object.assign({
+    player1Fname: player1.fname,
+    player1Lname: player1.lname,
+    player1MiddleInitial: player1.middleInitial,
+    player2Fname: player2.fname,
+    player2Lname: player2.lname,
+    player2MiddleInitial: player2.middleInitial,
+    partner1Fname: partner1 ? partner1.fname : null,
+    partner1Lname: partner1 ? partner1.lname : null,
+    partner1MiddleInitial: partner1 ? partner1.middleInitial : null,
+    partner2Fname: partner2 ? partner2.fname : null,
+    partner2Lname: partner2 ? partner2.lname : null,
+    partner2MiddleInitial: partner2 ? partner2.middleInitial : null
+  }, match);
+  return augMatch;
+};
+
+const augmentGame = (g, match) => {
+  let game = g.get({ plain: true });
+  let augGame = Object.assign({
+    player1Id: match.player1Id,
+    player2Id: match.player2Id,
+    partner1Id: match.partner1Id,
+    partner2Id: match.partner2Id,
+    player1Fname: match.player1Fname,
+    player1Lname: match.player1Lname,
+    player1MiddleInitial: match.player1MiddleInitial,
+    player2Fname: match.player2Fname,
+    player2Lname: match.player2Lname,
+    player2MiddleInitial: match.player2MiddleInitial,
+    partner1Fname: match.partner1Fname,
+    partner1Lname: match.partner1Lname,
+    partner1MiddleInitial: match.partner1MiddleInitial,
+    partner2Fname: match.partner2Fname,
+    partner2Lname: match.partner2Lname,
+    partner2MiddleInitial: match.partner2MiddleInitial
+  }, game);
+  return augGame;
+};
+
 exports.init = (models, db, ws) => {
   SimpleGames = models.SimpleGames;
   Players = models.Players;
@@ -498,6 +544,12 @@ exports.mostRecent = (req, res) => {
       if (playerIds.indexOf(m.player2Id) === -1) {
         playerIds.push(m.player2Id);
       }
+      if (m.partner1Id && playerIds.indexOf(m.partner1Id) === -1) {
+        playerIds.push(m.partner1Id);
+      }
+      if (m.partner2Id && playerIds.indexOf(m.partner2Id) === -1) {
+        playerIds.push(m.partner2Id);
+      }
     });
 
     return Promise.all([
@@ -517,31 +569,16 @@ exports.mostRecent = (req, res) => {
       })
     ]);
   }).then(results => {
-    let augmentedMatches = foundMatches.map(m => {
-      return {
-        games: [],
-        id: m.id,
-        player1Id: m.player1Id,
-        player2Id: m.player2Id,
-        partner1Id: m.partner1Id,
-        partner2Id: m.partner2Id,
-        doubles: m.doubles,
-        updateEveryPoint: m.updateEveryPoint,
-        playAllGames: m.playAllGames,
-        bestOf: m.bestOf,
-        playTo: m.playTo,
-        winByTwo: m.winByTwo,
-        finished: m.finished,
-        startTime: m.startTime,
-        finishTime: m.finishTime
-      };
-    });
     let players = results[0];
+    let augmentedMatches = foundMatches.map(m => augmentMatch(m, players));
     let games = results[1];
     games.map(g => {
       let match = augmentedMatches.find(m => m.id === g.matchId);
       if (match) {
-        //TODO look at sequelize.get({ plain: true }) to see if we can do that to get augmented game objects
+        g = augmentGame(g, match)
+        if (!match.games) {
+          match.games = [];
+        }
         match.games.push(g);
         return g;
       }

@@ -1,4 +1,4 @@
-import { getFormattedMatchDate, getStatsForMatch, getMatchTimeAgo } from '../lib/helpers';
+import { getFormattedMatchDate, getStatsForMatch, getMatchTimeAgo, getTeamName } from '../lib/helpers';
 
 const calculateExpectedPointsPerMatch = (match) => {
   let expectedPerGame;
@@ -105,7 +105,7 @@ const BoxScore = ({ match, jumbotron, flashFinal }) => {
         }
       </div>
       <div class="score-row flex">
-        <span class="player-name">{ match.games[0].player1Fname } { match.games[0].player1Lname }</span>
+        <span class="player-name">{ getTeamName(match, 1) }</span>
         {
           headerRowNums.map(i => {
             if (match.games.length >= i + 1) {
@@ -120,7 +120,7 @@ const BoxScore = ({ match, jumbotron, flashFinal }) => {
         }
       </div>
       <div class="score-row flex">
-        <span class="player-name">{ match.games[0].player2Fname } { match.games[0].player2Lname }</span>
+        <span class="player-name">{ getTeamName(match, 2) }</span>
         {
           headerRowNums.map(i => {
             if (match.games.length >= i + 1) {

@@ -56,6 +56,16 @@ export const getMatchTimeAgo = (match) => {
   return distanceInWords(new Date(), parse(match.startTime), { includeSeconds: true, addSuffix: true });
 };
 
+export const getTeamName = (match, teamNum) => {
+  if (match.doubles && teamNum === 1) {
+    return `${match.player1Lname} / ${match.partner1Lname}`;
+  } else if (match.doubles && teamNum === 2) {
+    return `${match.player2Lname} / ${match.partner2Lname}`;
+  } else {
+    return match[`player${teamNum}Fname`] + ' ' + match[`player${teamNum}Lname`];
+  }
+};
+
 export const getStatsForMatch = (match) => {
   let stats = {
     p1GamesWon: 0,
@@ -71,8 +81,8 @@ export const getStatsForMatch = (match) => {
   match.games.forEach(g => {
     stats.p1TotalPoints += g.score1;
     stats.p2TotalPoints += g.score2;
-    stats.p1name = g.player1Fname;
-    stats.p2name = g.player2Fname;
+    stats.p1name = match.doubles ? `${g.player1Lname} / ${g.partner1Lname}` : g.player1Fname;
+    stats.p2name = match.doubles ? `${g.player2Lname} / ${g.partner2Lname}` : g.player2Fname;
     if (g.score1 > g.score2) {
       stats.p1GamesWon++;
     } else {
@@ -81,9 +91,9 @@ export const getStatsForMatch = (match) => {
   });
 
   if (stats.p1GamesWon > stats.p2GamesWon) {
-    stats.resultString = `${stats.p1name} wins, ${stats.p1GamesWon}-${stats.p2GamesWon}`;
+    stats.resultString = `${stats.p1name} won, ${stats.p1GamesWon}-${stats.p2GamesWon}`;
   } else if (stats.p2GamesWon > stats.p1GamesWon) {
-    stats.resultString = `${stats.p2name} wins, ${stats.p2GamesWon}-${stats.p1GamesWon}`;
+    stats.resultString = `${stats.p2name} won, ${stats.p2GamesWon}-${stats.p1GamesWon}`;
   } else {
     stats.resultString = `Draw, ${stats.p2GamesWon}-${stats.p1GamesWon}`;
   }
