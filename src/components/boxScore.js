@@ -63,7 +63,7 @@ const getClassesForGameBox = (match, i, gameFlash) => {
     classes += ' current';
   }
 
-  if (gameFlash && gameFlash === i) {
+  if (gameFlash !== null && gameFlash !== undefined && gameFlash === i) {
     classes += ' game-flash';
   }
 
