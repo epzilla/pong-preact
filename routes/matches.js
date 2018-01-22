@@ -64,12 +64,12 @@ const augmentGame = (g, match) => {
   return augGame;
 };
 
-exports.init = (models, db, ws) => {
+exports.init = (models, db, sendMsg, registerForMsg) => {
   SimpleGames = models.SimpleGames;
   Players = models.Players;
   Matches = models.Matches;
   sequelize = db;
-  sendSocketMsg = ws;
+  sendSocketMsg = sendMsg;
 };
 
 exports.findById = (req, res) => {
@@ -160,8 +160,8 @@ exports.create = (req, res) => {
     return Matches.create({
       player1Id: matchInfo.player1.id,
       player2Id: matchInfo.player2.id,
-      partner1Id: matchInfo.player3.id,
-      partner2Id: matchInfo.player4.id,
+      partner1Id: matchInfo.partner1 ? matchInfo.partner1.id : null,
+      partner2Id: matchInfo.partner2 ? matchInfo.partner2.id : null,
       doubles: matchInfo.doubles,
       updateEveryPoint: matchInfo.updateEveryPoint,
       bestOf: matchInfo.bestOf || 4,
@@ -186,12 +186,12 @@ exports.create = (req, res) => {
       player2Fname: matchInfo.player2.fname,
       player2Lname: matchInfo.player2.lname,
       player2MiddleInitial: matchInfo.player2.middleInitial,
-      partner1Fname: matchInfo.player3 ? matchInfo.player3.fname : null,
-      partner1Lname: matchInfo.player3 ? matchInfo.player3.fname : null,
-      partner1MiddleInitial: matchInfo.player3 ? matchInfo.player3.middleInitial : null,
-      partner2Fname: matchInfo.player4 ? matchInfo.player4.fname : null,
-      partner2Lname: matchInfo.player4 ? matchInfo.player4.lname : null,
-      partner2MiddleInitial: matchInfo.player4 ? matchInfo.player4.middleInitial : null,
+      partner1Fname: matchInfo.partner1 ? matchInfo.partner1.fname : null,
+      partner1Lname: matchInfo.partner1 ? matchInfo.partner1.fname : null,
+      partner1MiddleInitial: matchInfo.partner1 ? matchInfo.partner1.middleInitial : null,
+      partner2Fname: matchInfo.partner2 ? matchInfo.partner2.fname : null,
+      partner2Lname: matchInfo.partner2 ? matchInfo.partner2.lname : null,
+      partner2MiddleInitial: matchInfo.partner2 ? matchInfo.partner2.middleInitial : null,
       updateEveryPoint: m.updateEveryPoint,
       bestOf: m.bestOf,
       playTo: m.playTo,
@@ -230,7 +230,7 @@ exports.create = (req, res) => {
       partner1MiddleInitial: matchInfo.partner1 ? matchInfo.partner1.middleInitial : null,
       partner2Fname: matchInfo.partner2 ? matchInfo.partner2.fname : null,
       partner2Lname: matchInfo.partner2 ? matchInfo.partner2.lname : null,
-      partner2MiddleInitial: matchInfo.partner2.middleInitial ? matchInfo.partner2.middleInitial : null,
+      partner2MiddleInitial: matchInfo.partner2 ? matchInfo.partner2.middleInitial : null,
     };
     match.games[0] = game;
     sendSocketMsg(constants.MATCH_STARTED, match, deviceId);

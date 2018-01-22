@@ -79,6 +79,10 @@ const WebSocketService = {
 
   setDeviceId: (id) => {
     deviceId = id;
+  },
+
+  send: (type, msg) => {
+    ws.send(JSON.stringify({ type, msg, deviceId }));
   }
 }
 

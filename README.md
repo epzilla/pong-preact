@@ -9,6 +9,5 @@ Ping pong score tracker and stats application
 
 ### TODO
 - Animations on score updates
-- Doubles matches
-- Allow multiple matches going on at once
-- (Low priority) WebSocket robustness. Reconnect, etc.
+- Allow multiple matches going on at once- (Lower priority) WebSocket robustness. Reconnect, etc.
+- WebSocket robustness, reconnect, etc.

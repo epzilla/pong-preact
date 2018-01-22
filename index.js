@@ -8,6 +8,8 @@ const WebSocket = require('ws');
 const morgan = require('morgan')
 const chalk = require('chalk');
 
+let socketCallbacks = {};
+
 // Define your models
 const database = new Sequelize(null, null, null, {
   dialect: 'sqlite',
@@ -39,7 +41,17 @@ fs.readdirSync(__dirname + '/models').forEach(m => {
 const wss = new WebSocket.Server({ server });
 wss.on('connection', ws => {
   ws.on('message', message => {
-    console.log(chalk.bgCyan('WebSocket message received:') + ' ' + message.toString());
+    const data = JSON.parse(message);
+    console.log(chalk.magenta(`========================================`));
+    console.log(chalk.magenta(`Received WebSocket Message from Device:`));
+    console.log(chalk.magenta(data.deviceId));
+    console.log(chalk.magenta(`========================================`));
+    console.log(chalk.cyan(`Type: ${data.type}`));
+    console.dir(data.msg);
+    console.log(chalk.magenta(`========================================`));
+    if (socketCallbacks[data.type]) {
+      socketCallbacks[data.type].forEach(cb => cb(data));
+    }
   });
 
   ws.on('error', () => {});
@@ -59,7 +71,15 @@ const sendSocketMsg = (type, data, originDeviceId) => {
   });
 };
 
-require('./routes')(models, app, database, sendSocketMsg);
+const registerForSocketMsgs = (type, cb) => {
+  if (!socketCallbacks[type]) {
+    socketCallbacks[type] = [cb];
+  } else {
+    socketCallbacks[type].push(cb);
+  }
+};
+
+require('./routes')(models, app, database, sendSocketMsg, registerForSocketMsgs);
 
 // Create database and listen
 server.listen(3000, () => {

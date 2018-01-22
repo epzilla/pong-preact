@@ -2,8 +2,8 @@ const players = require('./players');
 const matches = require('./matches');
 const devices = require('./devices');
 
-module.exports = function (models, app, sequelize, ws) {
-  matches.init(models, sequelize, ws);
+module.exports = function (models, app, sequelize, sendSocketMsg, registerForMsg) {
+  matches.init(models, sequelize, sendSocketMsg, registerForMsg);
   players.init(models);
   devices.init(models);
 

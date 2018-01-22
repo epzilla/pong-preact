@@ -19,8 +19,8 @@ export default class StartMatch extends Component {
       doubles: false,
       player1: null,
       player2: null,
-      player3: null,
-      player4: null,
+      partner1: null,
+      partner2: null,
       isSelectingPlayer: 0,
       players: [],
       playTo: props.config && props.config.playTo ? props.config.playTo : 21,
@@ -51,11 +51,11 @@ export default class StartMatch extends Component {
           if (cachedState.player2) {
             stateCopy.player2 = cachedState.player2;
           }
-          if (cachedState.player3) {
-            stateCopy.player3 = cachedState.player3;
+          if (cachedState.partner1) {
+            stateCopy.partner1 = cachedState.partner1;
           }
-          if (cachedState.player4) {
-            stateCopy.player4 = cachedState.player4;
+          if (cachedState.partner2) {
+            stateCopy.partner2 = cachedState.partner2;
           }
           stateCopy[`player${num}`] = player;
           this.setState(stateCopy);
@@ -63,8 +63,8 @@ export default class StartMatch extends Component {
           this.setState({
             player1: cachedState && cachedState.player1 ? cachedState.player1 : players[0],
             player2: cachedState && cachedState.player2 ? cachedState.player2 : players[1],
-            player3: cachedState && cachedState.player3 ? cachedState.player3 : players[2],
-            player4: cachedState && cachedState.player4 ? cachedState.player4 : players[3]
+            partner1: cachedState && cachedState.partner1 ? cachedState.partner1 : players[2],
+            partner2: cachedState && cachedState.partner2 ? cachedState.partner2 : players[3]
           });
         } else {
           this.setState({
@@ -78,14 +78,18 @@ export default class StartMatch extends Component {
 
   setAndCacheState = (obj) => {
     this.setState(obj, () => {
-      let { player1, player2, player3, player4 } = this.state;
-      LocalStorageService.set('start-match-state', { player1, player2 });
+      let { player1, player2, partner1, partner2 } = this.state;
+      LocalStorageService.set('start-match-state', { player1, player2, partner1, partner2 });
     });
   };
 
   selectPlayer = (p) => {
-    let obj = { isSelectingPlayer: null };
-    obj[`player${this.state.isSelectingPlayer}`] = p;
+    let obj = { isSelectingPlayer: 0 };
+    if (this.state.isSelectingPlayer <= 2) {
+      obj[`player${this.state.isSelectingPlayer}`] = p;
+    } else {
+      obj[`partner${this.state.isSelectingPlayer - 2}`] = p;
+    }
     this.setAndCacheState(obj);
   };
 
@@ -109,7 +113,7 @@ export default class StartMatch extends Component {
   };
 
   addNewPlayer = (num) => {
-    if (this.state.player1 || this.state.player2 || this.state.player3 || this.state.player4) {
+    if (this.state.player1 || this.state.player2 || this.state.partner1 || this.state.partner2) {
       LocalStorageService.set('start-match-state', this.state);
     }
     route(`/add-new-player/new-match/${num}`);
@@ -144,7 +148,7 @@ export default class StartMatch extends Component {
   };
 
   render() {
-    let { player1, player2, player3, player4, doubles, players } = this.state;
+    let { player1, player2, partner1, partner2, doubles, players } = this.state;
 
     let team1block = (
       <div class="team-select-block">
@@ -161,7 +165,7 @@ export default class StartMatch extends Component {
           <PlayerSelectBlock
             doubles={true}
             isPartner={true}
-            player={player3}
+            player={partner1}
             num={3}
             selectCallback={() => this.setState({ isSelectingPlayer: 3 })}
             selectBtnText="Change"
@@ -186,7 +190,7 @@ export default class StartMatch extends Component {
           <PlayerSelectBlock
             doubles={true}
             isPartner={true}
-            player={player4}
+            player={partner2}
             num={4}
             selectCallback={() => this.setState({ isSelectingPlayer: 4 })}
             selectBtnText="Change"
