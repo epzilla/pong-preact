@@ -75,7 +75,8 @@ export const getStatsForMatch = (match) => {
     p1name: '',
     p2name: '',
     resultString: '',
-    pointsWonString: ''
+    pointsWonString: '',
+    winner: null
   };
 
   match.games.forEach(g => {
@@ -92,8 +93,10 @@ export const getStatsForMatch = (match) => {
 
   if (stats.p1GamesWon > stats.p2GamesWon) {
     stats.resultString = `${stats.p1name} won, ${stats.p1GamesWon}-${stats.p2GamesWon}`;
+    stats.winner = match.player1Id;
   } else if (stats.p2GamesWon > stats.p1GamesWon) {
     stats.resultString = `${stats.p2name} won, ${stats.p2GamesWon}-${stats.p1GamesWon}`;
+    stats.winner = match.player2Id;
   } else {
     stats.resultString = `Draw, ${stats.p2GamesWon}-${stats.p1GamesWon}`;
   }
