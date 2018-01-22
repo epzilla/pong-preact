@@ -52,7 +52,7 @@ const WebSocketService = {
     });
   },
 
-  register: (type, cb) => {
+  subscribe: (type, cb) => {
     if (callbacks[type]) {
       callbacks[type].push(cb);
     } else {
@@ -64,7 +64,7 @@ const WebSocketService = {
     }
   },
 
-  unregister: (type, cb) => {
+  unsubscribe: (type, cb) => {
     if (callbacks[type]) {
       let i = callbacks[type].findIndex(fn => fn === cb);
       if (i !== -1) {

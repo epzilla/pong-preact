@@ -10,17 +10,23 @@ export default class LiveScoreboard extends Component {
   }
 
   componentWillMount() {
-    WebSocketService.register(SCORE_UPDATE, this.onScoreUpdate);
-    WebSocketService.register(GAME_STARTED, this.onGameStart);
-    WebSocketService.register(GAME_FINISHED, this.onGameFinish);
-    WebSocketService.register(MATCH_FINISHED, this.onMatchFinish);
+    WebSocketService.subscribe(SCORE_UPDATE, this.onScoreUpdate);
+    WebSocketService.subscribe(GAME_STARTED, this.onGameStart);
+    WebSocketService.subscribe(GAME_FINISHED, this.onGameFinish);
+    WebSocketService.subscribe(MATCH_FINISHED, this.onMatchFinish);
   }
 
   componentWillUnmount() {
-    WebSocketService.unregister(SCORE_UPDATE, this.onScoreUpdate);
-    WebSocketService.unregister(GAME_STARTED, this.onGameStart);
-    WebSocketService.unregister(GAME_FINISHED, this.onGameFinish);
-    WebSocketService.unregister(MATCH_FINISHED, this.onMatchFinish);
+    WebSocketService.unsubscribe(SCORE_UPDATE, this.onScoreUpdate);
+    WebSocketService.unsubscribe(GAME_STARTED, this.onGameStart);
+    WebSocketService.unsubscribe(GAME_FINISHED, this.onGameFinish);
+    WebSocketService.unsubscribe(MATCH_FINISHED, this.onMatchFinish);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.match) {
+      this.setState({ match: nextProps.match });
+    }
   }
 
   onScoreUpdate = ({ game, scorer }) => {

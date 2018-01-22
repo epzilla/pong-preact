@@ -144,8 +144,8 @@ export default class App extends Component {
 
   initWebSockets = (deviceId) => {
     WebSocketService.init(deviceId, this.config.devMode).then(() => {
-      WebSocketService.register(Constants.ADDED_DEVICES_TO_MATCH, this.onAddedDevicesToMatch);
-      WebSocketService.register(Constants.MATCH_STARTED, this.onMatchStart);
+      WebSocketService.subscribe(Constants.ADDED_DEVICES_TO_MATCH, this.onAddedDevicesToMatch);
+      WebSocketService.subscribe(Constants.MATCH_STARTED, this.onMatchStart);
     });
   };
 

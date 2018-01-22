@@ -1,7 +1,7 @@
 import { Component } from 'preact';
 import Rest from '../lib/rest-service';
 import { Link } from 'preact-router/match';
-import { NEW_MATCH_PERMISSION_GRANTED, MATCH_FINISHED } from '../lib/constants';
+import { NEW_MATCH_PERMISSION_GRANTED, MATCH_STARTED, MATCH_FINISHED } from '../lib/constants';
 import LiveScoreboard from '../components/liveScoreboard';
 import BoxScore from '../components/boxScore';
 import LocalStorageService from '../lib/local-storage-service';
@@ -21,7 +21,8 @@ export default class Home extends Component {
   }
 
   componentDidMount() {
-    WebSocketService.register(MATCH_FINISHED, this.onMatchFinish);
+    WebSocketService.subscribe(MATCH_STARTED, this.onMatchStart);
+    WebSocketService.subscribe(MATCH_FINISHED, this.onMatchFinish);
     Rest.get('players').then(players => this.setState({ players }));
     this.getMostRecent();
   }
@@ -33,7 +34,8 @@ export default class Home extends Component {
   }
 
   componentWillUnmount() {
-    WebSocketService.unregister(MATCH_FINISHED, this.onMatchFinish);
+    WebSocketService.unsubscribe(MATCH_STARTED, this.onMatchStart);
+    WebSocketService.unsubscribe(MATCH_FINISHED, this.onMatchFinish);
   }
 
   getMostRecent = () => {
@@ -47,6 +49,16 @@ export default class Home extends Component {
         }, this.checkCanUpdate);
       }
     });
+  };
+
+  onMatchStart = (match) => {
+    let { recentMatches, currentMatch, matchInProgress } = this.state;
+    if (currentMatch) {
+      recentMatches.unshift(Object.assign({}, currentMatch));
+    }
+    currentMatch = match;
+    matchInProgress = true;
+    this.setState({ recentMatches, currentMatch, matchInProgress });
   };
 
   onMatchFinish = (match) => {
