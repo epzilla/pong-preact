@@ -9,7 +9,7 @@ export default class LiveScoreboard extends Component {
     this.state = { match: props.match };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     WebSocketService.subscribe(SCORE_UPDATE, this.onScoreUpdate);
     WebSocketService.subscribe(GAME_STARTED, this.onGameStart);
     WebSocketService.subscribe(GAME_FINISHED, this.onGameFinish);

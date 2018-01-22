@@ -427,7 +427,7 @@ exports.updateGame = (req, res) => {
   }).then(() => {
     if (game.gameFinished) {
       sendSocketMsg(constants.GAME_FINISHED, { game }, req.body.deviceId);
-    } else {
+    } else if (match.updateEveryPoint) {
       sendSocketMsg(constants.SCORE_UPDATE, { game, scorer }, req.body.deviceId);
     }
     return res.json(game);

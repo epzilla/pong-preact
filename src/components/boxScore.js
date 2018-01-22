@@ -32,6 +32,14 @@ const getHourGlassIcon = (match, currentGame) => {
   return 'end';
 };
 
+const getScoreToDisplay = (match, game, teamNum) => {
+  if (match.updateEveryPoint || game.gameFinished) {
+    return game[`score${teamNum}`];
+  }
+
+  return '-'
+};
+
 const BoxScore = ({ match, jumbotron, flashFinal }) => {
   const stats = getStatsForMatch(match);
   let headerRowNums = [];
@@ -76,6 +84,13 @@ const BoxScore = ({ match, jumbotron, flashFinal }) => {
           <i class={`fa fa-hourglass-${ getHourGlassIcon(match, currentGame) }`}></i>
           <span class="match-info">{ match.playAllGames ? 'Playing all' : 'Best of' } { match.bestOf } games.</span>
         </p>
+        { !match.updateEveryPoint ?
+          <p class="match-info-block align-top">
+            <i class="fa fa-asterisk"></i>
+            <span class="match-info">Live scoring updates have been disabled for this match. Scores will only update between games.</span>
+          </p>
+          : null
+        }
       </p>
     );
   } else {
@@ -110,7 +125,7 @@ const BoxScore = ({ match, jumbotron, flashFinal }) => {
           headerRowNums.map(i => {
             if (match.games.length >= i + 1) {
               let g = match.games[i]
-              return <span class={`score-number-box ${g.gameFinished && g.score1 > g.score2 ? 'win' : (g.gameFinished ? 'loss' : '')}`}>{ g.score1 }</span>
+              return <span class={`score-number-box ${g.gameFinished && g.score1 > g.score2 ? 'win' : (g.gameFinished ? 'loss' : '')}`}>{ getScoreToDisplay(match, g, 1) }</span>
             }
 
             return (
@@ -125,7 +140,7 @@ const BoxScore = ({ match, jumbotron, flashFinal }) => {
           headerRowNums.map(i => {
             if (match.games.length >= i + 1) {
               let g = match.games[i]
-              return <span class={`score-number-box ${g.gameFinished && g.score2 > g.score1 ? 'win' : (g.gameFinished ? 'loss' : '')}`}>{ g.score2 }</span>
+              return <span class={`score-number-box ${g.gameFinished && g.score2 > g.score1 ? 'win' : (g.gameFinished ? 'loss' : '')}`}>{ getScoreToDisplay(match, g, 2) }</span>
             }
 
             return (
