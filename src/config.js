@@ -11,7 +11,10 @@ export default {
   themeProperties: {
     pageBg: '#f4fcff',
     colorDefaultText: '#444',
-    colorLighterText: '#888',
+    colorMediumText: '#888',
+    colorLighterText: '#AAA',
+    colorDisabledText: '#ccc',
+    colorFaint: '#E8E8E8',
     primary: '#405784',
     secondary: 'white',
     tertiary: '#44b2b5', // Used in cases where secondary is a light color
@@ -21,8 +24,6 @@ export default {
     secondaryBtnText: 'white',
     footerTextColor: '#405784',
     activeLinkColor: 'white',
-    disabledColor: '#ccc',
-    faintColor: '#E8E8E8',
     scoreFlashColor: 'rgba(68, 178, 181, 0.5)',
     blockFont: "'Sanchez', 'Lato', -apple-system, BlinkMacSystemFont, sytem-ui, 'Helvetica Neue', arial, sans-serif"
   },

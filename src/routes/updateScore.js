@@ -229,12 +229,12 @@ export default class UpdateScore extends Component {
     return (
       <div class="main update-score">
         <h2 class="align-center">Update Score</h2>
+        <p class="match-update-info">
+          { match ? <i class="fa fa-info-circle"></i> : null }
+          { match ? <span>Playing to { match.playTo }, { match.playAllGames ? 'total of' : 'best of' } { match.bestOf } games.</span> : null }
+        </p>
         <ul class="games-list select-list">
           { games }
-          {/**<li class="faux-expandable" onClick={this.addGame}>
-                      <i class="fa fa-plus-circle"></i>
-                      <span>Add Game</span>
-                    </li>*/}
         </ul>
         <button class="btn big success" onClick={this.confirmEndMatch}>
           <i class="fa fa-check"></i>

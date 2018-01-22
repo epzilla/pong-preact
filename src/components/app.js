@@ -222,15 +222,9 @@ export default class App extends Component {
         */}
         {
           this.config.devMode ?
-          <div class="debug-nuke-btn-container">
-            <button class="btn" onClick={() => this.resetApp()}>
-              <i class="fa fa-bomb"></i>
-              <span>Reset App</span>
-            </button>
-            <button class="btn" onClick={() => this.testAlerts()}>
-              <i class="fa fa-exclamation-triangle"></i>
-              <span>Test Alerts</span>
-            </button>
+          <div class="debug-btns-container">
+            <i class="debug-btn fa fa-bomb" onClick={() => this.resetApp()}></i>
+            <i class="debug-btn fa fa-exclamation-triangle" onClick={() => this.testAlerts()}></i>
           </div>
           : null
         }
