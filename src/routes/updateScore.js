@@ -1,8 +1,9 @@
 import { Component } from 'preact';
 import { route } from 'preact-router';
 import { getTeamName, getScoreHeaderLine } from '../lib/helpers';
-import * as Constants from '../lib/constants';
+import { DEVICE_CANNOT_UPDATE_MATCH, SCORE_UPDATE, GAME_STARTED, GAME_FINISHED, MATCH_FINISHED } from '../lib/constants';
 import Rest from '../lib/rest-service';
+import WebSocketService from '../lib/websocket-service';
 import LocalStorageService from '../lib/local-storage-service';
 import Stepper from '../components/stepper';
 import Expandable from '../components/expandable';
@@ -25,6 +26,10 @@ export default class UpdateScore extends Component {
 
   componentDidMount() {
     let match;
+    WebSocketService.subscribe(SCORE_UPDATE, this.onScoreUpdateFromElsewhere);
+    WebSocketService.subscribe(GAME_STARTED, this.onGameStartedElsewhere);
+    WebSocketService.subscribe(MATCH_FINISHED, this.onMatchFinishedFromElsewhere);
+    WebSocketService.subscribe(GAME_FINISHED, this.onGameFinishedFromElsewhere);
     Rest.get('matches/current').then(m => {
       if (m && m.id) {
         match = m;
@@ -51,6 +56,48 @@ export default class UpdateScore extends Component {
       this.setState({ devices });
     });
   }
+
+  componentWillUnmount() {
+    WebSocketService.unsubscribe(SCORE_UPDATE, this.onScoreUpdateFromElsewhere);
+  }
+
+  onScoreUpdateFromElsewhere = ({ game, scorer }) => {
+    let { match } = this.state;
+    let i = match.games.findIndex(g => g.gameId === game.gameId);
+    if (i !== -1) {
+      match.games[i] = game;
+      this.setState({ match });
+    }
+  };
+
+  setGameFromElsewhere = (game) => {
+    let { match } = this.state;
+    let i = match.games.findIndex(g => g.gameId === game.gameId);
+    if (i === -1) {
+      match.games.push(game);
+    } else {
+      match.games[i] = game;
+    }
+
+    this.setState({ match }, () => {
+      if (game.gameFinished) {
+        let { gamesCollapsed } = this.state;
+        gamesCollapsed[game.gameId] = true;
+        this.setState({ gamesCollapsed });
+      }
+    });
+  };
+
+  onGameStartedElsewhere = this.setGameFromElsewhere;
+
+  onGameFinishedFromElsewhere = ({ game }) => this.setGameFromElsewhere(game);
+
+  onMatchFinishedFromElsewhere = (m) => {
+    let { match } = this.state;
+    if (m.id === match.id) {
+      route('/');
+    }
+  };
 
   scoreChange = (game, playerNum, { amount }) => {
     let { match, gamesCollapsed } = this.state;

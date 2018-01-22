@@ -62,6 +62,12 @@ export default class Stepper extends Component {
     }
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.initialValue) {
+      this.setState({ val: nextProps.initialValue });
+    }
+  }
+
   stepDown = (e) => {
     e.preventDefault();
     return this.props.full ? this.stepDownFull() : this.stepDownFractional();
