@@ -22,6 +22,7 @@ export default {
     footerTextColor: '#405784',
     activeLinkColor: 'white',
     disabledColor: '#ccc',
+    faintColor: '#E8E8E8',
     scoreFlashColor: 'rgba(68, 178, 181, 0.5)',
     blockFont: "'Sanchez', 'Lato', -apple-system, BlinkMacSystemFont, sytem-ui, 'Helvetica Neue', arial, sans-serif"
   },

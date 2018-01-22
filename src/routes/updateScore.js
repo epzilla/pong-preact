@@ -1,6 +1,6 @@
 import { Component } from 'preact';
 import { route } from 'preact-router';
-import { getTeamName } from '../lib/helpers';
+import { getTeamName, getScoreHeaderLine } from '../lib/helpers';
 import * as Constants from '../lib/constants';
 import Rest from '../lib/rest-service';
 import LocalStorageService from '../lib/local-storage-service';
@@ -195,27 +195,33 @@ export default class UpdateScore extends Component {
         games = match.games.map((g, i) => {
           let title = `Game ${i + 1}`;
           if (g.gameFinished) {
-            title += ` (F): ${g.player1Fname} ${g.score1} - ${g.player2Fname} ${g.score2}`;
+            title += ` — ${getScoreHeaderLine(match, g)}`;
           }
 
           return (
-            <Expandable title={title} collapsed={ this.state.gamesCollapsed[g.gameId] } id={g.gameId} toggle={(id) => this.toggleExpanded(id)}>
-              <div class="game-update-row">
-                <div class="flex-col flex-center">
-                  <h4>{ getTeamName(match, 1) }</h4>
-                  <Stepper full min={0} onChange={(e) => this.scoreChange(g, 1, e)} initialValue={g.score1}/>
+            <li>
+              <Expandable title={title} collapsed={ this.state.gamesCollapsed[g.gameId] } id={g.gameId} toggle={(id) => this.toggleExpanded(id)}>
+                <div class="game-update-row">
+                  <div class="flex-col flex-center">
+                    <h4>{ getTeamName(match, 1) }</h4>
+                    <Stepper full min={0} onChange={(e) => this.scoreChange(g, 1, e)} initialValue={g.score1}/>
+                  </div>
+                  <div class="flex-col flex-justify-end">
+                    <div class="stepper-separator">
+                      <h4 class="vs-symbol align-center">vs</h4>
+                    </div>
+                  </div>
+                  <div class="flex-col flex-center">
+                    <h4>{ getTeamName(match, 2) }</h4>
+                    <Stepper full min={0} onChange={(e) => this.scoreChange(g, 2, e)} initialValue={g.score2}/>
+                  </div>
                 </div>
-                <h4 class="align-center">vs.</h4>
-                <div class="flex-col flex-center">
-                  <h4>{ getTeamName(match, 2) }</h4>
-                  <Stepper full min={0} onChange={(e) => this.scoreChange(g, 2, e)} initialValue={g.score2}/>
+                <div class="flex final-score-toggle">
+                  <label>Final?</label>
+                  <Toggle id={`game-${i}-finished`} toggled={this.toggleFinished} onOff={g.gameFinished} property={g.gameId} />
                 </div>
-              </div>
-              <div class="flex final-score-toggle">
-                <label>Final?</label>
-                <Toggle id={`game-${i}-finished`} toggled={this.toggleFinished} onOff={g.gameFinished} property={g.gameId} />
-              </div>
-            </Expandable>
+              </Expandable>
+            </li>
           );
       });
     }
@@ -223,12 +229,14 @@ export default class UpdateScore extends Component {
     return (
       <div class="main update-score">
         <h2 class="align-center">Update Score</h2>
-        { games }
-        <button class="btn faux-expandable margin-bottom-1rem" onClick={this.addGame}>
-          <i class="fa fa-plus-circle"></i>
-          <span>Add Game</span>
-        </button>
-        <button class="btn big secondary" onClick={this.confirmEndMatch}>
+        <ul class="games-list select-list">
+          { games }
+          {/**<li class="faux-expandable" onClick={this.addGame}>
+                      <i class="fa fa-plus-circle"></i>
+                      <span>Add Game</span>
+                    </li>*/}
+        </ul>
+        <button class="btn big success" onClick={this.confirmEndMatch}>
           <i class="fa fa-check"></i>
           <span>End Match</span>
         </button>
@@ -239,7 +247,7 @@ export default class UpdateScore extends Component {
               <i class="fa fa-exchange"></i>
               <i class="fa fa-mobile"></i>
             </div>
-            <span>Let Other Devices Update</span>
+            <span>Let Others Update</span>
           </button>
           : null
         }

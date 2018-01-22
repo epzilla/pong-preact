@@ -55,6 +55,27 @@ export default class App extends Component {
     }
   }
 
+  componentDidMount() {
+    // Set CSS Custom Properties
+    if (this.config && this.config.themeProperties) {
+      Object.keys(this.config.themeProperties).forEach(key => {
+        document.body.style.setProperty(`--${key}`, this.config.themeProperties[key]);
+      });
+      let pbg = this.config.themeProperties.primaryBtnBg;
+      let sbg = this.config.themeProperties.secondaryBtnBg;
+      document.body.style.setProperty('--primaryBtnBorder', pbg ? lightenOrDarken(pbg, -40) : '#888');
+      document.body.style.setProperty('--secondaryBtnBorder', sbg ? lightenOrDarken(sbg, -40) : '#888');
+    }
+
+    let device = this.ls.get('device');
+    if (device) {
+      this.setState({ device });
+      this.initWebSockets(device.id);
+    } else {
+      route('/set-device');
+    }
+  }
+
 	/**
 	 *  Gets fired when the route changes.
 	 *	@param {Object} event		"change" event from [preact-router](http://git.io/preact-router)
@@ -173,27 +194,6 @@ export default class App extends Component {
     this.postAlert({ type: 'warning', msg: `Hey! cut that out. I'm watchin' you...`}, 999999999);
     this.postAlert({ type: 'error', msg: `Oh boy, now you've done it! What did I tell you, man???`}, 999999999);
   };
-
-	componentDidMount() {
-    // Set CSS Custom Properties
-    if (this.config && this.config.themeProperties) {
-      Object.keys(this.config.themeProperties).forEach(key => {
-        document.body.style.setProperty(`--${key}`, this.config.themeProperties[key]);
-      });
-      let pbg = this.config.themeProperties.primaryBtnBg;
-      let sbg = this.config.themeProperties.secondaryBtnBg;
-      document.body.style.setProperty('--primaryBtnBorder', pbg ? lightenOrDarken(pbg, -40) : '#888');
-      document.body.style.setProperty('--secondaryBtnBorder', sbg ? lightenOrDarken(sbg, -40) : '#888');
-    }
-
-    let device = this.ls.get('device');
-    if (device) {
-      this.setState({ device });
-      this.initWebSockets(device.id);
-    } else {
-      route('/set-device');
-    }
-  }
 
 	render() {
 		return (

@@ -66,6 +66,16 @@ export const getTeamName = (match, teamNum) => {
   }
 };
 
+export const getScoreHeaderLine = (match, game) => {
+  if (game.score1 > game.score2) {
+    let teamName = match.doubles ? `${match.player1Lname}/${match.partner1Lname}` : match.player1Lname;
+    return `${game.score1}-${game.score2} (F), ${teamName}`;
+  } else {
+    let teamName = match.doubles ? `${match.player2Lname}/${match.partner2Lname}` : match.player2Lname;
+    return `${game.score2}-${game.score1} (F), ${teamName}`;
+  }
+};
+
 export const getStatsForMatch = (match) => {
   let stats = {
     p1GamesWon: 0,
