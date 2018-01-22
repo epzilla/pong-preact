@@ -111,6 +111,7 @@ export default class UpdateScore extends Component {
           if (match.games[i].gameFinished) {
             gamesCollapsed[match.games[i].gameId] = true;
             this.setState({ gamesCollapsed });
+            this.checkIfMatchFinished();
           }
         });
       });

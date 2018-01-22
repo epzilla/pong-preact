@@ -41,7 +41,6 @@ export default class App extends Component {
     }
 
     if (this.config.devMode) {
-      this.resetClicks = 0;
       this.canReset = false;
     }
 
@@ -150,18 +149,16 @@ export default class App extends Component {
   };
 
   resetApp = () => {
-    this.resetClicks++;
-    if (this.resetClicks > 2) {
-      this.resetClicks = 0;
-      this.canReset = true;
-    }
+    this.canReset = true;
   };
 
   resetAppAfterCode = () => {
-    LocalStorageService.deleteAll();
-    Rest.del('reset-all').then(() => {
-      window.location.assign('/');
-    });
+    if (this.canReset) {
+      LocalStorageService.deleteAll();
+      Rest.del('reset-all').then(() => {
+        window.location.assign('/');
+      });
+    }
   };
 
   dismissAlert = (i) => {

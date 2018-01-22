@@ -381,8 +381,9 @@ exports.addGame = (req, res) => {
     }).then(result => {
       const game = {
         gameId: result[0],
-        score1: match.updateEveryPoint ? 0 : 21,
-        score2: match.updateEveryPoint ? 0 : 21,
+        matchId: match.id,
+        score1: match.updateEveryPoint ? 0 : match.playTo,
+        score2: match.updateEveryPoint ? 0 : match.playTo,
         matchFinished: 0,
         gameFinished: 0,
         player1Id: match.player1Id,
@@ -425,9 +426,11 @@ exports.updateGame = (req, res) => {
     g.gameFinished = game.gameFinished;
     return g.save();
   }).then(() => {
+    return Matches.findById(game.matchId);
+  }).then(m => {
     if (game.gameFinished) {
       sendSocketMsg(constants.GAME_FINISHED, { game }, req.body.deviceId);
-    } else if (match.updateEveryPoint) {
+    } else if (m.updateEveryPoint) {
       sendSocketMsg(constants.SCORE_UPDATE, { game, scorer }, req.body.deviceId);
     }
     return res.json(game);
