@@ -44,6 +44,22 @@
   flex: 1;
 }
 
+.player-name.winner {
+  position: relative;
+  font-weight: 700;
+
+  &:before {
+    content: '';
+    position: absolute;
+    left: -0.5rem;
+    top: 0.9rem;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-left: 10px solid;
+    border-right: 10px solid transparent;
+  }
+}
+
 .score-number-box {
   display: flex;
   justify-content: center;

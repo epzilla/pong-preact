@@ -105,7 +105,7 @@ const BoxScore = ({ match, jumbotron, flashFinal }) => {
         }
       </div>
       <div class="score-row flex">
-        <span class="player-name">{ getTeamName(match, 1) }</span>
+        <span class={`player-name ${stats.winner && stats.winner === match.player1Id ? 'winner' : ''}`}>{ getTeamName(match, 1) }</span>
         {
           headerRowNums.map(i => {
             if (match.games.length >= i + 1) {
@@ -120,7 +120,7 @@ const BoxScore = ({ match, jumbotron, flashFinal }) => {
         }
       </div>
       <div class="score-row flex">
-        <span class="player-name">{ getTeamName(match, 2) }</span>
+        <span class={`player-name ${stats.winner && stats.winner === match.player2Id ? 'winner' : ''}`}>{ getTeamName(match, 2) }</span>
         {
           headerRowNums.map(i => {
             if (match.games.length >= i + 1) {
