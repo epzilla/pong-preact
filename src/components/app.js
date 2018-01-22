@@ -141,7 +141,7 @@ export default class App extends Component {
   };
 
   onMatchStart = (match) => {
-    if (this.currentUrl !== '/') {
+    if (this.currentUrl !== '/' && this.currentUrl.indexOf('new-match') === -1) {
       this.postAlert({ type: Constants.MATCH_STARTED, msg: match }, 10000);
     }
   };

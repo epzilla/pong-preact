@@ -1,12 +1,14 @@
 import { Component } from 'preact';
 import { route } from 'preact-router';
 import Rest from '../lib/rest-service';
+import WebSocketService from '../lib/websocket-service';
 import LocalStorageService from '../lib/local-storage-service';
 import PlayerSelectBlock from '../components/playerSelectBlock';
 import SelectPlayerModal from '../components/selectPlayerModal';
 import Stepper from '../components/stepper';
 import SegmentedControl from '../components/segmentedControl';
 import Toggle from '../components/toggle';
+import { MATCH_STARTED } from '../lib/constants';
 
 export default class StartMatch extends Component {
   constructor(props) {
@@ -34,6 +36,7 @@ export default class StartMatch extends Component {
   }
 
   componentDidMount() {
+    WebSocketService.subscribe(MATCH_STARTED, this.onMatchStartedElsewhere);
     Rest.get('players').then(players => {
       this.setState({ players }, () => {
         let cachedState = LocalStorageService.get('start-match-state');
@@ -75,6 +78,14 @@ export default class StartMatch extends Component {
       });
     });
   }
+
+  componentWillUnmount() {
+    WebSocketService.unsubscribe(MATCH_STARTED, this.onMatchStartedElsewhere);
+  }
+
+  onMatchStartedElsewhere = () => {
+    route('/');
+  };
 
   setAndCacheState = (obj) => {
     this.setState(obj, () => {
