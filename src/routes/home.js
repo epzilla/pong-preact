@@ -15,8 +15,7 @@ export default class Home extends Component {
       recentMatches: [],
       currentMatch: null,
       canUpdateScore: false,
-      matchInProgress: false,
-      flashFinal: false
+      matchInProgress: false
     };
   }
 
@@ -62,11 +61,9 @@ export default class Home extends Component {
   };
 
   onMatchFinish = (match) => {
-    this.setState({ flashFinal: true });
     // Wait for the live scoreboard to show the final score, do any animations/etc.
     setTimeout(() => {
       this.getMostRecent();
-      this.setState({ flashFinal: false });
     }, 10000);
   };
 
@@ -89,7 +86,7 @@ export default class Home extends Component {
     return (
       <div class="main home">
         { currentMatch ? <h2 class="align-center primary-text">{ matchStatus }</h2> : null }
-        { currentMatch ? <LiveScoreboard match={ currentMatch } flashFinal={this.state.flashFinal} /> : null }
+        { currentMatch ? <LiveScoreboard match={ currentMatch } /> : null }
         { !matchInProgress && this.props.device ? <Link href="/new-match" class="btn big primary center margin-top-1rem">Start New Match</Link> : null }
         { matchInProgress && canUpdateScore ? <Link href="/update-score" class="btn big success update-score">Update Score</Link> : null }
         { recentMatches && recentMatches.length > 0 ? <hr /> : null }

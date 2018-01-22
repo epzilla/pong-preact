@@ -6,7 +6,7 @@ import BoxScore from './boxScore';
 export default class LiveScoreboard extends Component {
   constructor(props) {
     super(props);
-    this.state = { match: props.match };
+    this.state = { match: props.match, scoreFlash: null, gameFlash: false, matchFlash: false };
   }
 
   componentDidMount() {
@@ -34,7 +34,15 @@ export default class LiveScoreboard extends Component {
     let i = match.games.findIndex(g => g.gameId === game.gameId);
     if (i !== -1) {
       match.games[i] = game;
-      this.setState({ match });
+      if (this.scoreFlashTimeout) {
+        clearTimeout(this.scoreFlashTimeout);
+      }
+
+      this.setState({ match, scoreFlash: {game: i, scorer: scorer} }, () => {
+        setTimeout(() => {
+          this.scoreFlashTimeout = this.setState({ scoreFlash: null });
+        }, 5000);
+      });
     }
   };
 
@@ -52,15 +60,23 @@ export default class LiveScoreboard extends Component {
     let i = match.games.findIndex(g => g.gameId === game.gameId);
     if (i !== -1) {
       match.games[i] = game;
-      this.setState({ match });
+      this.setState({ match, gameFlash: i }, () => {
+        this.gameFlashTimeout = setTimeout(() => {
+          this.setState({ gameFlash: null });
+        }, 5000);
+      });
     }
   };
 
   onMatchFinish = (match) => {
-    this.setState({ match });
+    this.setState({ match, matchFlash: true }, () => {
+      setTimeout(() => {
+        this.matchFlashTimeout = this.setState({ matchFlash: null });
+      }, 5000);
+    });
   };
 
   render() {
-    return <BoxScore flashFinal={this.props.flashFinal} jumbotron={true} match={this.state.match} />
+    return <BoxScore jumbotron={true} {...this.state} />
   }
 }

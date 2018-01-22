@@ -40,8 +40,56 @@ const getScoreToDisplay = (match, game, teamNum) => {
   return '-'
 };
 
-const BoxScore = ({ match, jumbotron, flashFinal }) => {
-  const stats = getStatsForMatch(match);
+const shouldFlashScore = (scoreFlash, game, i, teamNum) => {
+  if (scoreFlash.game === i) {
+    let playerIds;
+    if (teamNum === 1 && game.player1Id === scoreFlash.scorer) {
+      return true;
+    } else if (teamNum === 2 && game.player2Id === scoreFlash.scorer) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+const getClassesForGameBox = (match, i, gameFlash) => {
+  // `score-number-box ${match.games[i].gameFinished ? 'finished' : 'current'}`
+  let g = match.games[i];
+  let classes = 'score-number-box';
+  if (g.gameFinished) {
+    classes += ' finished';
+  } else {
+    classes += ' current';
+  }
+
+  if (gameFlash && gameFlash === i) {
+    classes += ' game-flash';
+  }
+
+  return classes;
+};
+
+const getClassesForScoreBox = (match, i, scoreFlash, teamNum) => {
+  let g = match.games[i];
+  let classes = 'score-number-box';
+  if (g.gameFinished) {
+    if ((g.score1 > g.score2 && teamNum === 1) || (g.score2 > g.score1 && teamNum === 2)) {
+      classes += ' win';
+    } else {
+      classes += ' loss';
+    }
+  }
+
+  if (scoreFlash && shouldFlashScore(scoreFlash, g, i, teamNum)) {
+    classes += ' flash';
+  }
+
+  return classes;
+};
+
+const BoxScore = ({ match, jumbotron, scoreFlash, gameFlash, matchFlash }) => {
+  const stats = match.finished ? getStatsForMatch(match) : null;
   let headerRowNums = [];
   let footer;
   let numCols = match.finished ? match.games.length : match.bestOf;
@@ -49,7 +97,7 @@ const BoxScore = ({ match, jumbotron, flashFinal }) => {
   let classes = 'scoreboard ';
   if (!jumbotron) {
     classes += ' box-score';
-  } else if (flashFinal) {
+  } else if (matchFlash) {
     classes += ' flash-final';
   }
 
@@ -110,7 +158,7 @@ const BoxScore = ({ match, jumbotron, flashFinal }) => {
         {
           headerRowNums.map(i => {
             if (match.games.length >= i + 1) {
-              return <span class={`score-number-box ${match.games[i].gameFinished ? 'finished' : 'current'}`}>{i + 1}</span>
+              return <span class={ getClassesForGameBox(match, i, gameFlash) }>{i + 1}</span>
             }
 
             return (
@@ -120,12 +168,11 @@ const BoxScore = ({ match, jumbotron, flashFinal }) => {
         }
       </div>
       <div class="score-row flex">
-        <span class={`player-name ${stats.winner && stats.winner === match.player1Id ? 'winner' : ''}`}>{ getTeamName(match, 1) }</span>
+        <span class={`player-name ${stats && stats.winner && stats.winner === match.player1Id ? 'winner' : ''}`}>{ getTeamName(match, 1) }</span>
         {
           headerRowNums.map(i => {
             if (match.games.length >= i + 1) {
-              let g = match.games[i]
-              return <span class={`score-number-box ${g.gameFinished && g.score1 > g.score2 ? 'win' : (g.gameFinished ? 'loss' : '')}`}>{ getScoreToDisplay(match, g, 1) }</span>
+              return <span class={ getClassesForScoreBox(match, i, scoreFlash, 1) }>{ getScoreToDisplay(match, match.games[i], 1) }</span>
             }
 
             return (
@@ -135,12 +182,11 @@ const BoxScore = ({ match, jumbotron, flashFinal }) => {
         }
       </div>
       <div class="score-row flex">
-        <span class={`player-name ${stats.winner && stats.winner === match.player2Id ? 'winner' : ''}`}>{ getTeamName(match, 2) }</span>
+        <span class={`player-name ${stats && stats.winner && stats.winner === match.player2Id ? 'winner' : ''}`}>{ getTeamName(match, 2) }</span>
         {
           headerRowNums.map(i => {
             if (match.games.length >= i + 1) {
-              let g = match.games[i]
-              return <span class={`score-number-box ${g.gameFinished && g.score2 > g.score1 ? 'win' : (g.gameFinished ? 'loss' : '')}`}>{ getScoreToDisplay(match, g, 2) }</span>
+              return <span class={ getClassesForScoreBox(match, i, scoreFlash, 2) }>{ getScoreToDisplay(match, match.games[i], 2) }</span>
             }
 
             return (
