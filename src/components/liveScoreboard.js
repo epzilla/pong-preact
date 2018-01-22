@@ -60,7 +60,7 @@ export default class LiveScoreboard extends Component {
     let i = match.games.findIndex(g => g.gameId === game.gameId);
     if (i !== -1) {
       match.games[i] = game;
-      this.setState({ match, gameFlash: i }, () => {
+      this.setState({ match, gameFlash: i, scoreFlash: null }, () => {
         this.gameFlashTimeout = setTimeout(() => {
           this.setState({ gameFlash: null });
         }, 5000);

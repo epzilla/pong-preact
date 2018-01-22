@@ -78,6 +78,8 @@ export default class Stepper extends Component {
     if (typeof max !== 'undefined' && curVal === max) {
       if (wrap) {
         curVal = min;
+      } else {
+        return;
       }
     } else {
       curVal++;
@@ -120,7 +122,11 @@ export default class Stepper extends Component {
     let curVal = parseInt(this.state.val);
     let { min, max, wrap, padSingleDigits, onChange } = this.props;
     if (typeof min !== 'undefined' && curVal === min) {
-      curVal = wrap ? max : min;
+      if (wrap) {
+        curVal = max;
+      } else {
+        return;
+      }
     } else {
       curVal--;
     }
