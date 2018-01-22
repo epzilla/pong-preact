@@ -10,6 +10,6 @@ Ping pong score tracker and stats application
 ### TODO
 - Allow multiple matches going on at once
 - Stats page
-- Tournament mode
+- WebSocket robustness, reconnect, etc.
+- Tournament mode?
 - Elo ratings?
-- (Lower priority) WebSocket robustness, reconnect, etc.
