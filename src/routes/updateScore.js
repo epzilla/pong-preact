@@ -1,5 +1,6 @@
 import { Component } from 'preact';
 import { route } from 'preact-router';
+import { getTeamName } from '../lib/helpers';
 import * as Constants from '../lib/constants';
 import Rest from '../lib/rest-service';
 import LocalStorageService from '../lib/local-storage-service';
@@ -200,12 +201,12 @@ export default class UpdateScore extends Component {
             <Expandable title={title} collapsed={ this.state.gamesCollapsed[g.gameId] } id={g.gameId} toggle={(id) => this.toggleExpanded(id)}>
               <div class="game-update-row">
                 <div class="flex-col flex-center">
-                  <h4>{ g.player1Fname } {g.player1Lname }</h4>
+                  <h4>{ getTeamName(match, 1) }</h4>
                   <Stepper full min={0} onChange={(e) => this.scoreChange(g, 1, e)} initialValue={g.score1}/>
                 </div>
                 <h4 class="align-center">vs.</h4>
                 <div class="flex-col flex-center">
-                  <h4>{ g.player2Fname } {g.player2Lname }</h4>
+                  <h4>{ getTeamName(match, 2) }</h4>
                   <Stepper full min={0} onChange={(e) => this.scoreChange(g, 2, e)} initialValue={g.score2}/>
                 </div>
               </div>

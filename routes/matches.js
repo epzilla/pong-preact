@@ -437,7 +437,7 @@ exports.updateGame = (req, res) => {
 };
 
 exports.current = (req, res) => {
-return Matches.findOne({ where: { finished: 0}}).then(match => {
+  return Matches.findOne({ where: { finished: 0}}).then(match => {
     if (!match || match.length === 0) {
       return res.json({});
     }
