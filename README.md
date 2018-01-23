@@ -13,3 +13,4 @@ Ping pong score tracker and stats application
 - WebSocket robustness, reconnect, etc.
 - Tournament mode?
 - Elo ratings?
+- 2v1 mode
