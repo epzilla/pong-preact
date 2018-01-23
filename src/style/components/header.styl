@@ -34,7 +34,7 @@
     align-items: stretch;
     flex-grow: 1;
 
-    > a,
+    > .nav-links > a,
     > .faux-link,
     > .linkify-children > a,
     > .linkify-children > .faux-link,
@@ -89,7 +89,13 @@
   .header nav {
     flex-direction: row;
 
-    > a,
+    > .nav-links {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    > .nav-links > a,
     > .linkify-children > a,
     > .linkify-children > .faux-link,
     .faux-link {
@@ -126,7 +132,7 @@
       box-shadow: 0px 0px 10px #333;
     }
 
-    > a,
+    > .nav-links > a,
     > .linkify-children > a,
     > .linkify-children > .faux-link,
     .order-last-smaller {
