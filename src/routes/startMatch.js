@@ -3,6 +3,7 @@ import { route } from 'preact-router';
 import Rest from '../lib/rest-service';
 import WebSocketService from '../lib/websocket-service';
 import LocalStorageService from '../lib/local-storage-service';
+import Avatar from '../components/avatar';
 import PlayerSelectBlock from '../components/playerSelectBlock';
 import SelectPlayerModal from '../components/selectPlayerModal';
 import Stepper from '../components/stepper';
@@ -31,7 +32,8 @@ export default class StartMatch extends Component {
       bestOf: props.config && props.config.bestOf ? props.config.bestOf : 4,
       updateEveryPoint: props.config && typeof props.config.updateEveryPoint !== 'undefined' ? props.config.updateEveryPoint : 0,
       playAllGames: props.config && typeof props.config.playAllGames !== 'undefined' ? props.config.playAllGames : 0,
-      showPlayToInput: false
+      showPlayToInput: false,
+      flipping: false
     }
   }
 
@@ -158,8 +160,15 @@ export default class StartMatch extends Component {
     this.setState({ playAllGames })
   };
 
+  flipCoin = () => {
+    this.setState({ flipping: true });
+    setTimeout(() => {
+      this.setState({ flipping: false })
+    }, 2000);
+  };
+
   render() {
-    let { player1, player2, partner1, partner2, doubles, players } = this.state;
+    let { player1, player2, partner1, partner2, doubles, players, flipping } = this.state;
 
     let team1block = (
       <div class="team-select-block">
@@ -284,6 +293,22 @@ export default class StartMatch extends Component {
           </div>
           <hr />
         </div>
+        { player1 && player2 ?
+          <div class="coin-flip-area">
+            <div class={`flip-container ${ flipping ? 'flipping' : '' }`}>
+              <div class="flipper">
+                <div class="front">
+                  <Avatar fname={player1.fname} lname={player1.lname} />
+                </div>
+                <div class="back">
+                  <Avatar fname={player2.fname} lname={player2.lname} />
+                </div>
+              </div>
+            </div>
+            <button class="btn info big" onClick={() => this.flipCoin()}>Flip Coin</button>
+          </div>
+          : null
+        }
         <div class="start-btn-wrap margin-bottom-1rem">
           <button class="btn success big begin-match-btn" onClick={() => this.beginMatch()}>Begin</button>
         </div>

@@ -1,3 +1,5 @@
+@import '../components/animations';
+
 .main.new-match {
   display: flex;
   flex-direction: column;
@@ -129,4 +131,53 @@
   &:after {
     left: 2.75rem;
   }
+}
+
+.flip-container {
+  display: block !important;
+  perspective: 1000px;
+}
+
+.flip-container.flipping {
+  .flipper {
+    animation: coin-flip 2s ease-in-out;
+  }
+
+  .front {
+    z-index: 0;
+  }
+}
+
+.flip-container, .flipper, .front, .back {
+  width: 4rem;
+  height: 4rem;
+}
+
+/* flip speed goes here */
+.flipper {
+  transition: all 0.6s;
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.front {
+  z-index: 2;
+}
+
+/* hide back of pane during swap */
+.front, .back {
+  backface-visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4rem;
+  height: 4rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* back, initially hidden pane */
+.back {
+  transform: rotateY(180deg);
 }
