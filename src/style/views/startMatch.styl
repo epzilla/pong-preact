@@ -57,6 +57,13 @@
         padding: 0.5rem;
       }
     }
+
+    &.first-serve {
+      .controls-col .label {
+        padding: 1rem;
+        margin-bottom: 0;
+      }
+    }
   }
 }
 
@@ -133,24 +140,55 @@
   }
 }
 
+.coin-flip-area {
+  height: 10rem;
+  z-index: 15;
+}
+
+.coin-flip-area {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 .flip-container {
   display: block !important;
   perspective: 1000px;
+
+  .avatar.big {
+    margin: 0;
+    font-size: 2rem;
+  }
 }
 
-.flip-container.flipping {
-  .flipper {
-    animation: coin-flip 2s ease-in-out;
-  }
+.flip-container.flipping,
+.flip-container.flipping-extra {
+  animation: coin-toss 2s ease-in-out;
 
   .front {
     z-index: 0;
   }
 }
 
+.flip-container.flipping .flipper {
+  animation: coin-flip 2s ease-out;
+}
+
+.flip-container.flipping-extra .flipper {
+  animation: coin-flip-reverse 2s ease-out;
+}
+
+.flip-container.reversed {
+  .flipper {
+    transform: rotateX(180deg);
+    transition: 0.2s ease;
+  }
+}
+
 .flip-container, .flipper, .front, .back {
-  width: 4rem;
-  height: 4rem;
+  width: 8rem;
+  height: 8rem;
 }
 
 /* flip speed goes here */
@@ -170,8 +208,8 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 4rem;
-  height: 4rem;
+  width: 8rem;
+  height: 8rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -179,5 +217,5 @@
 
 /* back, initially hidden pane */
 .back {
-  transform: rotateY(180deg);
+  transform: rotateY(180deg) rotateZ(180deg);
 }

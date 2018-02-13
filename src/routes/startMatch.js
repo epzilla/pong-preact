@@ -18,6 +18,7 @@ export default class StartMatch extends Component {
     if (props.config && props.config.playTo && (props.config.playTo === 11 || props.config.playTo === 21)) {
       selectedPlayToOption = props.config.playTo;
     }
+    this.p2wins = false;
     this.state = {
       doubles: false,
       player1: null,
@@ -33,7 +34,10 @@ export default class StartMatch extends Component {
       updateEveryPoint: props.config && typeof props.config.updateEveryPoint !== 'undefined' ? props.config.updateEveryPoint : 0,
       playAllGames: props.config && typeof props.config.playAllGames !== 'undefined' ? props.config.playAllGames : 0,
       showPlayToInput: false,
-      flipping: false
+      flipping: false,
+      showCoinToss: false,
+      showCoinReverse: false,
+      firstServe: null
     }
   }
 
@@ -160,15 +164,35 @@ export default class StartMatch extends Component {
     this.setState({ playAllGames })
   };
 
+  onCoinFlipAnimationEnd = e => {
+    if (e.animationName.indexOf('coin-flip') !== -1) {
+      document.removeEventListener('animationend', this.onCoinFlipAnimationEnd);
+      if (this.p2wins) {
+        this.setState({ firstServe: this.state.player2, flipping: false, flippingToP2: false, showCoinReverse: true });
+      } else {
+        this.setState({ firstServe: this.state.player1, flipping: false, flippingToP2: false, showCoinReverse: false });
+      }
+    }
+  };
+
   flipCoin = () => {
-    this.setState({ flipping: true });
+    this.setState({ firstServe: null, showCoinToss: true, showCoinReverse: false });
+    this.p2wins = Math.floor(Math.random() * 101) >= 50 ? true : false;
     setTimeout(() => {
-      this.setState({ flipping: false })
-    }, 2000);
+      this.setState({ flipping: !this.p2wins, flippingToP2: this.p2wins }, () => {
+        setTimeout(() => {
+          document.addEventListener('animationend', this.onCoinFlipAnimationEnd);
+        }, 200);
+      });
+    }, 750);
+  };
+
+  closeCoinFlip = () => {
+    this.setState({ showCoinToss: false });
   };
 
   render() {
-    let { player1, player2, partner1, partner2, doubles, players, flipping } = this.state;
+    let { player1, player2, partner1, partner2, doubles, players, flipping, flippingToP2, showCoinToss, showCoinReverse, firstServe } = this.state;
 
     let team1block = (
       <div class="team-select-block">
@@ -293,22 +317,34 @@ export default class StartMatch extends Component {
           </div>
           <hr />
         </div>
-        { player1 && player2 ?
+        { player1 && player2 &&
           <div class="coin-flip-area">
-            <div class={`flip-container ${ flipping ? 'flipping' : '' }`}>
+            <div class={`flip-container ${ flipping ? 'flipping' : '' } ${ flippingToP2 ? 'flipping-extra' : '' } ${ showCoinReverse ? 'reversed' : '' }`}>
               <div class="flipper">
                 <div class="front">
-                  <Avatar fname={player1.fname} lname={player1.lname} />
+                  <Avatar coin big fname={player1.fname} lname={player1.lname} />
                 </div>
                 <div class="back">
-                  <Avatar fname={player2.fname} lname={player2.lname} />
+                  <Avatar coin big fname={player2.fname} lname={player2.lname} />
                 </div>
               </div>
             </div>
-            <button class="btn info big" onClick={() => this.flipCoin()}>Flip Coin</button>
           </div>
-          : null
         }
+        { player1 && player2 && !firstServe && !showCoinToss &&
+          <div class="match-settings">
+            <button class="btn secondary big" onClick={() => this.flipCoin()}>Flip Coin for 1st Serve</button>
+          </div>
+        }
+        { (firstServe || showCoinToss) &&
+          <div class="match-settings first-serve">
+            <div class="flex-center flex-col controls-col">
+              { firstServe && <label class="label">{ firstServe.fname } serves first!</label> }
+              { !firstServe && <label class="label">Here goes...</label> }
+            </div>
+          </div>
+        }
+        <hr />
         <div class="start-btn-wrap margin-bottom-1rem">
           <button class="btn success big begin-match-btn" onClick={() => this.beginMatch()}>Begin</button>
         </div>

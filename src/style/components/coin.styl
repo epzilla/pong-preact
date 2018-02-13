@@ -1,0 +1,36 @@
+.coin p {
+  font-family: georgia;
+  font-style: italic;
+  position: absolute;
+  font-size: 28px;
+  z-index: 700;
+  top: -19px;
+  left: 19px;
+}
+
+.coin.silver p {  color: rgba(160,160,160,1);}
+
+.coin {
+  content: "";
+  width: 52px;
+  height: 52px;
+  position: relative;
+  margin: 5px;
+  top: 6px;
+  border-radius: 3rem;
+  z-index: 500;
+  box-shadow: 0px 0px 0px 1px rgba(146, 146, 146, 0.49), 0px 0px 0px 4px #d3d3d3, 0px 0px 0px 5px rgba(146, 146, 146, 0.65), 2px 2px 5px 5px rgba(146, 146, 146, 0.65);
+  background: linear-gradient(45deg,  rgba(181,181,181,1) 0%,rgba(252,252,252,1) 56%,rgba(232,232,232,1) 96%);
+  border: 1px solid #c8c8c8;
+
+  .avatar-initials {
+    color: #eee;
+    text-shadow: 1px 1px 2px #b3b3b3, -1px 1px 2px #b3b3b3, 1px -1px 2px #b3b3b3, -1px -1px 2px #b3b3b3;
+    z-index: 3;
+  }
+
+  * {
+    pointer-events: none;
+    user-select: none;
+  }
+}

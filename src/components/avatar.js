@@ -66,6 +66,10 @@ export default class Avatar extends Component {
       classes += ' empty';
     }
 
+    if (this.props.coin) {
+      classes += ' coin';
+    }
+
     if (this.props.editable) {
       classes += ' editable';
       let avatar = this.state.newAvatar || this.props.avatar;
