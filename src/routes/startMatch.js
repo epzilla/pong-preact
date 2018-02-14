@@ -344,11 +344,6 @@ export default class StartMatch extends Component {
             </div>
           </div>
         }
-        { firstServe &&
-          <div class="match-settings">
-            <button class="btn secondary big" onClick={() => this.flipCoin()}>I don't like that result! Re-do! :)</button>
-          </div>
-        }
         <hr />
         <div class="start-btn-wrap margin-bottom-1rem">
           <button class="btn success big begin-match-btn" onClick={() => this.beginMatch()}>Begin</button>
