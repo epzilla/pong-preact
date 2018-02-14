@@ -184,7 +184,7 @@ export default class StartMatch extends Component {
           document.addEventListener('animationend', this.onCoinFlipAnimationEnd);
         }, 200);
       });
-    }, 750);
+    }, 500);
   };
 
   closeCoinFlip = () => {
@@ -342,6 +342,11 @@ export default class StartMatch extends Component {
               { firstServe && <label class="label">{ firstServe.fname } serves first!</label> }
               { !firstServe && <label class="label">Here goes...</label> }
             </div>
+          </div>
+        }
+        { firstServe &&
+          <div class="match-settings">
+            <button class="btn secondary big" onClick={() => this.flipCoin()}>I don't like that result! Re-do! :)</button>
           </div>
         }
         <hr />
