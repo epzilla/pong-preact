@@ -1,11 +1,13 @@
 const players = require('./players');
 const matches = require('./matches');
 const devices = require('./devices');
+const stats = require('./stats');
 
 module.exports = function (models, app, sequelize, sendSocketMsg, registerForMsg) {
   matches.init(models, sequelize, sendSocketMsg, registerForMsg);
   players.init(models);
   devices.init(models);
+  stats.init(models);
 
   // Players
   app.get('/api/players', players.get);
@@ -27,6 +29,9 @@ module.exports = function (models, app, sequelize, sendSocketMsg, registerForMsg
   // Devices
   app.get('/api/devices', devices.get);
   app.post('/api/devices', devices.create);
+
+  // Stats
+  app.get('/api/matches-with-players', stats.getMatchesWithPlayers);
 
   // app.delete('/api/reset-all', (req, res) => {
   //   return sequelize.query(`

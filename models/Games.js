@@ -22,65 +22,31 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
       defaultValue: '0'
     },
+    matchId: {
+      field: 'match_id',
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: undefined,
+      references: {
+        model: 'matches',
+        key: 'id'
+      }
+    },
     matchFinished: {
       field: 'finished',
       type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue: '0'
+      defaultValue: '0',
+      references: {
+        model: 'matches',
+        key: 'finished'
+      }
     },
     gameFinished: {
       field: 'finished',
       type: DataTypes.INTEGER,
       allowNull: true,
       defaultValue: '0'
-    },
-    player1Id: {
-      field: 'player1_id',
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      defaultValue: undefined
-    },
-    player2Id: {
-      field: 'player2_id',
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      defaultValue: undefined
-    },
-    player1Fname: {
-      field: 'player1_fname',
-      type: DataTypes.STRING,
-      allowNull: true,
-      defaultValue: undefined
-    },
-    player2Fname: {
-      field: 'player2_fname',
-      type: DataTypes.STRING,
-      allowNull: true,
-      defaultValue: undefined
-    },
-    player1Lname: {
-      field: 'player1_lname',
-      type: DataTypes.STRING,
-      allowNull: true,
-      defaultValue: undefined
-    },
-    player2Lname: {
-      field: 'player2_lname',
-      type: DataTypes.STRING,
-      allowNull: true,
-      defaultValue: undefined
-    },
-    player1MiddleInitial: {
-      field: 'player1_mi',
-      type: DataTypes.STRING,
-      allowNull: true,
-      defaultValue: undefined
-    },
-    player2MiddleInitial: {
-      field: 'player2_mi',
-      type: DataTypes.STRING,
-      allowNull: true,
-      defaultValue: undefined
     }
   }, {
     tableName: 'games',
