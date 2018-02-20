@@ -20,7 +20,6 @@ module.exports = function (models, app, sequelize, sendSocketMsg, registerForMsg
   app.get('/api/matches/can-update-score/:deviceId', matches.canUpdate);
   app.get('/api/matches/:id', matches.findById);
   app.post('/api/matches/create', matches.create);
-  app.post('/api/matches/update', matches.update);
   app.post('/api/matches/finish', matches.finish);
   app.post('/api/matches/add-devices', matches.addDevices);
   app.post('/api/games/add', matches.addGame);

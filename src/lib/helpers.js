@@ -58,20 +58,20 @@ export const getMatchTimeAgo = (match) => {
 
 export const getTeamName = (match, teamNum) => {
   if (match.doubles && teamNum === 1) {
-    return `${match.player1Lname} / ${match.partner1Lname}`;
+    return `${match.player1.lname} / ${match.partner1.lname}`;
   } else if (match.doubles && teamNum === 2) {
-    return `${match.player2Lname} / ${match.partner2Lname}`;
+    return `${match.player2.lname} / ${match.partner2.lname}`;
   } else {
-    return match[`player${teamNum}Fname`] + ' ' + match[`player${teamNum}Lname`];
+    return match[`player${teamNum}`].fname + ' ' + match[`player${teamNum}`].lname;
   }
 };
 
 export const getScoreHeaderLine = (match, game) => {
   if (game.score1 > game.score2) {
-    let teamName = match.doubles ? `${match.player1Lname}/${match.partner1Lname}` : match.player1Lname;
+    let teamName = match.doubles ? `${match.player1.lname}/${match.partner1.lname}` : match.player1.lname;
     return `${game.score1}-${game.score2} (F), ${teamName}`;
   } else {
-    let teamName = match.doubles ? `${match.player2Lname}/${match.partner2Lname}` : match.player2Lname;
+    let teamName = match.doubles ? `${match.player2.lname}/${match.partner2.lname}` : match.player2.lname;
     return `${game.score2}-${game.score1} (F), ${teamName}`;
   }
 };
@@ -92,8 +92,8 @@ export const getStatsForMatch = (match) => {
   match.games.forEach(g => {
     stats.p1TotalPoints += g.score1;
     stats.p2TotalPoints += g.score2;
-    stats.p1name = match.doubles ? `${g.player1Lname} / ${g.partner1Lname}` : g.player1Fname;
-    stats.p2name = match.doubles ? `${g.player2Lname} / ${g.partner2Lname}` : g.player2Fname;
+    stats.p1name = match.doubles ? `${match.player1.lname} / ${match.partner1.lname}` : match.player1.fname;
+    stats.p2name = match.doubles ? `${match.player2.lname} / ${match.partner2.lname}` : match.player2.fname;
     if (g.score1 > g.score2) {
       stats.p1GamesWon++;
     } else {

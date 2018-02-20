@@ -10,17 +10,23 @@ module.exports = function(sequelize, DataTypes) {
       autoIncrement: true,
       primaryKey: true
     },
+    gameNum: {
+      field: 'game_num',
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 1
+    },
     score1: {
       field: 'score1',
       type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue: '0'
+      defaultValue: 0
     },
     score2: {
       field: 'score2',
       type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue: '0'
+      defaultValue: 0
     },
     matchId: {
       field: 'match_id',
@@ -36,7 +42,7 @@ module.exports = function(sequelize, DataTypes) {
       field: 'finished',
       type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue: '0',
+      defaultValue: 0,
       references: {
         model: 'matches',
         key: 'finished'
@@ -46,7 +52,7 @@ module.exports = function(sequelize, DataTypes) {
       field: 'finished',
       type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue: '0'
+      defaultValue: 0
     }
   }, {
     tableName: 'games',
