@@ -7,7 +7,7 @@ module.exports = function (models, app, sequelize, sendSocketMsg, registerForMsg
   matches.init(models, sequelize, sendSocketMsg, registerForMsg);
   players.init(models);
   devices.init(models);
-  stats.init(models);
+  stats.init(models, sequelize);
 
   // Players
   app.get('/api/players', players.get);
@@ -30,7 +30,7 @@ module.exports = function (models, app, sequelize, sendSocketMsg, registerForMsg
   app.post('/api/devices', devices.create);
 
   // Stats
-  app.get('/api/matches-with-players', stats.getMatchesWithPlayers);
+  app.get('/api/stats/head-to-head/:player1Id/:player2Id', stats.matchesByPlayers);
 
   app.get('/*', (req, res) => res.render('index'));
 };
