@@ -16,11 +16,17 @@ exports.init = (models, db) => {
 const buildStatQuery = (req) => {
   const player1Id = parseInt(req.params.player1Id);
   const player2Id = parseInt(req.params.player2Id);
-  const dateFrom = req.query && req.query.from ? new Date(req.query.from) : null;
-  const dateTo = req.query && req.query.to ? new Date(req.query.to) : new Date();
+  const dateFrom = req.query.from ? new Date(req.query.from) : null;
+  const dateTo = req.query.to ? new Date(req.query.to) : new Date();
+  const recent = req.query.last || null;
   console.log(dateFrom);
   console.log(dateTo);
-  let whereObj = {};
+  console.log(recent);
+  let query = {
+    include: [{ all: true }],
+    order: [[{ model: Games, as: 'games' }, 'gameNum', 'ASC']]
+  };
+
   let orClause = [
     {
       [Op.and]: [
@@ -37,7 +43,7 @@ const buildStatQuery = (req) => {
   ];
 
   if (dateFrom) {
-    whereObj = {
+    query.where = {
       [Op.and]: [
         {
           [Op.and]: [
@@ -48,15 +54,14 @@ const buildStatQuery = (req) => {
         { [Op.or]: orClause }
       ]
     };
+  } else if (recent) {
+    query.limit = recent;
+    query.where = { [Op.or]: orClause };
   } else {
-    whereObj = { [Op.or]: orClause };
+    query.where = { [Op.or]: orClause };
   }
 
-  return {
-    include: [{ all: true }],
-    order: [[{ model: Games, as: 'games' }, 'gameNum', 'ASC']],
-    where: whereObj
-  };
+  return query;
 };
 
 exports.matchesByPlayers = (req, res) => {
