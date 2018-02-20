@@ -31,7 +31,7 @@ const WebSocketService = {
         deviceId = devId;
         devMode = !!useDevMode;
         try {
-          ws = new WebSocket(`ws://${window.location.hostname}:3000`);
+          ws = new WebSocket(`ws://${window.location.hostname}:3003`);
           ws.onerror = (e) => console.error(e);
           ws.onopen = () => console.log(`WebSocket connection established for device ID: ${deviceId}`);
           ws.onclose = () => console.log('WebSocket connection closed');

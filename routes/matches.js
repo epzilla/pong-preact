@@ -1,7 +1,9 @@
 const crypto = require('crypto');
 const constants = require('../constants');
 let SimpleGames;
+let Games;
 let Matches;
+let Players;
 let sequelize;
 let sendSocketMsg;
 
@@ -64,8 +66,9 @@ const augmentGame = (g, match) => {
   return augGame;
 };
 
-exports.init = (models, db, sendMsg, registerForMsg) => {
+exports.init = (models, db, sendMsg) => {
   SimpleGames = models.SimpleGames;
+  Games = models.Games;
   Players = models.Players;
   Matches = models.Matches;
   sequelize = db;
@@ -73,54 +76,8 @@ exports.init = (models, db, sendMsg, registerForMsg) => {
 };
 
 exports.findById = (req, res) => {
-  let foundMatch;
-  return Matches.findById(req.params.id).then(match => {
-    if (!match || match.length === 0) {
-      return res.json({});
-    }
-
-    let playerIds = [];
-    foundMatch = match;
-    if (playerIds.indexOf(match.player1Id) === -1) {
-      playerIds.push(match.player1Id);
-    }
-    if (playerIds.indexOf(match.player2Id) === -1) {
-      playerIds.push(match.player2Id);
-    }
-    if (match.partner1Id && playerIds.indexOf(match.partner1Id) === -1) {
-      playerIds.push(match.partner1Id);
-    }
-    if (match.partner2Id && playerIds.indexOf(match.partner2Id) === -1) {
-      playerIds.push(match.partner2Id);
-    }
-
-    return Promise.all([
-      Players.findAll({
-        where: {
-          id: {
-            $in: playerIds
-          }
-        }
-      }),
-      SimpleGames.findAll({
-        where: {
-          matchId: match.id
-        }
-      })
-    ]);
-  }).then(results => {
-    let players = results[0];
-    let augmentedMatch = augmentMatch(foundMatch, players);
-    let games = results[1];
-    games.map(g => {
-      g = augmentGame(g, augmentedMatch)
-      if (!augmentedMatch.games) {
-        augmentedMatch.games = [];
-      }
-      augmentedMatch.games.push(g);
-      return g;
-    });
-    return res.json(augmentedMatch);
+  return Matches.findById(req.params.id, { include: [{ all: true }]}).then(match => {
+    return res.json(match || {});
   });
 };
 
@@ -130,8 +87,8 @@ exports.create = (req, res) => {
   if (!deviceId) {
     return res.status(400).send(constants.NO_DEVICE_ID);
   }
+  let newMatch;
 
-  let match, game;
   return Matches.findOne({
     where: {
       finished: 0
@@ -154,72 +111,24 @@ exports.create = (req, res) => {
       playAllGames: matchInfo.playAllGames || 0
     });
   }).then(m => {
-    match = {
-      games: [{
-        gameId: null
-      }],
-      id: m.id,
-      doubles: m.doubles,
-      player1Id: m.player1Id,
-      player2Id: m.player2Id,
-      partner1Id: m.partner1Id,
-      partner2Id: m.partner2Id,
-      player1Fname: matchInfo.player1.fname,
-      player1Lname: matchInfo.player2.lname,
-      player1MiddleInitial: matchInfo.player2.middleInitial,
-      player2Fname: matchInfo.player2.fname,
-      player2Lname: matchInfo.player2.lname,
-      player2MiddleInitial: matchInfo.player2.middleInitial,
-      partner1Fname: matchInfo.partner1 ? matchInfo.partner1.fname : null,
-      partner1Lname: matchInfo.partner1 ? matchInfo.partner1.lname : null,
-      partner1MiddleInitial: matchInfo.partner1 ? matchInfo.partner1.middleInitial : null,
-      partner2Fname: matchInfo.partner2 ? matchInfo.partner2.fname : null,
-      partner2Lname: matchInfo.partner2 ? matchInfo.partner2.lname : null,
-      partner2MiddleInitial: matchInfo.partner2 ? matchInfo.partner2.middleInitial : null,
-      updateEveryPoint: m.updateEveryPoint,
-      bestOf: m.bestOf,
-      playTo: m.playTo,
-      winByTwo: m.winByTwo,
-      playAllGames: m.playAllGames,
-      finished: m.finished,
-      startTime: m.startTime,
-      finishTime: m.finishTime
-    };
+    return Matches.findById(m.id, { include: [{ all: true }] });
+  }).then(startedMatch => {
+    newMatch = startedMatch.get({ plain: true });
     const hash = crypto.createHash('sha256');
     hash.update('01a217ea-67bf-' + deviceId + '411a-965e-3e874e15e490');
     const hashedToken = hash.digest('hex');
-    const initialScore = m.updateEveryPoint ? 0 : m.playTo;
+    const initialScore = startedMatch.updateEveryPoint ? 0 : startedMatch.playTo;
     return Promise.all([
-      sequelize.query(`insert into match_key (key, match_id) values ('${hashedToken}', '${m.id}')`, { type: sequelize.QueryTypes.INSERT }),
-      sequelize.query(`insert into games (match_id, score1, score2) values ('${m.id}', ${initialScore}, ${initialScore})`, { type: sequelize.QueryTypes.INSERT })
+      sequelize.query(`insert into match_key (key, match_id) values ('${hashedToken}', '${startedMatch.id}')`, { type: sequelize.QueryTypes.INSERT }),
+      sequelize.query(`insert into games (match_id, score1, score2) values ('${startedMatch.id}', ${initialScore}, ${initialScore})`, { type: sequelize.QueryTypes.INSERT })
     ]);
-  }).then(result => {
-
-    game = {
-      gameId: result[1][0],
-      score1: 0,
-      score2: 0,
-      matchFinished: 0,
-      gameFinished: 0,
-      player1Id: match.player1Id,
-      player2Id: match.player2Id,
-      player1Fname: matchInfo.player1.fname,
-      player1Lname: matchInfo.player1.lname,
-      player1MiddleInitial: matchInfo.player1.middleInitial,
-      player2Fname: matchInfo.player2.fname,
-      player2Lname: matchInfo.player2.lname,
-      player2MiddleInitial: matchInfo.player2.middleInitial,
-      partner1Fname: matchInfo.partner1 ? matchInfo.partner1.fname : null,
-      partner1Lname: matchInfo.partner1 ? matchInfo.partner1.lname : null,
-      partner1MiddleInitial: matchInfo.partner1 ? matchInfo.partner1.middleInitial : null,
-      partner2Fname: matchInfo.partner2 ? matchInfo.partner2.fname : null,
-      partner2Lname: matchInfo.partner2 ? matchInfo.partner2.lname : null,
-      partner2MiddleInitial: matchInfo.partner2 ? matchInfo.partner2.middleInitial : null,
-    };
-    match.games[0] = game;
-    sendSocketMsg(constants.MATCH_STARTED, match, deviceId);
+  }).then(() => {
+    return Games.findOne({ where: { matchId: newMatch.id }});
+  }).then(g => {
+    newMatch.games[0] = g;
+    sendSocketMsg(constants.MATCH_STARTED, newMatch, deviceId);
     return res.json({
-      match: match,
+      match: newMatch,
       deviceId: deviceId
     });
   });
@@ -228,26 +137,6 @@ exports.create = (req, res) => {
 exports.canUpdate = (req, res) => {
   return validateMatchToken(req, res).then(result => {
     res.send(result);
-  });
-};
-
-exports.update = (req, res) => {
-  const match = req.body.match;
-  return validateMatchToken(req, res).then(result => {
-    if (!result) {
-      return res.sendStatus(400);
-    }
-
-    return Matches.findOne({ where: { id: match.id }});
-  }).then(m => {
-    m.player1Id = match.player1Id;
-    m.player2Id = match.player2Id;
-    m.finished = match.finished;
-    return m.save();
-  }).then(() => {
-    return res.json(match);
-  }).catch(e => {
-    return res.send(500, e);
   });
 };
 
