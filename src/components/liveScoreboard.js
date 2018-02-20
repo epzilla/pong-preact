@@ -31,7 +31,7 @@ export default class LiveScoreboard extends Component {
 
   onScoreUpdate = ({ game, scorer }) => {
     let { match } = this.state;
-    let i = match.games.findIndex(g => g.gameId === game.gameId);
+    let i = match.games.findIndex(g => g.id === game.id);
     if (i !== -1) {
       match.games[i] = game;
       if (this.scoreFlashTimeout) {
@@ -48,7 +48,7 @@ export default class LiveScoreboard extends Component {
 
   onGameStart = (game) => {
     let { match } = this.state;
-    let i = match.games.findIndex(g => g.gameId === game.gameId);
+    let i = match.games.findIndex(g => g.id === game.id);
     if (i === -1) {
       match.games.push(game);
       this.setState({ match });
@@ -57,7 +57,7 @@ export default class LiveScoreboard extends Component {
 
   onGameFinish = ({ game }) => {
     let { match } = this.state;
-    let i = match.games.findIndex(g => g.gameId === game.gameId);
+    let i = match.games.findIndex(g => g.id === game.id);
     if (i !== -1) {
       match.games[i] = game;
       this.setState({ match, gameFlash: i, scoreFlash: null }, () => {

@@ -40,7 +40,7 @@ export default class UpdateScore extends Component {
     }).then(canUpdateScore => {
       if (canUpdateScore) {
         let { gamesCollapsed } = this.state;
-        match.games.forEach(g => gamesCollapsed[g.gameId] = !!g.gameFinished);
+        match.games.forEach(g => gamesCollapsed[g.id] = !!g.gameFinished);
         this.setState({ match, gamesCollapsed });
       } else {
         console.warn(Constants.DEVICE_CANNOT_UPDATE_MATCH);
@@ -63,7 +63,7 @@ export default class UpdateScore extends Component {
 
   onScoreUpdateFromElsewhere = ({ game, scorer }) => {
     let { match } = this.state;
-    let i = match.games.findIndex(g => g.gameId === game.gameId);
+    let i = match.games.findIndex(g => g.id === game.id);
     if (i !== -1) {
       match.games[i] = game;
       this.setState({ match });
@@ -72,7 +72,7 @@ export default class UpdateScore extends Component {
 
   setGameFromElsewhere = (game) => {
     let { match } = this.state;
-    let i = match.games.findIndex(g => g.gameId === game.gameId);
+    let i = match.games.findIndex(g => g.id === game.id);
     if (i === -1) {
       match.games.push(game);
     } else {
@@ -82,7 +82,7 @@ export default class UpdateScore extends Component {
     this.setState({ match }, () => {
       if (game.gameFinished) {
         let { gamesCollapsed } = this.state;
-        gamesCollapsed[game.gameId] = true;
+        gamesCollapsed[game.id] = true;
         this.setState({ gamesCollapsed });
       }
     });
@@ -103,13 +103,13 @@ export default class UpdateScore extends Component {
     let { match, gamesCollapsed } = this.state;
     let { games } = match;
     let deviceId = this.props.device.id;
-    let i = games.findIndex(g => g.gameId === game.gameId);
+    let i = games.findIndex(g => g.id === game.id);
     if (i !== -1) {
       let checkForFinishedMatch = false;
       games[i][`score${ playerNum }`] = amount;
       if (amount >= match.playTo && (!match.winByTwo || Math.abs(games[i].score1 - games[i].score2) > 1)) {
         games[i].gameFinished = 1;
-        gamesCollapsed[games[i].gameId] = true;
+        gamesCollapsed[games[i].id] = true;
         checkForFinishedMatch = true;
         this.setState({ gamesCollapsed });
       }
@@ -149,14 +149,14 @@ export default class UpdateScore extends Component {
 
   toggleFinished = (id) => {
     const { match, gamesCollapsed } = this.state;
-    let i = match.games.findIndex(g => g.gameId === id);
+    let i = match.games.findIndex(g => g.id === id);
     if (i !== -1) {
       match.games[i].gameFinished = !match.games[i].gameFinished;
       let deviceId = this.props.device.id;
       Rest.post('games/update', { game: match.games[i], deviceId}).then(() => {
         this.setState({ match }, () => {
           if (match.games[i].gameFinished) {
-            gamesCollapsed[match.games[i].gameId] = true;
+            gamesCollapsed[match.games[i].id] = true;
             this.setState({ gamesCollapsed });
             this.checkIfMatchFinished();
           }
@@ -177,7 +177,7 @@ export default class UpdateScore extends Component {
     Rest.post('games/add', Object.assign({ deviceId: this.props.device.id }, this.state)).then(g => {
       let { match, gamesCollapsed } = this.state;
       match.games.push(g);
-      gamesCollapsed[g.gameId] = false;
+      gamesCollapsed[g.id] = false;
       this.setState({ match, gamesCollapsed });
     });
   };
@@ -247,7 +247,7 @@ export default class UpdateScore extends Component {
 
           return (
             <li>
-              <Expandable title={title} collapsed={ this.state.gamesCollapsed[g.gameId] } id={g.gameId} toggle={(id) => this.toggleExpanded(id)}>
+              <Expandable title={title} collapsed={ this.state.gamesCollapsed[g.id] } id={g.id} toggle={(id) => this.toggleExpanded(id)}>
                 <div class="game-update-row">
                   <div class="flex-col flex-center">
                     <h4>{ getTeamName(match, 1) }</h4>
@@ -265,7 +265,7 @@ export default class UpdateScore extends Component {
                 </div>
                 <div class="flex final-score-toggle">
                   <label>Final?</label>
-                  <Toggle id={`game-${i}-finished`} toggled={this.toggleFinished} onOff={g.gameFinished} property={g.gameId} />
+                  <Toggle id={`game-${i}-finished`} toggled={this.toggleFinished} onOff={g.gameFinished} property={g.id} />
                 </div>
               </Expandable>
             </li>

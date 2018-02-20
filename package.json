@@ -10,7 +10,7 @@
     "dev": "preact watch --template src/index.html",
     "lint": "eslint src",
     "backend": "node .",
-    "backend-dev": "nodemon -e js --inspect --watch models --watch routes"
+    "backend-dev": "nodemon -e js --inspect --watch models --watch routes --watch modelAssociations.js --watch index.js --watch constants.js --watch helpers.js"
   },
   "author": "",
   "license": "ISC",

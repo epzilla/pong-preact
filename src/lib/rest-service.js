@@ -1,6 +1,6 @@
 import * as qwest from 'qwest';
 import LocalStorageService from './local-storage-service'
-const base = `${window.location.protocol}//${window.location.hostname}:3000/api/`;
+const base = `${window.location.protocol}//${window.location.hostname}:3003/api/`;
 let deviceId = null;
 
 export default {

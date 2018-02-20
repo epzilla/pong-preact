@@ -38,6 +38,8 @@ fs.readdirSync(__dirname + '/models').forEach(m => {
   models[name] = database.import(__dirname + `/models/${m}`);
 });
 
+require('./modelAssociations')(models);
+
 const wss = new WebSocket.Server({ server });
 wss.on('connection', ws => {
   ws.on('message', message => {
@@ -82,7 +84,7 @@ const registerForSocketMsgs = (type, cb) => {
 require('./routes')(models, app, database, sendSocketMsg, registerForSocketMsgs);
 
 // Create database and listen
-server.listen(3000, () => {
+server.listen(3003, () => {
   const addr = server.address();
   console.log(`listening at ${addr.address}:${addr.port}`);
 });
