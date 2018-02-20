@@ -13,29 +13,54 @@ exports.init = (models, db) => {
   Op = db.Op;
 };
 
-exports.matchesByPlayers = (req, res) => {
+const buildStatQuery = (req) => {
   const player1Id = parseInt(req.params.player1Id);
   const player2Id = parseInt(req.params.player2Id);
-  return Matches.findAll({
-    include: [{ all: true }],
-    order: [[{ model: Games, as: 'games' }, 'gameNum', 'ASC']],
-    where: {
-      [Op.or]: [
-        {
-          [Op.and]: [
-            { player1Id: player1Id },
-            { player2Id: player2Id }
-          ]
-        },
-        {
-          [Op.and]: [
-            { player1Id: player2Id },
-            { player2Id: player1Id }
-          ]
-        }
+  const dateFrom = req.query && req.query.from ? new Date(req.query.from) : null;
+  const dateTo = req.query && req.query.to ? new Date(req.query.to) : new Date();
+  console.log(dateFrom);
+  console.log(dateTo);
+  let whereObj = {};
+  let orClause = [
+    {
+      [Op.and]: [
+        { player1Id: player1Id },
+        { player2Id: player2Id }
+      ]
+    },
+    {
+      [Op.and]: [
+        { player1Id: player2Id },
+        { player2Id: player1Id }
       ]
     }
-  })
+  ];
+
+  if (dateFrom) {
+    whereObj = {
+      [Op.and]: [
+        {
+          [Op.and]: [
+            { startTime: { [Op.gte]: dateFrom }},
+            { startTime: { [Op.lte]: dateTo }}
+          ]
+        },
+        { [Op.or]: orClause }
+      ]
+    };
+  } else {
+    whereObj = { [Op.or]: orClause };
+  }
+
+  return {
+    include: [{ all: true }],
+    order: [[{ model: Games, as: 'games' }, 'gameNum', 'ASC']],
+    where: whereObj
+  };
+};
+
+exports.matchesByPlayers = (req, res) => {
+  return Matches.findAll(buildStatQuery(req))
   .then(matches => {
     let statPack = {
       player1: {
