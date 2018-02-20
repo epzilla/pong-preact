@@ -7,7 +7,7 @@ export default {
   playTo: 21,
   winByTwo: 1,
   playAllGames: 1,
-  updateEveryPoint: 1,
+  updateEveryPoint: 0,
   themeProperties: {
     pageBg: '#f4fcff',
     colorDefaultText: '#444',
