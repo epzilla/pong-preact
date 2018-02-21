@@ -1,6 +1,37 @@
+.charts-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  .chart-header {
+    text-align: center;
+  }
+
+  .draws-footnote {
+    margin-top: 0;
+    text-align: center;
+    font-weight: 400;
+    color: #BDBDBD;
+    font-size: 0.8rem;
+  }
+}
+
+.chart-container {
+  width: 100%;
+}
+
 .pie-container {
   height: 100%;
   min-height: 140px;
-  max-height: 80vh;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@media screen and (min-width: 1260px) {
+  .chart-container {
+    width: 400px;
+  }
 }
