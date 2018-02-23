@@ -1,12 +1,22 @@
+import 'react-select/dist/react-select.css';
+import 'react-virtualized/styles.css';
+import 'react-virtualized-select/styles.css';
 import { Component } from 'preact';
+import format from 'date-fns/format';
+import isAfter from 'date-fns/is_after'
+import VirtualizedSelect from 'react-virtualized-select';
 import Rest from '../lib/rest-service';
 import HeadToHeadPieChart from '../components/headToHeadPieChart';
+import Toggle from '../components/toggle';
 
 export default class Stats extends Component {
   constructor(props) {
     super(props);
     this.state = {
       stats: null,
+      players: null,
+      p1: null,
+      p2: null,
       matchesData: null,
       gamesData: null,
       pointsData: null,
@@ -15,31 +25,26 @@ export default class Stats extends Component {
       activePointsIndex: -1,
       largestMatchesValue: 0,
       largestGamesValue: 0,
-      largestPointsValue: 0
+      largestPointsValue: 0,
+      selectSearchable: false,
+      submitEnabled: false,
+      useDates: false,
+      startDate: format(new Date(), 'YYYY-MM-DD'),
+      endDate: format(new Date(), 'YYYY-MM-DD')
     };
   }
 
   componentDidMount() {
-    Rest.get('stats/head-to-head/1/2').then(stats => {
-      let matchesData = [
-        { label: stats.player1.player.fname, wins: stats.player1.matchesWon },
-        { label: stats.player2.player.fname, wins: stats.player2.matchesWon }
-      ];
-      if (stats.player1.matchesDrawn > 0) {
-        matchesData.splice(1, 0, { label: 'Draws', wins: stats.player1.matchesDrawn });
-      }
-      let gamesData = [
-        { label: stats.player1.player.fname, wins: stats.player1.gamesWon },
-        { label: stats.player2.player.fname, wins: stats.player2.gamesWon }
-      ];
-      let pointsData = [
-        { label: stats.player1.player.fname, wins: stats.player1.pointsFor },
-        { label: stats.player2.player.fname, wins: stats.player2.pointsFor }
-      ];
-      let largestMatchesValue = Math.max(stats.player1.matchesWon, stats.player2.matchesWon);
-      let largestGamesValue = Math.max(stats.player1.gamesWon, stats.player2.gamesWon);
-      let largestPointsValue = Math.max(stats.player1.pointsFor, stats.player2.pointsFor);
-      this.setState({ stats, matchesData, gamesData, pointsData, largestMatchesValue, largestGamesValue, largestPointsValue });
+    if (window.matchMedia('(min-width: 800px)').matches) {
+      this.setState({ selectSearchable: true });
+    }
+
+    Rest.get('players').then(pls => {
+      const players = pls.map(p => ({ label: `${p.fname} ${p.lname}`, value: p.id, disabled: false }));
+      const p1 = players && players.length > 0 ? players[0] : null;
+      const p2 = players && players.length > 1 ? players[1] : null;
+      const submitEnabled = p1 && p2;
+      this.setState({ players, p1, p2, submitEnabled });
     });
   }
 
@@ -61,10 +66,81 @@ export default class Stats extends Component {
     });
   };
 
+  toggleUseDates = () => {
+    this.setState({ useDates: !this.state.useDates });
+  };
+
+  onDateStartChange = (e) => {
+    this.setState({ startDate: format(e.target.value, 'YYYY-MM-DD') });
+  };
+
+  onDateEndChange = (e) => {
+    this.setState({ endDate: format(e.target.value, 'YYYY-MM-DD') });
+  };
+
+  checkSubmit = () => {
+    let submitEnabled = this.state.p1 && this.state.p2;
+    this.setState({ submitEnabled });
+  };
+
+  submit = () => {
+    const { p1, p2, useDates, startDate, endDate } = this.state;
+    if (p1 && p2) {
+      let dateQuery = '';
+      if (useDates && startDate && (!endDate || !isAfter(startDate, endDate))) {
+        dateQuery = `?from=${startDate}${endDate ? '&to=' + endDate : ''}`;
+      }
+      Rest.get(`stats/head-to-head/${p1.value}/${p2.value}${dateQuery}`).then(stats => {
+        let matchesData = [
+          { label: stats.player1.player.fname, wins: stats.player1.matchesWon },
+          { label: stats.player2.player.fname, wins: stats.player2.matchesWon }
+        ];
+        if (stats.player1.matchesDrawn > 0) {
+          matchesData.splice(1, 0, { label: 'Draws', wins: stats.player1.matchesDrawn });
+        }
+        let gamesData = [
+          { label: stats.player1.player.fname, wins: stats.player1.gamesWon },
+          { label: stats.player2.player.fname, wins: stats.player2.gamesWon }
+        ];
+        let pointsData = [
+          { label: stats.player1.player.fname, wins: stats.player1.pointsFor },
+          { label: stats.player2.player.fname, wins: stats.player2.pointsFor }
+        ];
+        let largestMatchesValue = Math.max(stats.player1.matchesWon, stats.player2.matchesWon);
+        let largestGamesValue = Math.max(stats.player1.gamesWon, stats.player2.gamesWon);
+        let largestPointsValue = Math.max(stats.player1.pointsFor, stats.player2.pointsFor);
+        this.setState({ stats, matchesData, gamesData, pointsData, largestMatchesValue, largestGamesValue, largestPointsValue });
+      });
+    }
+  };
+
   render() {
-    if (this.state.stats) {
-      return (
-        <div class="main stats">
+    return (
+      <div class="main stats">
+        <div class="form-container">
+          <VirtualizedSelect
+            options={this.state.players}
+            onChange={(p1) => this.setState({ p1 }, this.checkSubmit)}
+            value={this.state.p1}
+            searchable={this.state.selectSearchable}
+          />
+          <VirtualizedSelect
+            options={this.state.players}
+            onChange={(p2) => this.setState({ p2 }, this.checkSubmit)}
+            value={this.state.p2}
+            searchable={this.state.selectSearchable}
+          />
+          <Toggle
+            onOff={this.state.useDates}
+            toggled={this.toggleUseDates}
+            id="use-dates-toggle"
+          />
+          { this.state.useDates && <input id="date1" type="date" value={this.state.startDate} onChange={this.onDateStartChange} /> }
+          { this.state.useDates && <input id="date2" type="date" value={this.state.endDate} onChange={this.onDateEndChange} /> }
+          <button class="btn primary" onClick={this.submit} disabled={!this.state.submitEnabled}>Submit</button>
+        </div>
+        {
+          this.state.stats &&
           <div class="charts-container">
             <div class="chart-container">
               <h3 class="chart-header">Matches Won</h3>
@@ -104,8 +180,8 @@ export default class Stats extends Component {
               </div>
             </div>
           </div>
-        </div>
-      );
-    }
+        }
+      </div>
+    );
   }
 }
