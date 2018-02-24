@@ -27,6 +27,8 @@ export default {
     scoreFlashColor: 'rgba(68, 178, 181, 0.5)',
     blockFont: "'Sanchez', 'Lato', -apple-system, BlinkMacSystemFont, sytem-ui, 'Helvetica Neue', arial, sans-serif"
   },
+  h2hColors: ['#1646a5', '#00C49F'],
+  colorsWithDraws: ['#1646a5', '#EFEFEF', '#00C49F'],
   highlightImages: {
     portrait: [
       '/assets/images/tdpics/1.jpg',
