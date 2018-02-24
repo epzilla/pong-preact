@@ -123,12 +123,110 @@ hr {
 
 .form-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 0.5rem;
   width: 100%;
+
+  .toggle-wrap {
+    display: flex;
+    align-items: center;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    width: 350px;
+
+    label {
+      margin-right: 1rem;
+    }
+  }
+
+  .dates-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 350px;
+
+    .date-input-wrapper {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      font-size: 1.25rem;
+      padding: 0.5rem 0;
+
+      label {
+        width: 70px;
+      }
+
+      input {
+        width: 280px;
+        height: 40px;
+        padding-left: 0.5rem;
+      }
+    }
+  }
 }
 
 .Select {
   width: 200px;
 }
+
+.players-row {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  .Select {
+    // height: 60px;
+    width: 350px;
+    font-size: 1.5rem;
+
+    .Select-control {
+      height: 60px;
+    }
+
+    .Select-value, .Select-input {
+      // height: 60px;
+      padding: 0.75rem;
+    }
+
+    .Select-input {
+      height: 60px;
+    }
+
+    .Select-placeholder {
+      padding: 0.75rem;
+    }
+
+    &.Select--single > .Select-control .Select-value {
+      top: unset;
+    }
+  }
+
+  .row-vs-span {
+    font-size: 1.5rem;
+    padding: 0.5rem 1rem;
+    position: relative;
+
+    &:before,
+    &:after {
+      content: '';
+      position: absolute;
+      border-bottom: 1px solid #CCC;
+      height: 1px;
+      width: 100px;
+    }
+
+    &:before {
+      top: 1.5rem;
+      left: -6rem;
+    }
+
+    &:after {
+      top: 1.5rem;
+      right: -6rem;
+    }
+  }
+}
+

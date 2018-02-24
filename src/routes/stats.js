@@ -117,26 +117,49 @@ export default class Stats extends Component {
   render() {
     return (
       <div class="main stats">
+        <h2>Head-to-Head Stats for:</h2>
         <div class="form-container">
-          <VirtualizedSelect
-            options={this.state.players}
-            onChange={(p1) => this.setState({ p1 }, this.checkSubmit)}
-            value={this.state.p1}
-            searchable={this.state.selectSearchable}
-          />
-          <VirtualizedSelect
-            options={this.state.players}
-            onChange={(p2) => this.setState({ p2 }, this.checkSubmit)}
-            value={this.state.p2}
-            searchable={this.state.selectSearchable}
-          />
-          <Toggle
-            onOff={this.state.useDates}
-            toggled={this.toggleUseDates}
-            id="use-dates-toggle"
-          />
-          { this.state.useDates && <input id="date1" type="date" value={this.state.startDate} onChange={this.onDateStartChange} /> }
-          { this.state.useDates && <input id="date2" type="date" value={this.state.endDate} onChange={this.onDateEndChange} /> }
+          <div class="players-row">
+            <div class="select-container">
+              <VirtualizedSelect
+                options={this.state.players}
+                onChange={(p1) => this.setState({ p1 }, this.checkSubmit)}
+                value={this.state.p1}
+                searchable={this.state.selectSearchable}
+              />
+            </div>
+            <span class="row-vs-span">vs.</span>
+            <div class="select-container">
+              <VirtualizedSelect
+                options={this.state.players}
+                onChange={(p2) => this.setState({ p2 }, this.checkSubmit)}
+                value={this.state.p2}
+                searchable={this.state.selectSearchable}
+              />
+            </div>
+          </div>
+
+          <div class="toggle-wrap">
+            <label>Filter by date</label>
+            <Toggle
+              onOff={this.state.useDates}
+              toggled={this.toggleUseDates}
+              id="use-dates-toggle"
+            />
+          </div>
+          {
+            this.state.useDates &&
+            <div class="dates-wrapper">
+              <div class="date-input-wrapper">
+                <label>From</label>
+                <input id="date1" type="date" value={this.state.startDate} onChange={this.onDateStartChange} />
+              </div>
+              <div class="date-input-wrapper">
+                <label>To</label>
+                <input id="date2" type="date" value={this.state.endDate} onChange={this.onDateEndChange} />
+              </div>
+            </div>
+          }
           <button class="btn primary" onClick={this.submit} disabled={!this.state.submitEnabled}>Submit</button>
         </div>
         {
