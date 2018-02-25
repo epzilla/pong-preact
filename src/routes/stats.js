@@ -232,7 +232,7 @@ export default class Stats extends Component {
             </div>
             <div class="chart-container full-width">
               <h3 class="chart-header">Game-by-game Averages</h3>
-              <div class="pie-container">
+              <div class="pie-container line-chart-container">
                 <PerGameLineChart
                   data={this.state.perGameData}
                   p1={this.state.p1}
