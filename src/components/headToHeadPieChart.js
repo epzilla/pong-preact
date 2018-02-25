@@ -13,8 +13,8 @@ const renderLabel = (props) => {
   }
 
   let labelFontSize = label.length > 10 ? (label.length > 15 ? 12 : 16) : 20;
-  let numberFontSize = value > 999 ? 14 : 20;
-  let numberOffset = value > 999 ? 22 : 18;
+  let numberFontSize = value > 99 ? 14 : 20;
+  let numberOffset = value > 99 ? 22 : 18;
 
   if (index === 0) {
     return (
@@ -64,7 +64,7 @@ const renderActiveShape = (props) => {
 };
 
 const HeadToHeadPieChart = ({ pieData, activeIndex, onPieClick, largestValue, longestLabel }) => {
-  const innerRadius = largestValue && largestValue > 999 ? 50 : 40;
+  const innerRadius = largestValue && largestValue > 99 ? 50 : 40;
   const colors = pieData.length > 2 ? threeColors : twoColors;
   return (
     <ResponsiveContainer width={"100%"} height={200}>
