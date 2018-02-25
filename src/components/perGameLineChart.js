@@ -1,13 +1,12 @@
 import { LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line } from 'recharts';
 import Config from '../config';
 
-const PerGameLineChart = ({ data }) => {
+const PerGameLineChart = ({ data, width }) => {
   if (data && data.length > 0) {
     const p1 = data[0].p1;
     const p2 = data[0].p2;
-    let w = window.innerWidth;
     return (
-      <LineChart width={w - 32} height={(w - 32) * .4} data={data}
+      <LineChart width={width} height={width * 0.4} data={data}
         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="gameNum" />

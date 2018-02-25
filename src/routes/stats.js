@@ -33,7 +33,8 @@ export default class Stats extends Component {
       submitEnabled: false,
       useDates: false,
       startDate: format(new Date(), 'YYYY-MM-DD'),
-      endDate: format(new Date(), 'YYYY-MM-DD')
+      endDate: format(new Date(), 'YYYY-MM-DD'),
+      lineChartWidth: 800
     };
   }
 
@@ -41,6 +42,9 @@ export default class Stats extends Component {
     if (window.matchMedia('(min-width: 800px)').matches) {
       this.setState({ selectSearchable: true });
     }
+
+    window.addEventListener('resize', this.updateWidth);
+    this.updateWidth();
 
     Rest.get('players').then(pls => {
       const players = pls.map(p => ({ label: `${p.fname} ${p.lname}`, value: p.id, disabled: false }));
@@ -50,6 +54,15 @@ export default class Stats extends Component {
       this.setState({ players, p1, p2, submitEnabled });
     });
   }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.updateWidth);
+  }
+
+  updateWidth = () => {
+    const lineChartWidth = Math.min(window.innerWidth, 800) - 32;
+    this.setState({ lineChartWidth });
+  };
 
   onMatchesPieClick = (data, index) => {
     this.setState({
@@ -222,6 +235,7 @@ export default class Stats extends Component {
                   data={this.state.perGameData}
                   p1={this.state.p1}
                   p2={this.state.p2}
+                  width={this.state.lineChartWidth}
                 />
               </div>
             </div>
