@@ -109,7 +109,9 @@ export default class Stats extends Component {
         let largestMatchesValue = Math.max(stats.player1.matchesWon, stats.player2.matchesWon);
         let largestGamesValue = Math.max(stats.player1.gamesWon, stats.player2.gamesWon);
         let largestPointsValue = Math.max(stats.player1.pointsFor, stats.player2.pointsFor);
-        this.setState({ stats, matchesData, gamesData, pointsData, largestMatchesValue, largestGamesValue, largestPointsValue });
+        this.setState({ stats, matchesData, gamesData, pointsData, largestMatchesValue, largestGamesValue, largestPointsValue }, () => {
+          window.smoothScroll(this.resultHR, 250);
+        });
       });
     }
   };
@@ -162,11 +164,12 @@ export default class Stats extends Component {
           }
           <button class="btn primary" onClick={this.submit} disabled={!this.state.submitEnabled}>Submit</button>
         </div>
+        <hr class="result-hr" ref={(r) => { this.resultHR = r; }} />
         {
           this.state.stats &&
           <div class="charts-container">
             <div class="chart-container">
-              <h3 class="chart-header">Matches Won</h3>
+              <h3 class="chart-header no-top-margin">Matches Won</h3>
               <div class="pie-container">
                 <HeadToHeadPieChart
                   onPieClick={this.onMatchesPieClick}

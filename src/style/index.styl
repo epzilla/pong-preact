@@ -23,6 +23,10 @@ html, body {
 	-moz-osx-font-smoothing: grayscale;
 }
 
+body {
+	scroll-behavior: smooth;
+}
+
 input, textarea, select, button {
 	font-family: var(--mainFont);
 }
@@ -42,9 +46,6 @@ button {
 	min-height: calc(100% - 110px - 3rem);
 	width: 100%;
   max-width: 100vw;
-  overflow-x: hidden;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
 
 	> h1 {
 		text-align: center;
