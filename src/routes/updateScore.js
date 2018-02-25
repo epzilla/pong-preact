@@ -5,11 +5,11 @@ import { DEVICE_CANNOT_UPDATE_MATCH, SCORE_UPDATE, GAME_STARTED, GAME_FINISHED, 
 import Rest from '../lib/rest-service';
 import WebSocketService from '../lib/websocket-service';
 import LocalStorageService from '../lib/local-storage-service';
-import Stepper from '../components/stepper';
-import Expandable from '../components/expandable';
-import Toggle from '../components/toggle';
-import GenericModal from '../components/genericModal';
-import SelectDeviceModal from '../components/selectDeviceModal';
+import Stepper from '../components/Stepper';
+import Expandable from '../components/Expandable';
+import Toggle from '../components/Toggle';
+import GenericModal from '../components/GenericModal';
+import SelectDeviceModal from '../components/SelectDeviceModal';
 
 export default class UpdateScore extends Component {
   constructor(props) {

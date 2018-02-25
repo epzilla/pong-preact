@@ -6,9 +6,10 @@ import format from 'date-fns/format';
 import isAfter from 'date-fns/is_after'
 import VirtualizedSelect from 'react-virtualized-select';
 import Rest from '../lib/rest-service';
-import HeadToHeadPieChart from '../components/headToHeadPieChart';
-import PerGameLineChart from '../components/perGameLineChart';
-import Toggle from '../components/toggle';
+import BoxScore from '../components/BoxScore';
+import HeadToHeadPieChart from '../components/HeadToHeadPieChart';
+import PerGameLineChart from '../components/PerGameLineChart';
+import Toggle from '../components/Toggle';
 
 export default class Stats extends Component {
   constructor(props) {
@@ -214,7 +215,7 @@ export default class Stats extends Component {
                 />
               </div>
             </div>
-            <div class="chart-container">
+            <div class="chart-container full-width">
               <h3 class="chart-header">Game-by-game Averages</h3>
               <div class="pie-container">
                 <PerGameLineChart
@@ -223,6 +224,13 @@ export default class Stats extends Component {
                   p2={this.state.p2}
                 />
               </div>
+            </div>
+            <hr class="result-hr" />
+            <div class="results-container">
+              <h3 class="chart-header">Match Results</h3>
+              {
+                this.state.stats.matches.map(m => <BoxScore match={m} />)
+              }
             </div>
           </div>
         }

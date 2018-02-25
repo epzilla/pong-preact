@@ -2,8 +2,8 @@ import { Component } from 'preact';
 import Rest from '../lib/rest-service';
 import { Link } from 'preact-router/match';
 import { NEW_MATCH_PERMISSION_GRANTED, MATCH_STARTED, MATCH_FINISHED } from '../lib/constants';
-import LiveScoreboard from '../components/liveScoreboard';
-import BoxScore from '../components/boxScore';
+import LiveScoreboard from '../components/LiveScoreboard';
+import BoxScore from '../components/BoxScore';
 import LocalStorageService from '../lib/local-storage-service';
 import WebSocketService from '../lib/websocket-service';
 
