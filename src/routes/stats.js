@@ -34,7 +34,8 @@ export default class Stats extends Component {
       useDates: false,
       startDate: format(new Date(), 'YYYY-MM-DD'),
       endDate: format(new Date(), 'YYYY-MM-DD'),
-      lineChartWidth: 800
+      lineChartWidth: 800,
+      lineChartHeight: 350
     };
   }
 
@@ -60,8 +61,9 @@ export default class Stats extends Component {
   }
 
   updateWidth = () => {
-    const lineChartWidth = Math.min(window.innerWidth, 800) - 32;
-    this.setState({ lineChartWidth });
+    const lineChartWidth = Math.min(window.innerWidth - 32, 800);
+    const lineChartHeight = Math.max(lineChartWidth * 0.4, 200);
+    this.setState({ lineChartWidth, lineChartHeight });
   };
 
   onMatchesPieClick = (data, index) => {
@@ -236,6 +238,7 @@ export default class Stats extends Component {
                   p1={this.state.p1}
                   p2={this.state.p2}
                   width={this.state.lineChartWidth}
+                  height={this.state.lineChartHeight}
                 />
               </div>
             </div>
