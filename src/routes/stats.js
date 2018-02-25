@@ -7,6 +7,7 @@ import isAfter from 'date-fns/is_after'
 import VirtualizedSelect from 'react-virtualized-select';
 import Rest from '../lib/rest-service';
 import HeadToHeadPieChart from '../components/headToHeadPieChart';
+import PerGameLineChart from '../components/perGameLineChart';
 import Toggle from '../components/toggle';
 
 export default class Stats extends Component {
@@ -20,6 +21,7 @@ export default class Stats extends Component {
       matchesData: null,
       gamesData: null,
       pointsData: null,
+      perGame: null,
       activeMatchesIndex: -1,
       activeGamesIndex: -1,
       activePointsIndex: -1,
@@ -106,10 +108,17 @@ export default class Stats extends Component {
           { label: stats.player1.player.fname, wins: stats.player1.pointsFor },
           { label: stats.player2.player.fname, wins: stats.player2.pointsFor }
         ];
+        let perGameData = stats.player1.perGame.map(pg => {
+          pg.p1 = stats.player1.player.fname;
+          pg.p2 = stats.player2.player.fname;
+          pg[stats.player1.player.fname] = pg.avgPointsFor;
+          pg[stats.player2.player.fname] = pg.avgPointsAgainst;
+          return pg;
+        });
         let largestMatchesValue = Math.max(stats.player1.matchesWon, stats.player2.matchesWon);
         let largestGamesValue = Math.max(stats.player1.gamesWon, stats.player2.gamesWon);
         let largestPointsValue = Math.max(stats.player1.pointsFor, stats.player2.pointsFor);
-        this.setState({ stats, matchesData, gamesData, pointsData, largestMatchesValue, largestGamesValue, largestPointsValue }, () => {
+        this.setState({ stats, matchesData, gamesData, pointsData, perGameData, largestMatchesValue, largestGamesValue, largestPointsValue }, () => {
           window.smoothScroll(this.resultHR, 250);
         });
       });
@@ -202,6 +211,16 @@ export default class Stats extends Component {
                   pieData={this.state.pointsData}
                   activeIndex={this.state.activePointsIndex}
                   largestValue={this.state.largestPointsValue}
+                />
+              </div>
+            </div>
+            <div class="chart-container">
+              <h3 class="chart-header">Game-by-game Averages</h3>
+              <div class="pie-container">
+                <PerGameLineChart
+                  data={this.state.perGameData}
+                  p1={this.state.p1}
+                  p2={this.state.p2}
                 />
               </div>
             </div>
