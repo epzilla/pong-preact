@@ -7,7 +7,7 @@ export default {
   playTo: 21,
   winByTwo: 1,
   playAllGames: 1,
-  updateEveryPoint: 1,
+  updateEveryPoint: 0,
   themeProperties: {
     pageBg: '#f4fcff',
     colorDefaultText: '#444',
@@ -25,8 +25,11 @@ export default {
     footerTextColor: '#405784',
     activeLinkColor: 'white',
     scoreFlashColor: 'rgba(68, 178, 181, 0.5)',
+    mainFont: "'Lato', -apple-system, BlinkMacSystemFont, sytem-ui, 'Helvetica Neue', arial, sans-serif",
     blockFont: "'Sanchez', 'Lato', -apple-system, BlinkMacSystemFont, sytem-ui, 'Helvetica Neue', arial, sans-serif"
   },
+  h2hColors: ['#1646a5', '#00C49F'],
+  colorsWithDraws: ['#1646a5', '#EFEFEF', '#00C49F'],
   highlightImages: {
     portrait: [
       '/assets/images/tdpics/1.jpg',

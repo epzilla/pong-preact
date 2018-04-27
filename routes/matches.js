@@ -1,6 +1,5 @@
 const crypto = require('crypto');
 const constants = require('../constants');
-let SimpleGames;
 let Games;
 let Matches;
 let Players;
@@ -67,7 +66,6 @@ const augmentGame = (g, match) => {
 };
 
 exports.init = (models, db, sendMsg) => {
-  SimpleGames = models.SimpleGames;
   Games = models.Games;
   Players = models.Players;
   Matches = models.Matches;

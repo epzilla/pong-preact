@@ -1,4 +1,6 @@
 const constants = require('../constants');
+const addDays = require('date-fns/add_days');
+
 let Games;
 let Matches;
 let Players;
@@ -17,14 +19,15 @@ const buildStatQuery = (req) => {
   const player1Id = parseInt(req.params.player1Id);
   const player2Id = parseInt(req.params.player2Id);
   const dateFrom = req.query.from ? new Date(req.query.from) : null;
-  const dateTo = req.query.to ? new Date(req.query.to) : new Date();
+  let dateTo;
+  if (dateFrom) {
+    dateTo = req.query.to ? new Date(req.query.to) : new Date();
+    dateTo = addDays(dateTo, 1);
+  }
   const recent = req.query.last || null;
-  console.log(dateFrom);
-  console.log(dateTo);
-  console.log(recent);
   let query = {
     include: [{ all: true }],
-    order: [[{ model: Games, as: 'games' }, 'gameNum', 'ASC']]
+    order: [['startTime', 'DESC'], [{ model: Games, as: 'games' }, 'gameNum', 'ASC']]
   };
 
   let orClause = [
@@ -42,7 +45,7 @@ const buildStatQuery = (req) => {
     }
   ];
 
-  if (dateFrom) {
+  if (dateFrom & dateTo) {
     query.where = {
       [Op.and]: [
         {

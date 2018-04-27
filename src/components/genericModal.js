@@ -1,4 +1,4 @@
-import SelectList from './selectList';
+import SelectList from './SelectList';
 import CSSTransitionGroup from 'preact-css-transition-group';
 
 const GenericModal = ({ header, content, show, confirm, confirmText, cancelText, dismiss }) => {
