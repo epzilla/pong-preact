@@ -5,10 +5,8 @@ module.exports = function(sequelize, DataTypes) {
     id: {
       field: 'id',
       type: DataTypes.INTEGER,
-      allowNull: true,
-      allowNull: true,
-      autoIncrement: true,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
     },
     gameNum: {
       field: 'game_num',
@@ -32,7 +30,6 @@ module.exports = function(sequelize, DataTypes) {
       field: 'match_id',
       type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue: undefined,
       references: {
         model: 'matches',
         key: 'id'

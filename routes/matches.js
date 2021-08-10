@@ -14,7 +14,7 @@ const validateMatchToken = (req, res) => {
   const hash = crypto.createHash('sha256');
   hash.update('01a217ea-67bf-' + deviceId + '411a-965e-3e874e15e490');
   const hashedToken = hash.digest('hex');
-  return sequelize.query(`select match_id from match_key where key = '${hashedToken}'`).then(result => {
+  return sequelize.query(`select match_id from match_key where id = '${hashedToken}'`).then(result => {
     return (result.length > 0 && result[0].length > 0);
   });
 };
@@ -87,48 +87,55 @@ exports.create = (req, res) => {
   }
   let newMatch;
 
-  return Matches.findOne({
-    where: {
-      finished: 0
-    }
-  }).then(matchInProgress => {
-    if (matchInProgress) {
-      return res.status(400).send(constants.MATCH_IN_PROGRESS);
-    }
-
-    return Matches.create({
-      player1Id: matchInfo.player1.id,
-      player2Id: matchInfo.player2.id,
-      partner1Id: matchInfo.partner1 ? matchInfo.partner1.id : null,
-      partner2Id: matchInfo.partner2 ? matchInfo.partner2.id : null,
-      doubles: matchInfo.doubles,
-      updateEveryPoint: matchInfo.updateEveryPoint,
-      bestOf: matchInfo.bestOf || 4,
-      playTo: matchInfo.playTo || 21,
-      winByTwo: matchInfo.winByTwo || 1,
-      playAllGames: matchInfo.playAllGames || 0
-    });
-  }).then(m => {
-    return Matches.findById(m.id, { include: [{ all: true }] });
-  }).then(startedMatch => {
-    newMatch = startedMatch.get({ plain: true });
-    const hash = crypto.createHash('sha256');
-    hash.update('01a217ea-67bf-' + deviceId + '411a-965e-3e874e15e490');
-    const hashedToken = hash.digest('hex');
-    const initialScore = startedMatch.updateEveryPoint ? 0 : startedMatch.playTo;
-    return Promise.all([
-      sequelize.query(`insert into match_key (key, match_id) values ('${hashedToken}', '${startedMatch.id}')`, { type: sequelize.QueryTypes.INSERT }),
-      sequelize.query(`insert into games (match_id, score1, score2, game_num) values ('${startedMatch.id}', ${initialScore}, ${initialScore}, 1)`, { type: sequelize.QueryTypes.INSERT })
-    ]);
-  }).then(() => {
-    return Games.findOne({ where: { matchId: newMatch.id }});
-  }).then(g => {
-    newMatch.games[0] = g;
-    sendSocketMsg(constants.MATCH_STARTED, newMatch, deviceId);
-    return res.json({
-      match: newMatch,
-      deviceId: deviceId
-    });
+  return new Promise((resolve, reject) => {
+    Matches.findOne({
+      where: {
+        finished: 0
+      }
+    }).then(matchInProgress => {
+      if (matchInProgress) {
+        newMatch = matchInProgress.get({ plain: true });
+        sendSocketMsg(constants.MATCH_STARTED, newMatch, deviceId);
+        resolve(res.json({
+          match: newMatch,
+          deviceId: deviceId
+        }));
+      } else {
+        Matches.create({
+          player1Id: matchInfo.player1.id,
+          player2Id: matchInfo.player2.id,
+          partner1Id: matchInfo.partner1 ? matchInfo.partner1.id : null,
+          partner2Id: matchInfo.partner2 ? matchInfo.partner2.id : null,
+          doubles: matchInfo.doubles,
+          updateEveryPoint: matchInfo.updateEveryPoint,
+          bestOf: matchInfo.bestOf || 4,
+          playTo: matchInfo.playTo || 21,
+          winByTwo: matchInfo.winByTwo || 1,
+          playAllGames: matchInfo.playAllGames || 0
+        }).then(m => {
+          return Matches.findById(m.id, { include: [{ all: true }] });
+        }).then(startedMatch => {
+          newMatch = startedMatch.get({ plain: true });
+          const hash = crypto.createHash('sha256');
+          hash.update('01a217ea-67bf-' + deviceId + '411a-965e-3e874e15e490');
+          const hashedToken = hash.digest('hex');
+          const initialScore = startedMatch.updateEveryPoint ? 0 : startedMatch.playTo;
+          return Promise.all([
+            sequelize.query(`insert into match_key (id, match_id) values ('${hashedToken}', '${newMatch.id}')`, { type: sequelize.QueryTypes.INSERT }),
+            sequelize.query(`insert into games (match_id, score1, score2, game_num) values ('${newMatch.id}', ${initialScore}, ${initialScore}, 1)`, { type: sequelize.QueryTypes.INSERT })
+          ]);
+        }).then(() => {
+          return Games.findOne({ where: { matchId: newMatch.id }});
+        }).then(g => {
+          newMatch.games[0] = g;
+          sendSocketMsg(constants.MATCH_STARTED, newMatch, deviceId);
+          resolve(res.json({
+            match: newMatch,
+            deviceId: deviceId
+          }));
+        });
+      }
+    })
   });
 };
 
@@ -150,7 +157,7 @@ exports.addDevices = (req, res) => {
       const hash = crypto.createHash('sha256');
       hash.update('01a217ea-67bf-' + d.id + '411a-965e-3e874e15e490');
       const hashedToken = hash.digest('hex');
-      return sequelize.query(`insert into match_key (key, match_id) values ('${hashedToken}', '${match.id}')`, { type: sequelize.QueryTypes.INSERT });
+      return sequelize.query(`insert into match_key (id, match_id) values ('${hashedToken}', '${match.id}')`, { type: sequelize.QueryTypes.INSERT });
     });
 
     return Promise.all(promises);
