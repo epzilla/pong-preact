@@ -7,15 +7,12 @@ const path = require('path');
 const WebSocket = require('ws');
 const morgan = require('morgan')
 const chalk = require('chalk');
+const { db, user, pw, dbOptions } = require('./data/db-conf');
 
 let socketCallbacks = {};
 
 // Define your models
-const database = new Sequelize(null, null, null, {
-  dialect: 'sqlite',
-  storage: './data/sport.db',
-  logging: false
-});
+const database = new Sequelize(db, user, pw, dbOptions);
 
 // Initialize server
 const app = express();
@@ -87,4 +84,5 @@ require('./routes')(models, app, database, sendSocketMsg, registerForSocketMsgs)
 server.listen(3003, () => {
   const addr = server.address();
   console.log(`listening at ${addr.address}:${addr.port}`);
+  database.sync();
 });

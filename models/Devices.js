@@ -5,8 +5,8 @@ module.exports = function(sequelize, DataTypes) {
     id: {
       field: 'id',
       type: DataTypes.INTEGER,
-      allowNull: true,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
     },
     name: {
       field: 'name',

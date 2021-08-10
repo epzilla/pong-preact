@@ -49,7 +49,6 @@ module.exports = function(sequelize, DataTypes) {
       field: 'player1_id',
       type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue: undefined,
       references: {
         model: 'players',
         key: 'id'
@@ -59,7 +58,6 @@ module.exports = function(sequelize, DataTypes) {
       field: 'player2_id',
       type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue: undefined,
       references: {
         model: 'players',
         key: 'id'
@@ -69,7 +67,6 @@ module.exports = function(sequelize, DataTypes) {
       field: 'partner1_id',
       type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue: undefined,
       references: {
         model: 'players',
         key: 'id'
@@ -79,7 +76,6 @@ module.exports = function(sequelize, DataTypes) {
       field: 'partner2_id',
       type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue: undefined,
       references: {
         model: 'players',
         key: 'id'

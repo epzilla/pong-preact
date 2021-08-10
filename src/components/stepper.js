@@ -16,7 +16,7 @@ export default class Stepper extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { val: 0, fraction: 0 };
+    this.state = { val: props.initialValue || 0, fraction: 0 };
   }
 
   componentDidMount() {

@@ -5,27 +5,23 @@ module.exports = function(sequelize, DataTypes) {
     id: {
       field: 'id',
       type: DataTypes.INTEGER,
-      allowNull: true,
-      autoIncrement: true,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
     },
     fname: {
       field: 'fname',
       type: DataTypes.STRING,
       allowNull: true,
-      defaultValue: undefined
     },
     lname: {
       field: 'lname',
       type: DataTypes.STRING,
       allowNull: true,
-      defaultValue: undefined
     },
     middleInitial: {
       field: 'mi',
       type: DataTypes.STRING,
       allowNull: true,
-      defaultValue: undefined
     }
   }, {
     tableName: 'players',
