@@ -1,7 +1,7 @@
 {
-  "name": "pong-db",
+  "name": "preact-pong",
   "version": "1.0.0",
-  "description": "React ping pong score tracker and stats app",
+  "description": "Ping pong score tracker and stats app written in Preact",
   "main": "index.js",
   "scripts": {
     "start": "if-env NODE_ENV=production && npm run -s serve || npm run -s dev",

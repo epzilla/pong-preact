@@ -1,4 +1,4 @@
-# React Pong
+# Preact Pong
 
 Ping pong score tracker and stats application
 
