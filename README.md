@@ -1,4 +1,4 @@
-# Pong DB
+# React Pong
 
 Ping pong score tracker and stats application
 
