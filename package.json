@@ -1,16 +1,14 @@
 {
   "name": "pong-db",
   "version": "1.0.0",
-  "description": "ping pong score tracker and stats database",
+  "description": "React ping pong score tracker and stats app",
   "main": "index.js",
   "scripts": {
-    "frontend": "if-env NODE_ENV=production && npm run -s serve || npm run -s dev",
+    "start": "if-env NODE_ENV=production && npm run -s serve || npm run -s dev",
     "build": "preact build --template src/index.html",
     "serve": "preact build --template src/index.html && preact serve",
     "dev": "preact watch --template src/index.html",
-    "lint": "eslint src",
-    "backend": "node .",
-    "backend-dev": "nodemon -e js --inspect --watch models --watch routes --watch modelAssociations.js --watch index.js --watch constants.js --watch helpers.js"
+    "lint": "eslint src"
   },
   "author": "",
   "license": "ISC",
@@ -24,18 +22,12 @@
     "eslint": "^4.9.0",
     "eslint-config-synacor": "^2.0.2",
     "if-env": "^1.0.0",
-    "nodemon": "^1.14.11",
     "preact-cli": "^2.0.1",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.1"
   },
   "dependencies": {
-    "body-parser": "^1.18.2",
-    "chalk": "^2.3.0",
     "date-fns": "^1.29.0",
-    "express": "^4.16.2",
-    "morgan": "^1.9.0",
-    "mysql2": "^2.3.0",
     "preact": "^8.2.6",
     "preact-compat": "^3.17.0",
     "preact-css-transition-group": "^1.3.0",
@@ -44,8 +36,6 @@
     "qwest": "^4.5.0",
     "react-virtualized-select": "^3.1.3",
     "recharts": "^1.0.0-beta.10",
-    "sequelize": "^4.28.6",
-    "smoothscroll": "^0.4.0",
-    "ws": "^4.0.0"
+    "smoothscroll": "^0.4.0"
   }
 }

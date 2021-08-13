@@ -1,4 +1,4 @@
-import Config from '../config';
+import Config from "../config";
 
 let callbacks = {};
 let ws = null;
@@ -6,15 +6,21 @@ let deviceId = null;
 let initialized = false;
 let devMode = false;
 
-const fireCallbacks = ({ type, data , originDeviceId }) => {
-  if (type && data && callbacks[type] && callbacks[type].length > 0 && (!originDeviceId || originDeviceId !== deviceId)) {
+const fireCallbacks = ({ type, data, originDeviceId }) => {
+  if (
+    type &&
+    data &&
+    callbacks[type] &&
+    callbacks[type].length > 0 &&
+    (!originDeviceId || originDeviceId !== deviceId)
+  ) {
     try {
       let json = JSON.parse(data);
       if (json) {
         if (devMode) {
           console.info(json);
         }
-        callbacks[type].forEach(cb => cb(json));
+        callbacks[type].forEach((cb) => cb(json));
       }
     } catch (e) {
       console.error(e);
@@ -31,10 +37,13 @@ const WebSocketService = {
         deviceId = devId;
         devMode = !!useDevMode;
         try {
-          ws = new WebSocket(`ws://${window.location.hostname}:3003`);
+          ws = new WebSocket(`ws://pong-api.herokuapp.com`);
           ws.onerror = (e) => console.error(e);
-          ws.onopen = () => console.log(`WebSocket connection established for device ID: ${deviceId}`);
-          ws.onclose = () => console.log('WebSocket connection closed');
+          ws.onopen = () =>
+            console.log(
+              `WebSocket connection established for device ID: ${deviceId}`
+            );
+          ws.onclose = () => console.log("WebSocket connection closed");
           ws.onmessage = (m) => {
             if (m && m.data) {
               let json = JSON.parse(m.data);
@@ -66,7 +75,7 @@ const WebSocketService = {
 
   unsubscribe: (type, cb) => {
     if (callbacks[type]) {
-      let i = callbacks[type].findIndex(fn => fn === cb);
+      let i = callbacks[type].findIndex((fn) => fn === cb);
       if (i !== -1) {
         callbacks[type].splice(i, 1);
       }
@@ -83,7 +92,7 @@ const WebSocketService = {
 
   send: (type, msg) => {
     ws.send(JSON.stringify({ type, msg, deviceId }));
-  }
-}
+  },
+};
 
 export default WebSocketService;
